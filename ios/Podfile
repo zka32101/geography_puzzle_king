@@ -46,5 +46,19 @@ post_install do |installer|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
     end
+
+    # BoringSSL-GRPC (cloud_firestore/cloud_functions が依存する gRPC の TLS 実装) の
+    # ソースファイルに付与される '-G' コンパイラフラグが、新しい Xcode の
+    # arm64 向けコンパイラでは非対応のためビルド失敗する既知の問題を回避する。
+    # 参考: flutterfire の gRPC-iOS ビルド関連の既知issue。
+    if target.name == 'BoringSSL-GRPC'
+      target.source_build_phase.files.each do |file|
+        if file.settings && file.settings['COMPILER_FLAGS']
+          flags = file.settings['COMPILER_FLAGS'].split
+          flags.reject! { |flag| flag == '-GCC_WARN_INHIBIT_ALL_WARNINGS' || flag == '-G' }
+          file.settings['COMPILER_FLAGS'] = flags.join(' ')
+        end
+      end
+    end
   end
 end
