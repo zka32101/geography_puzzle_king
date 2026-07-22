@@ -461,8 +461,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       crossAxisSpacing: AppSpacing.md,
       childAspectRatio: 1.0,
       children: [
+        _menuTile('🗺️', '地図', Colors.green, '/territory'),
         _menuTile('📖', '図鑑', AppColors.secondary, '/pokedex'),
         _menuTile('🏆', 'ランキング', AppColors.accent, '/ranking'),
+        _menuTile('🏛️', '本部強化', Colors.deepOrangeAccent, '/hq'),
         _menuTile('⚙️', '設定', AppColors.textSecondary, '/settings'),
       ],
     );

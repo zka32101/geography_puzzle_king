@@ -28,7 +28,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '123456789',
     projectId: 'geography-puzzle-king',
     databaseURL: 'https://geography-puzzle-king.firebaseio.com',
-    iosBundleId: 'com.petitworks.geographyPuzzleKing',
+    iosBundleId: 'com.petitworksapps.nihonryoudodefense',
   );
 
   static const FirebaseOptions web = FirebaseOptions(

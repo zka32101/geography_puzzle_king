@@ -676,7 +676,14 @@ class TdEngine {
   }
 
   /// 初期ゲーム状態を生成
-  static TdGameState createInitial(String difficulty, [String prefCode = '', String regionCode = '']) {
+  static TdGameState createInitial(
+    String difficulty, [
+    String prefCode = '',
+    String regionCode = '',
+    int hqHpBonus = 0,
+    double hqAttackBonus = 0.0,
+    double hqCoinMultiplier = 1.0,
+  ]) {
     final isSpecial = regionCode.isNotEmpty;
     final isHistory = regionCode.startsWith('h');
     final List<GridPos> path;
@@ -715,7 +722,7 @@ class TdEngine {
       facilities: const {},
       enemies: const [],
       coins: startCoins,
-      baseHp: baseHp,
+      baseHp: baseHp + hqHpBonus,
       score: 0,
       currentWave: 0,
       totalWaves: waves,
@@ -723,9 +730,11 @@ class TdEngine {
       waveTimer: 0,
       mistakes: 0,
       prefCode: prefCode,
+      facilityDamageBonus: hqAttackBonus,
       facilityBonusMap: bonusMap,
       isRegionBattle: isSpecial,
       regionCode: regionCode,
+      hqCoinMultiplier: hqCoinMultiplier,
     );
   }
 
@@ -835,11 +844,33 @@ class TdEngine {
     final nextWave = state.currentWave + 1;
     if (nextWave > state.totalWaves) return state;
 
-    return state.copyWith(
+    var newState = state.copyWith(
       phase: GamePhase.wave,
       currentWave: nextWave,
       enemies: const [],
     );
+
+    // スキル効果を適用
+    if (state.selectedSkill != null) {
+      newState = applySkillEffect(newState, state.selectedSkill!);
+    }
+
+    return newState;
+  }
+
+  /// ウェーブスキル効果を適用
+  /// 注: 実際の効果計算は tick() 内で selectedSkill を都度チェックして適用する
+  /// （facilityBonusMap に永続書き込みすると、複数ウェーブで選択するたびに
+  ///   効果が複利で積み上がってしまうため、「次ウェーブのみ」の説明と矛盾する）
+  static TdGameState applySkillEffect(TdGameState state, String effectKey) {
+    const validKeys = {
+      'waveAtkBonus',
+      'waveAtkSpeedBonus',
+      'waveRangeBonus',
+      'waveCoinBonus',
+    };
+    if (!validKeys.contains(effectKey)) return state;
+    return state.copyWith(waveSkillActive: true);
   }
 
   /// 1フレーム分の更新（dt: 経過秒）
@@ -891,9 +922,33 @@ class TdEngine {
           waveDef.hasBoss && spawner.spawned == waveDef.enemyCount - 1;
       final eType = waveDef.enemyTypes[spawner.spawned % waveDef.enemyTypes.length];
       final hpMult = eType.hpMult;
+
+      // 特殊ウェーブ修飾子（HP・速度に影響。ボスには適用しない）
+      final mod = waveModifier(state.prefCode, state.currentWave, state.totalWaves);
+      double modHp = 1.0;
+      double modSpd = 1.0;
+      if (!isBoss) {
+        switch (mod) {
+          case 'elite':
+            modHp = 1.6; // 精鋭: 硬い
+            modSpd = 0.85;
+            break;
+          case 'swarm':
+            modHp = 0.5; // 大群: 脆いが速い
+            modSpd = 1.15;
+            break;
+          case 'blitz':
+            modSpd = 1.5; // 電撃: 非常に速い
+            break;
+          // bounty は HP/速度そのまま、報酬のみ増加（kill時に処理）
+        }
+      }
+
       // ボスHPは2.5倍（旧3倍は過剰。スキルで十分な脅威になる）
-      final hp = isBoss ? (waveDef.baseHp * 2.5).round() : (waveDef.baseHp * hpMult).round();
-      final baseSpd = eType.speedMult * (isBoss ? 0.6 : 1.2);
+      final hp = isBoss
+          ? (waveDef.baseHp * 2.5).round()
+          : (waveDef.baseHp * hpMult * modHp).round();
+      final baseSpd = eType.speedMult * (isBoss ? 0.6 : 1.2) * modSpd;
       final spd = baseSpd * max(0.3, 1.0 - state.enemySpeedPenalty);
       enemies.add(Enemy(
         id: 'e_${state.currentWave}_${spawner.spawned}',
@@ -1048,10 +1103,19 @@ class TdEngine {
         effectiveAttackSpeed = f.type.attackSpeed + bonus;
       }
 
+      // waveAtkSpeedBonus スキル: 攻撃速度 +15%（発射頻度そのものが上がる）
+      if (state.selectedSkill == 'waveAtkSpeedBonus' && state.waveSkillActive) {
+        effectiveAttackSpeed *= 1.15;
+      }
+
       f.attackCooldown = max(0, f.attackCooldown - dt);
       if (f.attackCooldown > 0) continue;
 
       // 射程内の生存敵を探す（最も進行度が高い敵を優先）
+      // 射程ボーナス: waveRangeBonus スキル選択時は +1 セル
+      final rangeBonus = (state.selectedSkill == 'waveRangeBonus' && state.waveSkillActive) ? 1.0 : 0.0;
+      final effectiveRange = f.range + rangeBonus;
+
       Enemy? target;
       double bestProgress = -1;
       for (final enemy in enemies) {
@@ -1060,14 +1124,20 @@ class TdEngine {
         final dx = ePos.dx - f.pos.col;
         final dy = ePos.dy - f.pos.row;
         final dist = sqrt(dx * dx + dy * dy);
-        if (dist <= f.range && enemy.pathProgress > bestProgress) {
+        if (dist <= effectiveRange && enemy.pathProgress > bestProgress) {
           target = enemy;
           bestProgress = enemy.pathProgress;
         }
       }
 
       if (target != null) {
-        final typeBonus = state.facilityBonusMap[f.type] ?? 1.0;
+        var typeBonus = state.facilityBonusMap[f.type] ?? 1.0;
+        // waveAtkBonus スキル: 全施設ダメージ +25%（選択中のウェーブのみ）
+        if (state.selectedSkill == 'waveAtkBonus' && state.waveSkillActive) {
+          typeBonus *= 1.25;
+        }
+        // 施設シナジー: 隣接する同種施設で強化
+        typeBonus *= synergyMultiplier(state, f);
         var rawDamage = (f.damage * typeBonus * (1.0 + state.facilityDamageBonus)).round();
 
         // kiyomizuTemple: 敵ダメージ+40%（乗算）
@@ -1077,6 +1147,12 @@ class TdEngine {
 
         // kiyomizuTemple による damageMultiplier ボーナスも適用
         rawDamage = (rawDamage * target.damageMultiplier).round();
+
+        // クリティカルヒット（15%確率で2倍ダメージ＝爽快感）
+        final isCrit = _rng.nextDouble() < 0.15;
+        if (isCrit) {
+          rawDamage = (rawDamage * 2).round();
+        }
 
         final actualDamage = max(1, rawDamage - target.enemyType.armorReduction);
 
@@ -1093,10 +1169,10 @@ class TdEngine {
         // specialFacility による攻撃速度修正を適用（空港は加算上限済み）
         f.attackCooldown = 1.0 / effectiveAttackSpeed;
 
-        // ヒットイベント: 施設グリッド座標 + 敵パス座標（浮動小数）
+        // ヒットイベント: 施設グリッド座標 + 敵パス座標（浮動小数）+ クリティカルフラグ
         final ePos = target.posOnPath(path);
         events.add(
-          'hit:${pos.col}_${pos.row}:${target.id}:$finalDamage:${ePos.dx.toStringAsFixed(3)}:${ePos.dy.toStringAsFixed(3)}',
+          'hit:${pos.col}_${pos.row}:${target.id}:$finalDamage:${ePos.dx.toStringAsFixed(3)}:${ePos.dy.toStringAsFixed(3)}:${isCrit ? 1 : 0}',
         );
 
         // 都道府県限定施設の特殊能力を実行
@@ -1117,12 +1193,26 @@ class TdEngine {
 
           // toyotaFactory: コイン生成ボーナス（+10）
           final coinBonus = f.type == FacilityType.toyotaFactory ? 10 : 0;
-          coins += reward + coinBonus;
+
+          // waveCoinBonus スキル: コイン +20%
+          var totalReward = reward + coinBonus;
+          if (state.selectedSkill == 'waveCoinBonus' && state.waveSkillActive) {
+            totalReward = (totalReward * 1.2).round();
+          }
+          // bounty（ボーナスウェーブ）: 報酬2倍
+          if (waveModifier(state.prefCode, state.currentWave, state.totalWaves) ==
+              'bounty') {
+            totalReward *= 2;
+          }
+          // 本部強化: コイン獲得倍率
+          totalReward = (totalReward * state.hqCoinMultiplier).round();
+
+          coins += totalReward;
 
           score += target.isBoss ? 200 : 50;
           // キルイベント: 敵パス座標 + 報酬コイン + isBoss フラグ
           events.add(
-            'kill:${ePos.dx.toStringAsFixed(3)}:${ePos.dy.toStringAsFixed(3)}:${reward + coinBonus}:${target.isBoss}',
+            'kill:${ePos.dx.toStringAsFixed(3)}:${ePos.dy.toStringAsFixed(3)}:$totalReward:${target.isBoss}',
           );
         }
       }
@@ -1166,6 +1256,45 @@ class TdEngine {
   }
 
   /// base（基地）施設: 3x3範囲内の敵に+50%ダメージを追加
+  /// 特殊ウェーブ修飾子を決定論的に判定（同じ県・同じウェーブなら常に同じ結果）
+  /// 'none' | 'elite' | 'swarm' | 'blitz' | 'bounty'
+  /// wave1 とボスウェーブは常に 'none'（導入とボス戦を邪魔しない）
+  static String waveModifier(String prefCode, int wave, int totalWaves) {
+    if (wave <= 1 || wave >= totalWaves) return 'none';
+    final h = (prefCode.hashCode ^ (wave * 2654435761)) & 0x7fffffff;
+    // 40%の確率で特殊ウェーブ、内訳を h で振り分け
+    if (h % 100 < 40) {
+      switch ((h ~/ 100) % 4) {
+        case 0:
+          return 'elite';
+        case 1:
+          return 'swarm';
+        case 2:
+          return 'blitz';
+        default:
+          return 'bounty';
+      }
+    }
+    return 'none';
+  }
+
+  /// 施設シナジー: 上下左右に隣接する同種施設1つにつき +15%ダメージ（最大4方向 +60%）
+  /// 戦略的なまとめ配置を報酬づける
+  static double synergyMultiplier(TdGameState state, Facility f) {
+    const dirs = [
+      [0, -1],
+      [0, 1],
+      [-1, 0],
+      [1, 0],
+    ];
+    var count = 0;
+    for (final d in dirs) {
+      final neighbor = state.facilities[GridPos(f.pos.col + d[0], f.pos.row + d[1])];
+      if (neighbor != null && neighbor.type == f.type) count++;
+    }
+    return 1.0 + count * 0.15;
+  }
+
   static void _applyBaseAreaDamage(
     Facility facility,
     List<Enemy> enemies,

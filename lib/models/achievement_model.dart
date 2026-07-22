@@ -1,13 +1,16 @@
 /// 実績ID
 enum AchievementId {
-  firstClear,     // 初めてクリア
-  clearFive,      // 5県クリア
-  clearAll,       // 全47県クリア
-  hardMaster,     // ハードで10県クリア
-  noMistakes,     // ミスなしクリア
-  speedRunner,    // 3分以内にクリア
-  facilityMaster, // 全施設タイプを1ゲームで使用
-  bossSlayer,     // ボスを10体倒す（累計）
+  firstClear,      // 初めてクリア
+  clearFive,       // 5県クリア
+  clearAll,        // 全47県クリア
+  hardMaster,      // ハードで10県クリア
+  noMistakes,      // ミスなしクリア
+  speedRunner,     // 3分以内にクリア
+  facilityMaster,  // 全施設タイプを1ゲームで使用
+  bossSlayer,      // ボスを10体倒す（累計）
+  ultimateUser,    // 必殺技を初めて発動
+  synergyMaster,   // 1ゲームで4方向シナジーを達成
+  criticalStreak,  // 1ゲームでクリティカルを10回発生させる
 }
 
 /// 実績データ
@@ -101,6 +104,30 @@ const List<Achievement> allAchievements = [
     title: 'ボスキラー',
     description: '累計10体のボスを倒した',
     emoji: '👹',
+    isUnlocked: false,
+    unlockedAt: null,
+  ),
+  Achievement(
+    id: AchievementId.ultimateUser,
+    title: '超・領土防衛',
+    description: '必殺技を初めて発動した',
+    emoji: '🔥',
+    isUnlocked: false,
+    unlockedAt: null,
+  ),
+  Achievement(
+    id: AchievementId.synergyMaster,
+    title: 'シナジーマスター',
+    description: '施設を4方向すべて同種で囲んだ',
+    emoji: '✨',
+    isUnlocked: false,
+    unlockedAt: null,
+  ),
+  Achievement(
+    id: AchievementId.criticalStreak,
+    title: '会心の一撃',
+    description: '1プレイでクリティカルを10回発生させた',
+    emoji: '💥',
     isUnlocked: false,
     unlockedAt: null,
   ),

@@ -70,6 +70,19 @@ class _AttackFlash {
   _AttackFlash({required this.facilityId, required this.life});
 }
 
+/// 施設配置時の拡大リングエフェクト（0→1で拡大しつつフェードアウト）
+class _PlaceRing {
+  final Offset pos; // グリッド単位
+  final Color color;
+  double life;
+  final double maxLife;
+
+  _PlaceRing({required this.pos, required this.color, this.maxLife = 0.45})
+      : life = maxLife;
+
+  double get progress => 1.0 - (life / maxLife).clamp(0.0, 1.0);
+}
+
 // ─── ショップアイテム ─────────────────────────────────────────────────────
 
 class _ShopItem {
@@ -93,8 +106,31 @@ const _allShopItems = [
   _ShopItem(emoji: '💰', name: '金の稲穂',   description: '+120コイン',           cost: 0,   effectKey: 'coins120'),
   _ShopItem(emoji: '⚔️', name: '施設強化',   description: '全施設ダメージ+30%',   cost: 80,  effectKey: 'dmgBonus'),
   _ShopItem(emoji: '🛡️', name: '防衛バリア', description: '次3回の敵侵入を防ぐ',  cost: 120, effectKey: 'shield3'),
-  _ShopItem(emoji: '🌀', name: '速度低下',   description: '次ウェーブ速度-25%',   cost: 70,  effectKey: 'speedDown'),
+  _ShopItem(emoji: '🌀', name: '速度低下',   description: '敵速度-25%（以降永続）', cost: 70,  effectKey: 'speedDown'),
   _ShopItem(emoji: '🔧', name: '施設整備',   description: '全施設クールダウンリセット', cost: 80, effectKey: 'facilityRepair'),
+];
+
+// ─── スキルシステム ──────────────────────────────────────────────────────
+
+class _SkillChoice {
+  final String emoji;
+  final String name;
+  final String description;
+  final String effectKey;
+
+  const _SkillChoice({
+    required this.emoji,
+    required this.name,
+    required this.description,
+    required this.effectKey,
+  });
+}
+
+const _waveSkillChoices = [
+  _SkillChoice(emoji: '💪', name: '攻撃力UP', description: '次ウェーブ施設ダメージ+25%', effectKey: 'waveAtkBonus'),
+  _SkillChoice(emoji: '📏', name: '射程UP', description: '次ウェーブ全施設射程+1セル', effectKey: 'waveRangeBonus'),
+  _SkillChoice(emoji: '🪙', name: 'コイン獲得', description: '次ウェーブ敵撃破時コイン+20%', effectKey: 'waveCoinBonus'),
+  _SkillChoice(emoji: '⚡', name: '攻撃速度UP', description: '次ウェーブ全施設攻撃速度+15%', effectKey: 'waveAtkSpeedBonus'),
 ];
 
 // ─── クイズ ───────────────────────────────────────────────────────────────
@@ -156,6 +192,27 @@ class _GameScreenState extends ConsumerState<GameScreen>
   // コンボシステム
   int _comboCount = 0;
   double _comboTimer = 0;
+
+  // 必殺技システム（敵撃破でゲージが溜まり、満タンで全画面攻撃）
+  double _ultimateCharge = 0;    // 0.0 〜 1.0
+  bool _ultimateActive = false;  // 発動演出中
+  double _ultimateFlashTime = 0; // 発動時の白フラッシュ残り秒
+
+  // 実績トラッキング（新機能）
+  bool _usedUltimateThisGame = false;
+  int _criticalCount = 0;
+  int _maxSynergyDirections = 0;
+
+  // 演出: 画面シェイク（迫力演出）
+  double _shakeTime = 0;
+  double _shakeMaxTime = 0;
+  double _shakeIntensity = 0;
+
+  // 演出: 施設配置エフェクト用リング
+  final List<_PlaceRing> _placeRings = [];
+
+  // 演出: HPダメージ時の赤フラッシュ
+  double _hitFlashTime = 0;
 
   // アニメーション用ゲーム時間（path arrows 用）
   double _gameTime = 0;
@@ -226,7 +283,15 @@ class _GameScreenState extends ConsumerState<GameScreen>
   @override
   void initState() {
     super.initState();
-    _gameState = TdEngine.createInitial(widget.difficulty, widget.prefectureCode, widget.regionCode);
+    final hq = ref.read(hqUpgradeProvider);
+    _gameState = TdEngine.createInitial(
+      widget.difficulty,
+      widget.prefectureCode,
+      widget.regionCode,
+      hq.hpBonus,
+      hq.attackMultiplier - 1.0,
+      hq.coinMultiplier,
+    );
 
     // クイズ生成（地方決戦では無効）
     if (widget.regionCode.isEmpty) {
@@ -250,6 +315,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
     );
     _ticker = createTicker(_onTick)..start();
 
+    // 画像プリロード（パフォーマンス向上）
+    _preloadImages();
+
     // 開始セリフ
     final history = _historyStage;
     final region = _region;
@@ -267,6 +335,83 @@ class _GameScreenState extends ConsumerState<GameScreen>
   void _say(String line, double seconds) {
     _companionLine = line;
     _companionLineLife = seconds;
+  }
+
+  // ─── 演出: 画面シェイク ──────────────────────────────────────────────
+  void _triggerShake(double intensity, {double duration = 0.3}) {
+    // より強い揺れが来たら上書き（弱い揺れが強い揺れを打ち消さないように）
+    if (intensity >= _shakeIntensity || _shakeTime <= 0) {
+      _shakeIntensity = intensity;
+      _shakeTime = duration;
+      _shakeMaxTime = duration;
+    }
+  }
+
+  // ─── 必殺技: 超・領土防衛 ────────────────────────────────────────────
+  void _activateUltimate() {
+    if (_ultimateCharge < 1.0 || _ultimateActive) return;
+    if (_gameState.phase != GamePhase.wave) return; // 戦闘中のみ発動可
+
+    setState(() {
+      _ultimateActive = true;
+      _ultimateCharge = 0;
+      _ultimateFlashTime = 0.5;
+      _usedUltimateThisGame = true;
+    });
+
+    // 迫力ある全画面演出
+    _triggerShake(18, duration: 0.7);
+    _audio.playVictory();
+    _say('「くらえ！ 必殺・領土防衛ッ！」', 3.0);
+
+    // 全敵に大ダメージ（各敵の最大HPの70%）＋撃破エフェクト
+    final path = _gameState.path;
+    final enemies = _gameState.enemies;
+    int killedRewards = 0;
+    for (final e in enemies) {
+      if (e.isDead) continue;
+      final ep = e.posOnPath(path);
+      final dmg = (e.maxHp * 0.7).round();
+      e.hp -= dmg;
+
+      _floatingTexts.add(_FloatingText(
+        pos: Offset(ep.dx + 0.5, ep.dy + 0.5),
+        text: '💥$dmg',
+        color: Colors.orangeAccent,
+        maxLife: 1.2,
+      ));
+      // 各敵位置で爆発パーティクル
+      for (var i = 0; i < 10; i++) {
+        final angle = (i / 10) * 2 * pi + _rng.nextDouble() * 0.4;
+        final spd = 2.0 + _rng.nextDouble() * 2.5;
+        _particles.add(_Particle(
+          pos: Offset(ep.dx + 0.5, ep.dy + 0.5),
+          vel: Offset(cos(angle) * spd, sin(angle) * spd),
+          maxLife: 0.6 + _rng.nextDouble() * 0.4,
+          color: HSVColor.fromAHSV(1.0, _rng.nextDouble() * 45, 0.9, 1.0).toColor(),
+        ));
+      }
+
+      if (e.hp <= 0) {
+        e.isDead = true;
+        killedRewards += 12 + _gameState.currentWave * 2;
+      }
+    }
+    enemies.removeWhere((e) => e.isDead);
+    if (killedRewards > 0) {
+      _gameState = _gameState.copyWith(coins: _gameState.coins + killedRewards);
+    }
+
+    // 演出終了処理（0.6秒後にフラグ解除）
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (mounted) setState(() => _ultimateActive = false);
+    });
+  }
+
+  // ─── 画像プリロード ──────────────────────────────────────────────────
+  Future<void> _preloadImages() async {
+    // 画像キャッシング用の簡略実装（将来の詳細化に向けて予約）
+    // 敵・施設画像は widgets ツリーで自動的にキャッシュされます
   }
 
   // ─── ウェーブ/ボスバナー演出 ─────────────────────────────────────────
@@ -289,25 +434,69 @@ class _GameScreenState extends ConsumerState<GameScreen>
           _bannerSub = 'スキル「${pref.boss.skill}」に警戒せよ';
         }
       } else {
-        _bannerTitle = 'WAVE $wave / ${_gameState.totalWaves}';
-        _bannerSub = history != null
-            ? '${history.emoji} ${history.subTitle}'
-            : region != null
-                ? '${region.emoji} ${region.name}地方の精鋭が迫る…'
-                : pref != null
-                    ? '${pref.geographyIcon} ${pref.geographyName}の敵が迫る…'
-                    : '敵が迫る…';
+        // 特殊ウェーブ判定（あれば予告を優先表示）
+        final mod = TdEngine.waveModifier(
+            _gameState.prefCode, wave, _gameState.totalWaves);
+        final modInfo = _waveModifierInfo(mod);
+        _bannerTitle = modInfo != null
+            ? '${modInfo.$1} $wave / ${_gameState.totalWaves}'
+            : 'WAVE $wave / ${_gameState.totalWaves}';
+        _bannerSub = modInfo != null
+            ? modInfo.$2
+            : history != null
+                ? '${history.emoji} ${history.subTitle}'
+                : region != null
+                    ? '${region.emoji} ${region.name}地方の精鋭が迫る…'
+                    : pref != null
+                        ? '${pref.geographyIcon} ${pref.geographyName}の敵が迫る…'
+                        : '敵が迫る…';
       }
     });
     _bannerCtrl.forward(from: 0);
     if (isBossWave) {
+      _triggerShake(10, duration: 0.6);
       _say('「ボスが来た…ここがふんばりどころ！」', 4.0);
     } else if (history != null) {
       _say('「ウェーブ$wave！歴史の脅威が押し寄せる！」', 3.0);
     } else if (region != null) {
       _say('「ウェーブ$wave、地方最強の敵が来るぞ！」', 3.0);
     } else if (pref != null) {
-      _say('「ウェーブ$wave、いくよ！」', 3.0);
+      final mod = TdEngine.waveModifier(
+          _gameState.prefCode, wave, _gameState.totalWaves);
+      final line = _waveModifierLine(mod);
+      _say(line ?? '「ウェーブ$wave、いくよ！」', 3.0);
+    }
+  }
+
+  /// 特殊ウェーブのバナー表示情報 (絵文字付きタイトル, サブ説明)。none なら null
+  (String, String)? _waveModifierInfo(String mod) {
+    switch (mod) {
+      case 'elite':
+        return ('💪 精鋭ウェーブ', '⚠️ 装甲を固めた強敵が来る！火力で押し切れ');
+      case 'swarm':
+        return ('🐝 大群ウェーブ', '💨 数で押し寄せる！取りこぼしに注意');
+      case 'blitz':
+        return ('⚡ 電撃ウェーブ', '💨 高速の敵！射程と足止めがカギ');
+      case 'bounty':
+        return ('💰 ボーナスウェーブ', '🪙 撃破報酬2倍！稼ぎのチャンス');
+      default:
+        return null;
+    }
+  }
+
+  /// 特殊ウェーブの相棒セリフ
+  String? _waveModifierLine(String mod) {
+    switch (mod) {
+      case 'elite':
+        return '「精鋭部隊だ…気を引き締めて！」';
+      case 'swarm':
+        return '「うわっ、すごい数！囲まれるな！」';
+      case 'blitz':
+        return '「速い！止められるか…！？」';
+      case 'bounty':
+        return '「チャンスだ！コインをがっぽり稼ごう！」';
+      default:
+        return null;
     }
   }
 
@@ -374,7 +563,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   void _processEvents(List<String> events, TdGameState state) {
     for (final ev in events) {
       if (ev.startsWith('hit:')) {
-        // hit:{facilityCol}_{facilityRow}:{enemyId}:{damage}:{enemyPathX}:{enemyPathY}
+        // hit:{facilityCol}_{facilityRow}:{enemyId}:{damage}:{enemyPathX}:{enemyPathY}:{isCrit}
         final parts = ev.substring(4).split(':');
         if (parts.length < 5) continue;
         final fParts = parts[0].split('_');
@@ -384,6 +573,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
         final damage = int.tryParse(parts[2]) ?? 0;
         final ex = double.tryParse(parts[3]) ?? 0;
         final ey = double.tryParse(parts[4]) ?? 0;
+        final isCrit = parts.length >= 6 && parts[5] == '1';
+        if (isCrit) _criticalCount++;
 
         // 施設タイプ取得
         final fPos = GridPos(fCol, fRow);
@@ -397,16 +588,31 @@ class _GameScreenState extends ConsumerState<GameScreen>
           enemyId: parts[1],
           from: Offset(fCol + 0.5, fRow + 0.5),
           to: Offset(ex + 0.5, ey + 0.5),
-          color: fColor,
+          color: isCrit ? Colors.yellowAccent : fColor,
         ));
 
-        // ダメージ浮遊テキスト
+        // ダメージ浮遊テキスト（クリティカルは大きく金色で「CRITICAL!」付き）
         _floatingTexts.add(_FloatingText(
           pos: Offset(ex + 0.5, ey + 0.5),
-          text: '-$damage',
-          color: Colors.redAccent,
-          maxLife: 0.8,
+          text: isCrit ? '⚡$damage CRITICAL!' : '-$damage',
+          color: isCrit ? Colors.yellowAccent : Colors.redAccent,
+          maxLife: isCrit ? 1.2 : 0.8,
         ));
+
+        // クリティカル時: 追加演出（黄色パーティクル＋軽いシェイク）
+        if (isCrit) {
+          _triggerShake(4, duration: 0.18);
+          for (var i = 0; i < 6; i++) {
+            final angle = (i / 6) * 2 * pi + _rng.nextDouble() * 0.5;
+            final spd = 2.0 + _rng.nextDouble() * 1.5;
+            _particles.add(_Particle(
+              pos: Offset(ex + 0.5, ey + 0.5),
+              vel: Offset(cos(angle) * spd, sin(angle) * spd),
+              maxLife: 0.4 + _rng.nextDouble() * 0.3,
+              color: HSVColor.fromAHSV(1.0, 50 + _rng.nextDouble() * 15, 0.9, 1.0).toColor(),
+            ));
+          }
+        }
 
         // 攻撃フラッシュ
         _flashes.removeWhere((f) => f.facilityId == '${fCol}_$fRow');
@@ -434,20 +640,32 @@ class _GameScreenState extends ConsumerState<GameScreen>
         _audio.playDie();
         _audio.playCoin();
 
-        // パーティクルバースト（8個）
-        for (var i = 0; i < 8; i++) {
-          final angle = (i / 8) * 2 * pi + _rng.nextDouble() * 0.4;
-          final speed = 1.5 + _rng.nextDouble() * 2.0;
+        // 必殺技ゲージ加算（通常敵 +8%, ボス +40%）
+        if (!_ultimateActive) {
+          _ultimateCharge =
+              (_ultimateCharge + (isBossKill ? 0.4 : 0.08)).clamp(0.0, 1.0);
+        }
+
+        // ボス撃破は迫力ある大きめシェイク
+        if (isBossKill) _triggerShake(14, duration: 0.5);
+
+        // パーティクルバースト（ボス撃破時は倍量・大きめ）
+        final burstCount = isBossKill ? 20 : 8;
+        for (var i = 0; i < burstCount; i++) {
+          final angle = (i / burstCount) * 2 * pi + _rng.nextDouble() * 0.4;
+          final speed = (isBossKill ? 2.5 : 1.5) + _rng.nextDouble() * 2.0;
           _particles.add(_Particle(
             pos: Offset(ex + 0.5, ey + 0.5),
             vel: Offset(cos(angle) * speed, sin(angle) * speed),
-            maxLife: 0.5 + _rng.nextDouble() * 0.3,
-            color: HSVColor.fromAHSV(
-              1.0,
-              _rng.nextDouble() * 60, // 赤〜橙
-              0.8,
-              1.0,
-            ).toColor(),
+            maxLife: (isBossKill ? 0.8 : 0.5) + _rng.nextDouble() * 0.3,
+            color: isBossKill
+                ? HSVColor.fromAHSV(1.0, 45 + _rng.nextDouble() * 15, 0.9, 1.0).toColor()
+                : HSVColor.fromAHSV(
+                    1.0,
+                    _rng.nextDouble() * 60, // 赤〜橙
+                    0.8,
+                    1.0,
+                  ).toColor(),
           ));
         }
 
@@ -480,6 +698,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
             color: Colors.redAccent,
             maxLife: 1.8,
           ));
+          _triggerShake(6, duration: 0.3);
         } else if (_comboCount >= 20 && _comboCount % 10 == 0) {
           final bonus = 120;
           _gameState = _gameState.copyWith(coins: _gameState.coins + bonus);
@@ -489,9 +708,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
             color: Colors.purpleAccent,
             maxLife: 2.0,
           ));
+          _triggerShake(9, duration: 0.35);
         }
       } else if (ev == 'reached_goal') {
-        // ゴール到達: HP減少エフェクト
+        // ゴール到達: HP減少エフェクト＋赤フラッシュ＋シェイク（危機感を演出）
         final goalPos = _gameState.path.last;
         _floatingTexts.add(_FloatingText(
           pos: Offset(goalPos.col + 0.5, goalPos.row + 0.5),
@@ -499,6 +719,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
           color: Colors.redAccent,
           maxLife: 1.0,
         ));
+        _hitFlashTime = 0.35;
+        _triggerShake(8, duration: 0.25);
       } else if (ev == 'shield_block') {
         // シールドブロック
         final goalPos = _gameState.path.last;
@@ -515,6 +737,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
           final skillName = parts[0];
           final bx = double.tryParse(parts[1]) ?? 0;
           final by = double.tryParse(parts[2]) ?? 0;
+          _triggerShake(7, duration: 0.3);
           String skillText;
           switch (skillName) {
             case 'speedBurst':
@@ -586,6 +809,33 @@ class _GameScreenState extends ConsumerState<GameScreen>
       f.life -= dt;
     }
     _flashes.removeWhere((f) => f.life <= 0);
+
+    // 施設配置リング
+    for (final r in _placeRings) {
+      r.life -= dt;
+    }
+    _placeRings.removeWhere((r) => r.life <= 0);
+
+    // 画面シェイク減衰
+    if (_shakeTime > 0) {
+      _shakeTime -= dt;
+      if (_shakeTime <= 0) {
+        _shakeTime = 0;
+        _shakeIntensity = 0;
+      }
+    }
+
+    // ヒットフラッシュ（HPダメージ時の赤み）減衰
+    if (_hitFlashTime > 0) {
+      _hitFlashTime -= dt;
+      if (_hitFlashTime < 0) _hitFlashTime = 0;
+    }
+
+    // 必殺技の白フラッシュ減衰
+    if (_ultimateFlashTime > 0) {
+      _ultimateFlashTime -= dt;
+      if (_ultimateFlashTime < 0) _ultimateFlashTime = 0;
+    }
 
     // 相棒セリフ寿命
     if (_companionLineLife > 0) {
@@ -877,6 +1127,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
         isCleared: isCleared,
         facilitiesUsed: _facilitiesUsed,
         bossKills: _bossKillCount,
+        usedUltimate: _usedUltimateThisGame,
+        maxSynergyDirections: _maxSynergyDirections,
+        criticalCount: _criticalCount,
       );
     }
 
@@ -930,13 +1183,188 @@ class _GameScreenState extends ConsumerState<GameScreen>
           setState(() {
             _gameState = newState;
             _previewPos = null;
+            _placeRings.add(_PlaceRing(
+              pos: Offset(pos.col + 0.5, pos.row + 0.5),
+              color: _facilityColors[_selectedFacility] ?? Colors.white,
+            ));
           });
+          _triggerShake(3, duration: 0.15);
           _audio.playPlace();
+
+          // シナジー発生時のフィードバック（隣接同種施設あり）
+          final placed = newState.facilities[pos];
+          if (placed != null) {
+            final mult = TdEngine.synergyMultiplier(newState, placed);
+            if (mult > 1.0) {
+              final pct = ((mult - 1.0) * 100).round();
+              final directions = (pct / 15).round();
+              if (directions > _maxSynergyDirections) {
+                _maxSynergyDirections = directions;
+              }
+              _floatingTexts.add(_FloatingText(
+                pos: Offset(pos.col + 0.5, pos.row - 0.3),
+                text: '✨シナジー +$pct%',
+                color: Colors.cyanAccent,
+                maxLife: 1.5,
+              ));
+            }
+          }
+        } else {
+          // 配置失敗 → 理由をユーザーに表示
+          String reason = '施設を配置できません';
+          if (_gameState.coins < _selectedFacility.cost) {
+            reason = '金貨が足りません';
+          } else if (_gameState.pathSet.contains(pos)) {
+            reason = '道を塞いでます';
+          } else if (_gameState.facilities.containsKey(pos)) {
+            reason = 'すでに施設があります';
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(reason),
+              duration: const Duration(seconds: 2),
+              backgroundColor: Colors.red.shade800,
+            ),
+          );
+
+          setState(() => _previewPos = null);
         }
       } else {
-        setState(() => _previewPos = pos);
+        // 別のセルをタップ → プレビュー更新
+        // 配置可能性を事前チェック（不可の場合は理由を即座に表示）
+        final canPlace = !_gameState.pathSet.contains(pos) &&
+            !_gameState.facilities.containsKey(pos) &&
+            _gameState.coins >= _selectedFacility.cost;
+
+        if (canPlace) {
+          setState(() => _previewPos = pos);
+        } else {
+          String reason = '施設を配置できません';
+          if (_gameState.coins < _selectedFacility.cost) {
+            reason = '🪙 金貨が足りません (必要: ${_selectedFacility.cost}, 保持: ${_gameState.coins})';
+          } else if (_gameState.pathSet.contains(pos)) {
+            reason = '🛤️ この場所は道を塞ぎます';
+          } else if (_gameState.facilities.containsKey(pos)) {
+            reason = '⚠️ この場所には既に施設があります';
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(reason),
+              duration: const Duration(seconds: 2),
+              backgroundColor: Colors.red.shade800,
+            ),
+          );
+
+          setState(() => _previewPos = null);
+        }
       }
     }
+  }
+
+  // ─── ウェーブスキル選択シート ──────────────────────────────────────
+  void _showSkillSelectionSheet() {
+    // ランダムに4スキルから3個を選択（毎回異なる選択肢）
+    final availableSkills = List<_SkillChoice>.from(_waveSkillChoices)..shuffle(_rng);
+    final selectedSkills = availableSkills.take(3).toList();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1A2332),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ヘッダー
+                Text(
+                  '⭐ ウェーブスキルを選択',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '次のウェーブで効果が適用されます',
+                  style: const TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+                const SizedBox(height: 16),
+
+                // スキルカード一覧
+                ...selectedSkills.map((skill) => GestureDetector(
+                  onTap: () {
+                    // スキルを選択 → 状態を更新 → シートを閉じる
+                    setState(() {
+                      _gameState = _gameState.copyWith(selectedSkill: skill.effectKey);
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.06),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.15),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        // スキルアイコン
+                        Text(skill.emoji, style: const TextStyle(fontSize: 32)),
+                        const SizedBox(width: 12),
+                        // スキル名と説明
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                skill.name,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                skill.description,
+                                style: const TextStyle(
+                                  color: Colors.white54,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // チェックマーク
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colors.orangeAccent,
+                          size: 16,
+                        ),
+                      ],
+                    ),
+                  ),
+                )),
+
+                const SizedBox(height: 12),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _showUpgradeSheet(GridPos pos) {
@@ -1106,13 +1534,54 @@ class _GameScreenState extends ConsumerState<GameScreen>
           child: Column(
             children: [
               _buildTopBar(pref),
-              Expanded(child: _buildGameField()),
+              Expanded(
+                child: Transform.translate(
+                  offset: _currentShakeOffset,
+                  child: Stack(
+                    children: [
+                      _buildGameField(),
+                      // HPダメージ時の赤フラッシュ（危機感の演出）
+                      if (_hitFlashTime > 0)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: Container(
+                              color: Colors.red.withOpacity(
+                                0.28 * (_hitFlashTime / 0.35).clamp(0.0, 1.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                      // 必殺技発動時の白/金フラッシュ
+                      if (_ultimateFlashTime > 0)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: Container(
+                              color: Colors.amberAccent.withOpacity(
+                                0.5 * (_ultimateFlashTime / 0.5).clamp(0.0, 1.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
               _buildControlPanel(),
             ],
           ),
         ),
       ),
     );
+  }
+
+  /// 現在のフレームの画面シェイクオフセットを計算（減衰しながら振動）
+  Offset get _currentShakeOffset {
+    if (_shakeTime <= 0 || _shakeMaxTime <= 0) return Offset.zero;
+    final decay = (_shakeTime / _shakeMaxTime).clamp(0.0, 1.0);
+    final mag = _shakeIntensity * decay;
+    final dx = sin(_gameTime * 60) * mag;
+    final dy = cos(_gameTime * 47) * mag * 0.6;
+    return Offset(dx, dy);
   }
 
   Future<bool> _onBackPressed() async {
@@ -1376,6 +1845,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       }
 
       final gameField = GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTapUp: (details) {
           final localX = (details.localPosition.dx - (constraints.maxWidth - fieldW) / 2);
           final localY = (details.localPosition.dy - (constraints.maxHeight - fieldH) / 2);
@@ -1405,6 +1875,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     floatingTexts: _floatingTexts,
                     particles: _particles,
                     flashes: _flashes,
+                    placeRings: _placeRings,
                     previewPos: validPreview,
                     selectedFacility: _selectedFacility,
                     gameTime: _gameTime,
@@ -1460,54 +1931,87 @@ class _GameScreenState extends ConsumerState<GameScreen>
             final slide = (1 - opacity) * 40 * (v < 0.5 ? -1 : 1);
             final accent =
                 _bannerIsBoss ? Colors.redAccent : AppColors.accent;
+
+            // 登場時にオーバーシュートする弾むスケール（ボス戦はより大きく弾む）
+            final entrance = (v / 0.2).clamp(0.0, 1.0);
+            final overshoot = _bannerIsBoss ? 0.28 : 0.12;
+            final scale = v >= 0.2
+                ? 1.0
+                : 1.0 - overshoot + overshoot * (1 - (1 - entrance) * (1 - entrance));
+
+            // ボス戦のみ: 脈動するグロー
+            final pulse = _bannerIsBoss
+                ? 0.5 + 0.5 * sin(_gameTime * 6)
+                : 0.0;
+
             return Center(
               child: Opacity(
                 opacity: opacity.clamp(0.0, 1.0),
                 child: Transform.translate(
                   offset: Offset(slide, 0),
-                  child: Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.symmetric(vertical: 40),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.black.withOpacity(0),
-                          Colors.black.withOpacity(0.75),
-                          Colors.black.withOpacity(0),
+                  child: Transform.scale(
+                    scale: scale,
+                    child: Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.symmetric(vertical: 40),
+                      padding: EdgeInsets.symmetric(
+                          vertical: _bannerIsBoss ? 22 : 16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.black.withOpacity(0),
+                            Colors.black.withOpacity(_bannerIsBoss ? 0.85 : 0.75),
+                            Colors.black.withOpacity(0),
+                          ],
+                        ),
+                        border: Border(
+                          top: BorderSide(
+                              color: accent, width: _bannerIsBoss ? 3 : 2),
+                          bottom: BorderSide(
+                              color: accent, width: _bannerIsBoss ? 3 : 2),
+                        ),
+                        boxShadow: _bannerIsBoss
+                            ? [
+                                BoxShadow(
+                                  color: accent.withOpacity(0.35 + 0.35 * pulse),
+                                  blurRadius: 24 + 16 * pulse,
+                                  spreadRadius: 2 + 3 * pulse,
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _bannerTitle,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: accent,
+                              fontSize: _bannerIsBoss ? 32 : 28,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: _bannerIsBoss ? 3 : 2,
+                              shadows: [
+                                const Shadow(color: Colors.black, blurRadius: 8),
+                                if (_bannerIsBoss)
+                                  Shadow(
+                                    color: accent.withOpacity(0.8),
+                                    blurRadius: 16 + 10 * pulse,
+                                  ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _bannerSub,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: _bannerIsBoss ? 14 : 13,
+                            ),
+                          ),
                         ],
                       ),
-                      border: Border(
-                        top: BorderSide(color: accent, width: 2),
-                        bottom: BorderSide(color: accent, width: 2),
-                      ),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _bannerTitle,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: accent,
-                            fontSize: _bannerIsBoss ? 22 : 28,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2,
-                            shadows: const [
-                              Shadow(color: Colors.black, blurRadius: 8),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _bannerSub,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                 ),
@@ -1719,6 +2223,12 @@ class _GameScreenState extends ConsumerState<GameScreen>
           if (_gameState.phase == GamePhase.prep || isWaveEnd)
             const SizedBox(height: 4),
 
+          // 必殺技ゲージ（ウェーブ中のみ表示）
+          if (isWave) ...[
+            _buildUltimateBar(),
+            const SizedBox(height: 6),
+          ],
+
           // 施設ボタン（スクロール可能） + 2×スピードボタン
           Row(
             children: [
@@ -1740,6 +2250,53 @@ class _GameScreenState extends ConsumerState<GameScreen>
           // ウェーブ間カウントダウン
           if (isWaveEnd) ...[
             const SizedBox(height: 6),
+            // スキル選択ボタン（未選択時）
+            if (_gameState.selectedSkill == null)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _showSkillSelectionSheet,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purpleAccent.withOpacity(0.2),
+                    side: BorderSide(color: Colors.purpleAccent, width: 1.5),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text(
+                    '⭐ ウェーブスキルを選択',
+                    style: TextStyle(
+                        color: Colors.purpleAccent,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13),
+                  ),
+                ),
+              )
+            else
+              // スキル選択済みの表示
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.purpleAccent.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.purpleAccent.withOpacity(0.5),
+                    width: 1.5,
+                  ),
+                ),
+                child: const Center(
+                  child: Text(
+                    '✓ スキルが選択されました',
+                    style: TextStyle(
+                      color: Colors.purpleAccent,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            const SizedBox(height: 6),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -1751,8 +2308,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   onPressed: () {
                     _spawner.reset();
                     setState(() {
-                      _gameState =
-                          TdEngine.startWave(_gameState, widget.difficulty);
+                      _gameState = TdEngine.startWave(_gameState, widget.difficulty)
+                          .copyWith(selectedSkill: null); // 次ウェーブのためにスキルをリセット
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -2143,6 +2700,76 @@ class _GameScreenState extends ConsumerState<GameScreen>
     );
   }
 
+  Widget _buildUltimateBar() {
+    final ready = _ultimateCharge >= 1.0;
+    // 満タン時は脈動するグロー
+    final pulse = ready ? (0.5 + 0.5 * sin(_gameTime * 8)) : 0.0;
+    return GestureDetector(
+      onTap: ready ? _activateUltimate : null,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: ready
+              ? Colors.orangeAccent.withOpacity(0.18 + 0.12 * pulse)
+              : Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: ready
+                ? Colors.orangeAccent.withOpacity(0.7 + 0.3 * pulse)
+                : Colors.white24,
+            width: ready ? 2 : 1,
+          ),
+          boxShadow: ready
+              ? [
+                  BoxShadow(
+                    color: Colors.orangeAccent.withOpacity(0.4 * pulse),
+                    blurRadius: 12 * pulse,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          children: [
+            Text(
+              ready ? '🔥' : '⚡',
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    ready ? '必殺技 発動可能！タップ！' : '必殺・領土防衛',
+                    style: TextStyle(
+                      color: ready ? Colors.orangeAccent : Colors.white54,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: LinearProgressIndicator(
+                      value: _ultimateCharge,
+                      minHeight: 6,
+                      backgroundColor: Colors.white12,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        ready ? Colors.orangeAccent : Colors.amber.shade300,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSpeedBtn() {
     final speedLabel =
         _gameSpeed == 1.0 ? '1x' : _gameSpeed == 2.0 ? '2x' : '3x';
@@ -2204,6 +2831,7 @@ class _GameFieldPainter extends CustomPainter {
   final List<_FloatingText> floatingTexts;
   final List<_Particle> particles;
   final List<_AttackFlash> flashes;
+  final List<_PlaceRing> placeRings;
   final GridPos? previewPos;
   final FacilityType selectedFacility;
   final double gameTime;
@@ -2219,6 +2847,7 @@ class _GameFieldPainter extends CustomPainter {
     required this.floatingTexts,
     required this.particles,
     required this.flashes,
+    this.placeRings = const [],
     required this.previewPos,
     required this.selectedFacility,
     required this.gameTime,
@@ -2234,13 +2863,45 @@ class _GameFieldPainter extends CustomPainter {
     _drawTerrainTint(canvas, size);
     _drawPath(canvas);
     _drawRangePreview(canvas);
+    _drawSynergyLinks(canvas);
     _drawFacilities(canvas);
+    _drawPlaceRings(canvas);
     _drawProjectiles(canvas);
     _drawParticles(canvas);
     _drawEnemies(canvas);
     _drawWeather(canvas, size);
     _drawFloatingTexts(canvas);
     _drawOverlay(canvas, size);
+  }
+
+  // ─── 施設配置リング ──────────────────────────────────────────────────
+
+  /// 施設配置時に拡大しながらフェードアウトするリング（配置の満足感を演出）
+  void _drawPlaceRings(Canvas canvas) {
+    for (final r in placeRings) {
+      final cx = r.pos.dx * cellSize;
+      final cy = r.pos.dy * cellSize;
+      final alpha = (1.0 - r.progress).clamp(0.0, 1.0);
+      final radius = cellSize * (0.3 + r.progress * 0.9);
+
+      canvas.drawCircle(
+        Offset(cx, cy),
+        radius,
+        Paint()
+          ..color = r.color.withOpacity(alpha * 0.8)
+          ..strokeWidth = 3.0 * alpha + 0.5
+          ..style = PaintingStyle.stroke,
+      );
+      // 内側にもう一段（二重リングでより華やかに）
+      canvas.drawCircle(
+        Offset(cx, cy),
+        radius * 0.6,
+        Paint()
+          ..color = r.color.withOpacity(alpha * 0.5)
+          ..strokeWidth = 2.0 * alpha + 0.5
+          ..style = PaintingStyle.stroke,
+      );
+    }
   }
 
   // ─── 地形ティント & 天候 ─────────────────────────────────────────────
@@ -2478,18 +3139,38 @@ class _GameFieldPainter extends CustomPainter {
     final range = selectedFacility.range;
     final fColor = facilityColors[selectedFacility] ?? Colors.white;
 
-    // セルハイライト
+    // グロー背景（より目立たせる）
+    canvas.drawCircle(
+      Offset(cx, cy),
+      cellSize * 0.5 + cellSize * 0.2,
+      Paint()
+        ..color = fColor.withOpacity(0.15)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
+    );
+
+    // セルハイライト（より明るく）
     canvas.drawRect(
       Rect.fromLTWH(
           previewPos!.col * cellSize, previewPos!.row * cellSize,
           cellSize, cellSize),
-      Paint()..color = fColor.withOpacity(0.25),
+      Paint()..color = fColor.withOpacity(0.35),
+    );
+
+    // セル枠線（より太く）
+    canvas.drawRect(
+      Rect.fromLTWH(
+          previewPos!.col * cellSize, previewPos!.row * cellSize,
+          cellSize, cellSize),
+      Paint()
+        ..color = fColor
+        ..strokeWidth = 2.5
+        ..style = PaintingStyle.stroke,
     );
 
     // 射程円（ダッシュ風に複数の弧で近似）
     final dashPaint = Paint()
-      ..color = fColor.withOpacity(0.6)
-      ..strokeWidth = 1.5
+      ..color = fColor.withOpacity(0.7)
+      ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
     const dashCount = 20;
     for (var i = 0; i < dashCount; i++) {
@@ -2505,14 +3186,46 @@ class _GameFieldPainter extends CustomPainter {
       );
     }
 
-    // 施設プレビュー（薄く）
+    // 施設プレビュー（より明るく、より大きく）
     canvas.drawCircle(
       Offset(cx, cy),
-      cellSize * 0.38,
-      Paint()..color = fColor.withOpacity(0.3),
+      cellSize * 0.42,
+      Paint()..color = fColor.withOpacity(0.45),
     );
     _drawText(canvas, selectedFacility.emoji, Offset(cx, cy),
-        cellSize * 0.55);
+        cellSize * 0.65);
+  }
+
+  // ─── 施設シナジー線 ──────────────────────────────────────────────────
+
+  /// 隣接する同種施設同士を脈動する光の線で結ぶ（シナジー可視化）
+  void _drawSynergyLinks(Canvas canvas) {
+    final facilities = state.facilities;
+    final pulse = 0.5 + 0.5 * sin(gameTime * 4);
+    for (final entry in facilities.entries) {
+      final pos = entry.key;
+      final f = entry.value;
+      final color = facilityColors[f.type] ?? Colors.white;
+      // 右・下方向のみチェック（線の重複描画を防止）
+      for (final d in const [
+        [1, 0],
+        [0, 1],
+      ]) {
+        final np = GridPos(pos.col + d[0], pos.row + d[1]);
+        final neighbor = facilities[np];
+        if (neighbor != null && neighbor.type == f.type) {
+          canvas.drawLine(
+            Offset((pos.col + 0.5) * cellSize, (pos.row + 0.5) * cellSize),
+            Offset((np.col + 0.5) * cellSize, (np.row + 0.5) * cellSize),
+            Paint()
+              ..color = color.withOpacity(0.4 + 0.4 * pulse)
+              ..strokeWidth = cellSize * (0.05 + 0.02 * pulse)
+              ..strokeCap = StrokeCap.round
+              ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+          );
+        }
+      }
+    }
   }
 
   // ─── 施設 ────────────────────────────────────────────────────────────
@@ -2577,23 +3290,40 @@ class _GameFieldPainter extends CustomPainter {
       final pos = Offset.lerp(p.from, p.to, p.progress.clamp(0.0, 1.0))!;
       final sx = pos.dx * cellSize;
       final sy = pos.dy * cellSize;
-      canvas.drawCircle(
-        Offset(sx, sy),
-        cellSize * 0.07,
-        Paint()..color = p.color,
-      );
-      // トレイル（少し後ろ）
-      if (p.progress > 0.1) {
-        final prev = Offset.lerp(p.from, p.to, (p.progress - 0.1).clamp(0.0, 1.0))!;
+
+      // 長めの発光トレイル（迫力アップ）
+      if (p.progress > 0.05) {
+        final prev = Offset.lerp(p.from, p.to, (p.progress - 0.22).clamp(0.0, 1.0))!;
         canvas.drawLine(
           Offset(prev.dx * cellSize, prev.dy * cellSize),
           Offset(sx, sy),
           Paint()
-            ..color = p.color.withOpacity(0.4)
-            ..strokeWidth = cellSize * 0.05
-            ..strokeCap = StrokeCap.round,
+            ..color = p.color.withOpacity(0.5)
+            ..strokeWidth = cellSize * 0.08
+            ..strokeCap = StrokeCap.round
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
         );
       }
+
+      // グロー
+      canvas.drawCircle(
+        Offset(sx, sy),
+        cellSize * 0.13,
+        Paint()
+          ..color = p.color.withOpacity(0.4)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+      );
+      // 弾本体（白い芯＋色付き外周で光弾らしく）
+      canvas.drawCircle(
+        Offset(sx, sy),
+        cellSize * 0.08,
+        Paint()..color = p.color,
+      );
+      canvas.drawCircle(
+        Offset(sx, sy),
+        cellSize * 0.04,
+        Paint()..color = Colors.white.withOpacity(0.9),
+      );
     }
   }
 
@@ -2619,6 +3349,18 @@ class _GameFieldPainter extends CustomPainter {
       final cx = (ePos.dx + 0.5) * cellSize;
       final cy = (ePos.dy + 0.5) * cellSize;
       final radius = (enemy.isBoss ? 0.44 : 0.3) * cellSize;
+
+      // ボスは足元に脈動する赤いオーラ（威圧感の演出）
+      if (enemy.isBoss) {
+        final pulse = 0.5 + 0.5 * sin(gameTime * 4 + ePos.dx);
+        canvas.drawCircle(
+          Offset(cx, cy),
+          radius * (1.15 + 0.15 * pulse),
+          Paint()
+            ..color = Colors.redAccent.withOpacity(0.25 + 0.2 * pulse)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10),
+        );
+      }
 
       // HP バー（敵画像の上部に表示）
       final barW = cellSize * 0.78;

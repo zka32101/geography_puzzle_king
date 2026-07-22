@@ -409,6 +409,9 @@ class TdGameState {
   final Map<FacilityType, double> facilityBonusMap; // per-type cost multiplier (< 1.0) and damage bonus (> 1.0)
   final bool isRegionBattle;
   final String regionCode;
+  final String? selectedSkill; // current wave skill effect key ('waveAtkBonus', 'waveRangeBonus', etc)
+  final bool waveSkillActive; // whether skill effect is currently applied
+  final double hqCoinMultiplier; // 本部強化: コイン獲得倍率（1.0 = ボーナスなし）
 
   const TdGameState({
     required this.cols,
@@ -432,6 +435,9 @@ class TdGameState {
     this.facilityBonusMap = const {},
     this.isRegionBattle = false,
     this.regionCode = '',
+    this.selectedSkill,
+    this.waveSkillActive = false,
+    this.hqCoinMultiplier = 1.0,
   });
 
   bool get isGameOver => baseHp <= 0 || phase == GamePhase.defeat;
@@ -452,6 +458,9 @@ class TdGameState {
     double? enemySpeedPenalty,
     int? shieldHits,
     Map<FacilityType, double>? facilityBonusMap,
+    String? selectedSkill,
+    bool? waveSkillActive,
+    double? hqCoinMultiplier,
   }) {
     return TdGameState(
       cols: cols,
@@ -475,6 +484,9 @@ class TdGameState {
       facilityBonusMap: facilityBonusMap ?? this.facilityBonusMap,
       isRegionBattle: isRegionBattle,
       regionCode: regionCode,
+      selectedSkill: selectedSkill ?? this.selectedSkill,
+      waveSkillActive: waveSkillActive ?? this.waveSkillActive,
+      hqCoinMultiplier: hqCoinMultiplier ?? this.hqCoinMultiplier,
     );
   }
 }

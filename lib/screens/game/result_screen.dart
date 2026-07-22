@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
+import 'package:geography_puzzle_king/providers/prefecture_records_provider.dart';
 import 'package:geography_puzzle_king/utils/badge_data.dart';
 import 'package:geography_puzzle_king/utils/history_stage_data.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
@@ -50,6 +51,23 @@ class ResultScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final pref = _prefecture;
     final earnedBadges = ref.read(gameServiceProvider).getEarnedBadgeIds();
+
+    // クリア時に県記録を保存
+    if (isCleared && pref != null && regionCode.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final baseExp = 10 + (clearTime ~/ 60) * 2 +
+            (difficulty == 'hard' ? 20 : (difficulty == 'easy' ? -5 : 0));
+        ref
+            .read(prefectureRecordsProvider.notifier)
+            .recordClear(prefectureCode, score, difficulty, baseExp)
+            .then((_) {
+          // 成功したら何もしない（状態更新は provider が処理）
+        }).catchError((e) {
+          print('Error recording clear: $e');
+        });
+      });
+    }
+
     return Container(
       width: double.infinity,
       height: double.infinity,

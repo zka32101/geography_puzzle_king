@@ -9,6 +9,8 @@ import 'package:geography_puzzle_king/services/local_storage_service.dart';
 import 'package:geography_puzzle_king/services/ranking_service.dart';
 import 'package:geography_puzzle_king/services/player_level_service.dart';
 import 'package:geography_puzzle_king/services/daily_bonus_service.dart';
+import 'package:geography_puzzle_king/models/hq_upgrade_model.dart';
+import 'package:geography_puzzle_king/services/hq_upgrade_service.dart';
 
 // ─── SharedPreferences 初期化 (FutureProvider) ──────────────────────────────
 
@@ -57,6 +59,18 @@ final dailyBonusServiceProvider = Provider<DailyBonusService?>((ref) {
 // ─── 実績プロバイダー ─────────────────────────────────────────────────────────
 
 final achievementsProvider = StateProvider<List<Achievement>>((ref) => List.from(allAchievements));
+
+// ─── 本部強化（恒久アップグレード）サービス ──────────────────────────────────
+
+final hqUpgradeServiceProvider = Provider<HqUpgradeService?>((ref) {
+  final prefs = ref.watch(sharedPreferencesProvider).value;
+  return prefs != null ? HqUpgradeService(prefs) : null;
+});
+
+final hqUpgradeProvider = StateProvider<HqUpgradeState>((ref) {
+  final svc = ref.watch(hqUpgradeServiceProvider);
+  return svc?.load() ?? HqUpgradeState.initial();
+});
 
 // ─── データ初期化プロバイダー ────────────────────────────────────────────────
 // アプリ起動時に SharedPreferences から読み込み、各 StateProvider を更新する。
@@ -135,6 +149,9 @@ class GameService {
     required bool isCleared,
     Set<String> facilitiesUsed = const {},
     int bossKills = 0,
+    bool usedUltimate = false,
+    int maxSynergyDirections = 0,
+    int criticalCount = 0,
   }) async {
     final g = ref.read(gameInProgressProvider);
     if (g == null) return;
@@ -189,6 +206,21 @@ class GameService {
       ]);
     }
 
+    // 本部強化: 研究ポイント付与（クリア時のみ。難度が高いほど多く獲得）
+    if (isCleared) {
+      final hqSvc = ref.read(hqUpgradeServiceProvider);
+      if (hqSvc != null) {
+        final diffBonus = switch (g.difficulty) {
+          'hard' => 15,
+          'easy' => 5,
+          _ => 10,
+        };
+        final currentHq = ref.read(hqUpgradeProvider);
+        final updatedHq = await hqSvc.addResearchPoints(currentHq, diffBonus);
+        ref.read(hqUpgradeProvider.notifier).state = updatedHq;
+      }
+    }
+
     // 実績チェック
     final achievementSvc = ref.read(achievementServiceProvider);
     if (achievementSvc != null) {
@@ -206,6 +238,9 @@ class GameService {
         hardCleared: hardCount,
         totalBossKills: totalBossKills,
         facilitiesUsed: facilitiesUsed,
+        usedUltimate: usedUltimate,
+        maxSynergyDirections: maxSynergyDirections,
+        criticalCount: criticalCount,
       );
       ref.read(achievementsProvider.notifier).state = newAchievements;
     }

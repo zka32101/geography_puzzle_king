@@ -48,6 +48,9 @@ class AchievementService {
     required int hardCleared,
     required int totalBossKills,
     required Set<String> facilitiesUsed,
+    bool usedUltimate = false,
+    int maxSynergyDirections = 0,
+    int criticalCount = 0,
   }) async {
     final toUnlock = <AchievementId>[];
 
@@ -65,6 +68,9 @@ class AchievementService {
       }
     }
     if (totalBossKills >= 10) toUnlock.add(AchievementId.bossSlayer);
+    if (usedUltimate) toUnlock.add(AchievementId.ultimateUser);
+    if (maxSynergyDirections >= 4) toUnlock.add(AchievementId.synergyMaster);
+    if (criticalCount >= 10) toUnlock.add(AchievementId.criticalStreak);
 
     if (toUnlock.isEmpty) return current;
 

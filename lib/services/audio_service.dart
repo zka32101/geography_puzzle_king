@@ -35,8 +35,12 @@ class AudioService {
 
   Future<void> playGameBgm() async {
     if (!_bgmEnabled) return;
-    await _bgmPlayer.stop();
-    await _bgmPlayer.play(AssetSource('audio/bgm_game.wav'));
+    try {
+      await _bgmPlayer.stop();
+      await _bgmPlayer.play(AssetSource('audio/bgm_game.wav'));
+    } catch (_) {
+      // 一部端末で音声再生に失敗することがあるが、ゲーム進行には影響させない
+    }
   }
 
   Future<void> stopBgm() async {
@@ -64,9 +68,14 @@ class AudioService {
   Future<void> _playSfx(String asset) async {
     if (!_sfxEnabled) return;
     final p = AudioPlayer();
-    await p.setVolume(_sfxVolume);
-    await p.play(AssetSource(asset));
     p.onPlayerComplete.listen((_) => p.dispose());
+    try {
+      await p.setVolume(_sfxVolume);
+      await p.play(AssetSource(asset));
+    } catch (_) {
+      // 一部端末で音声再生に失敗することがあるが、ゲーム進行には影響させない
+      await p.dispose();
+    }
   }
 
   // ── 設定 ────────────────────────────────────────────────────────────────

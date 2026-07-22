@@ -1,0 +1,48 @@
+name: Build iOS (unsigned)
+
+# 手動実行 or main/master への push で起動
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - 'lib/**'
+      - 'ios/**'
+      - 'pubspec.yaml'
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: stable
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Analyze (non-blocking)
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings || true
+
+      # Apple Developer 証明書なしでコンパイル可否のみを検証する。
+      # 実機インストール・TestFlight配布には署名設定が別途必要。
+      - name: Build iOS (no codesign)
+        run: flutter build ios --release --no-codesign
+
+      - name: Package .app as zip
+        run: |
+          cd build/ios/iphoneos
+          zip -r Runner.app.zip Runner.app
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: geography-puzzle-king-ios-unsigned
+          path: build/ios/iphoneos/Runner.app.zip
+          retention-days: 14
