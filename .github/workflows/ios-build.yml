@@ -35,9 +35,15 @@ jobs:
     # 手動実行またはPR時のみに限定し、pushでは絶対に自動起動しない。
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
     needs: analyze-and-test
-    runs-on: macos-latest
+    # macos-latest (Xcode 16系) は gRPC-Core の古いC++コードで
+    # テンプレート構文の厳格化により解析エラーになる既知の問題があるため、
+    # より緩やかな macos-13 (Xcode 15系) を明示指定して回避する。
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
