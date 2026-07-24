@@ -43,3 +43,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# iOS署名関連（証明書・秘密鍵・パスワードを含むため絶対にコミットしない。
+# CIにはGitHub Secrets経由でbase64として渡す）
+ios-signing/
+GoogleService-Info.plist
+*.p12
+*.mobileprovision
+*.cer
+*.key
