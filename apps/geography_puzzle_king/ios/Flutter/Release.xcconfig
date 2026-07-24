@@ -1,1 +1,9 @@
 #include "Generated.xcconfig"
+
+// CI（GitHub Actions）での署名付きビルド用の手動署名設定。
+// ExportOptions.plistはxcarchiveからのエクスポート工程にしか適用されず、
+// その前段のxcodebuild archive工程はこの設定を見るため、ここで明示する必要がある。
+CODE_SIGN_STYLE = Manual
+DEVELOPMENT_TEAM = 6UWJGP52W5
+CODE_SIGN_IDENTITY = Apple Distribution
+PROVISIONING_PROFILE_SPECIFIER = GeographyPuzzleKing_App_Store
