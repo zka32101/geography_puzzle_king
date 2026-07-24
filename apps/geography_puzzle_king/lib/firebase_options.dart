@@ -23,12 +23,12 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBLU_example_key_REPLACE_WITH_REAL_KEY',
-    appId: '1:123456789:ios:abcdef123456',
-    messagingSenderId: '123456789',
-    projectId: 'geography-puzzle-king',
-    databaseURL: 'https://geography-puzzle-king.firebaseio.com',
-    iosBundleId: 'com.petitworksapps.nihonryoudodefense',
+    apiKey: 'AIzaSyC4gaFcLxN8iT7xm6JeIM7Iou-efE5g5SM',
+    appId: '1:946448575860:ios:e59a3ae6f5fba47237d021',
+    messagingSenderId: '946448575860',
+    projectId: 'apps2-752cb',
+    storageBucket: 'apps2-752cb.firebasestorage.app',
+    iosBundleId: 'com.yourwish.nihonryoudodefence',
   );
 
   static const FirebaseOptions web = FirebaseOptions(
