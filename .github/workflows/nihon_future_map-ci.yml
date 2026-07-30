@@ -66,14 +66,12 @@ jobs:
     # 手動実行またはPR時のみに限定し、pushでは絶対に自動起動しない。
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
     needs: analyze-and-test
-    runs-on: macos-14
+    # in_app_purchase_storekit（新しいStoreKit2 API使用）がXcode 15.2ではコンパイルできないため、
+    # geography_puzzle_kingと異なりXcodeバージョンは固定せず、macos-latestのデフォルトを使う
+    # （2026-07-30、ビルド失敗により判明）。
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Select Xcode 15.2
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '15.2'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -92,14 +90,9 @@ jobs:
     # 手動実行(workflow_dispatch)限定。push/PRでは絶対に自動起動しない。
     if: github.event_name == 'workflow_dispatch'
     needs: analyze-and-test
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Select Xcode 15.2
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '15.2'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
