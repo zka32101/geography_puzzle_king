@@ -46,18 +46,12 @@ jobs:
     needs: analyze-and-test
     # macos-13 は GitHub がホステッドランナーの提供を終了しており、
     # ジョブが永久に queued のまま進まなかった（実測5時間以上）。
-    # macos-14 上で古い Xcode を明示インストールする方式に変更する。
-    runs-on: macos-14
+    # Firebaseパッケージを3.6.0+/5.4.3+系にアップグレードし、gRPC-Core/
+    # BoringSSL-GRPCのビルドエラーを根本解決したため、Xcodeバージョンは
+    # 固定せずmacos-latestのデフォルト（App Store提出SDK要件を満たす）を使う。
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-
-      # macos-latest/14 デフォルトの Xcode 16系は gRPC-Core の古いC++コードで
-      # テンプレート構文の厳格化により解析エラーになる既知の問題があるため、
-      # macos-14 イメージに同梱されている、より緩やかな Xcode 15.2 を明示指定する。
-      - name: Select Xcode 15.2
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '15.2'
 
       - name: Show Xcode version
         run: xcodebuild -version
@@ -92,14 +86,9 @@ jobs:
     # 署名付きビルド+TestFlightアップロード。最もコストが高いジョブのため、
     # 手動実行(workflow_dispatch)限定。push/PRでは絶対に自動起動しない。
     if: github.event_name == 'workflow_dispatch'
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Select Xcode 15.2
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '15.2'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
