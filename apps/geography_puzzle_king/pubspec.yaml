@@ -50,10 +50,6 @@ dependencies:
   firebase_analytics: ^11.3.3
   cloud_functions: ^5.1.3
 
-  # クロスプロモーション（他アプリ紹介、ポートフォリオ共通パッケージ）
-  cross_promo_kit:
-    path: ../../../cross_promo_kit
-
   # UI & Animation
   lottie: ^2.7.0
   cached_network_image: ^3.3.1
