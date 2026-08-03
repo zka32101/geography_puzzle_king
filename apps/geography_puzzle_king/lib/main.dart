@@ -5,6 +5,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/firebase_options.dart';
+import 'package:geography_puzzle_king/providers/game_provider.dart' show sharedPreferencesProvider;
+import 'package:geography_puzzle_king/providers/monetization_provider.dart';
+import 'package:geography_puzzle_king/services/ad_service.dart';
 import 'package:geography_puzzle_king/screens/auth/splash_screen.dart';
 import 'package:geography_puzzle_king/screens/auth/login_screen.dart';
 import 'package:geography_puzzle_king/screens/home/home_screen.dart';
@@ -39,9 +42,23 @@ void main() async {
     if (e.code != 'duplicate-app') rethrow;
   }
 
+  // TODO: cross_promo_kit連携（別セッションで進行中）はpubspec.yamlの依存が
+  // 未整備のため一時的に無効化。パッケージ配置後にCrossPromoService.init()呼び出しを復元すること。
+
+  await AdService.initialize();
+
+  // 「広告除去」の購入状態をアプリ全体で共有するため、ProviderContainerを
+  // 明示的に作成して起動前にSharedPreferencesの読み込みと購入監視を開始する。
+  final container = ProviderContainer();
+  await container.read(sharedPreferencesProvider.future);
+  container.read(purchaseServiceProvider)?.startListening(
+        onAdsRemoved: () => container.read(adsRemovedProvider.notifier).markAdsRemoved(),
+      );
+
   runApp(
-    const ProviderScope(
-      child: MyApp(),
+    UncontrolledProviderScope(
+      container: container,
+      child: const MyApp(),
     ),
   );
 }

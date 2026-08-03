@@ -8,6 +8,7 @@ import 'package:geography_puzzle_king/services/audio_service.dart';
 import 'package:geography_puzzle_king/services/daily_bonus_service.dart';
 import 'package:geography_puzzle_king/services/tutorial_service.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
+import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -151,6 +152,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: const BannerAdBar(),
     );
   }
 

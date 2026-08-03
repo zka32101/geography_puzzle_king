@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/models/td_model.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
+import 'package:geography_puzzle_king/providers/monetization_provider.dart';
 import 'package:geography_puzzle_king/screens/game/result_screen.dart';
 import 'package:geography_puzzle_king/services/audio_service.dart';
 import 'package:geography_puzzle_king/services/td_engine.dart';
@@ -283,6 +284,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
   @override
   void initState() {
     super.initState();
+    if (!ref.read(adsRemovedProvider)) {
+      ref.read(adServiceProvider).preloadInterstitial();
+    }
     final hq = ref.read(hqUpgradeProvider);
     _gameState = TdEngine.createInitial(
       widget.difficulty,
@@ -1131,6 +1135,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
         maxSynergyDirections: _maxSynergyDirections,
         criticalCount: _criticalCount,
       );
+    }
+
+    if (!ref.read(adsRemovedProvider)) {
+      ref.read(adServiceProvider).showInterstitial();
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {

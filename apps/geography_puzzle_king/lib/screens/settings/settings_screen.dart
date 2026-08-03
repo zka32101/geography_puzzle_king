@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/app_config.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/providers/auth_provider.dart';
+import 'package:geography_puzzle_king/providers/monetization_provider.dart';
 import 'package:geography_puzzle_king/services/audio_service.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -205,6 +206,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
             ],
           ),
+          _buildSection(
+            title: '広告・課金',
+            children: [_buildRemoveAdsTile()],
+          ),
           // Danger Zone
           _buildSection(
             title: 'その他',
@@ -254,9 +259,63 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
             ],
           ),
+          // TODO: cross_promo_kit連携（別セッションで進行中）はpubspec.yamlの依存が
+          // 未整備のため一時的に無効化。パッケージ配置後にCrossPromoSectionを復元すること。
+
           const SizedBox(height: AppSpacing.xl),
         ],
       ),
+    );
+  }
+
+  Widget _buildRemoveAdsTile() {
+    final adsRemoved = ref.watch(adsRemovedProvider);
+    if (adsRemoved) {
+      return const ListTile(
+        leading: Icon(Icons.check_circle, color: AppColors.success),
+        title: Text('広告除去（購入済み）'),
+        subtitle: Text('ご購入ありがとうございます'),
+      );
+    }
+
+    final productAsync = ref.watch(removeAdsProductProvider);
+    return productAsync.when(
+      loading: () => const ListTile(
+        leading: Icon(Icons.block),
+        title: Text('広告を削除'),
+        trailing: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+      error: (_, __) => const ListTile(
+        leading: Icon(Icons.block),
+        title: Text('広告を削除'),
+        subtitle: Text('ストアに接続できませんでした'),
+      ),
+      data: (product) {
+        if (product == null) {
+          return const ListTile(
+            leading: Icon(Icons.block),
+            title: Text('広告を削除'),
+            subtitle: Text('現在ご利用いただけません'),
+          );
+        }
+        return ListTile(
+          leading: const Icon(Icons.block),
+          title: const Text('広告を削除'),
+          subtitle: Text('${product.price} — ゲーム内の広告表示がすべて非表示になります'),
+          trailing: FilledButton(
+            onPressed: () async {
+              final service = ref.read(purchaseServiceProvider);
+              if (service == null) return;
+              await service.buyRemoveAds(product);
+            },
+            child: const Text('購入'),
+          ),
+        );
+      },
     );
   }
 
