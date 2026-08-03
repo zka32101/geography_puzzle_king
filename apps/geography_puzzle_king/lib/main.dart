@@ -52,7 +52,7 @@ void main() async {
   final container = ProviderContainer();
   await container.read(sharedPreferencesProvider.future);
   container.read(purchaseServiceProvider)?.startListening(
-        onAdsRemoved: () => container.read(adsRemovedProvider.notifier).markAdsRemoved(),
+        onPurchased: () => container.read(premiumUnlockedProvider.notifier).markPurchased(),
       );
 
   runApp(

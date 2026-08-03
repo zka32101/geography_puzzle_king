@@ -284,7 +284,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   @override
   void initState() {
     super.initState();
-    if (!ref.read(adsRemovedProvider)) {
+    if (!ref.read(premiumUnlockedProvider)) {
       ref.read(adServiceProvider).preloadInterstitial();
     }
     final hq = ref.read(hqUpgradeProvider);
@@ -1137,7 +1137,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       );
     }
 
-    if (!ref.read(adsRemovedProvider)) {
+    if (!ref.read(premiumUnlockedProvider)) {
       ref.read(adServiceProvider).showInterstitial();
     }
 

@@ -27,7 +27,7 @@ class PurchaseService {
   Future<void> _setAdsRemoved() => _prefs.setBool(_keyAdsRemoved, true);
 
   /// 購入更新イベントの購読を開始する。アプリ起動時に一度だけ呼ぶこと。
-  void startListening({required void Function() onAdsRemoved}) {
+  void startListening({required void Function() onPurchased}) {
     _subscription?.cancel();
     _subscription = _iap.purchaseStream.listen((purchases) async {
       for (final purchase in purchases) {
@@ -36,7 +36,7 @@ class PurchaseService {
         if (purchase.status == PurchaseStatus.purchased ||
             purchase.status == PurchaseStatus.restored) {
           await _setAdsRemoved();
-          onAdsRemoved();
+          onPurchased();
         }
 
         if (purchase.pendingCompletePurchase) {

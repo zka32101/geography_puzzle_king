@@ -22,10 +22,12 @@ final purchaseServiceProvider = Provider<PurchaseService?>((ref) {
   return service;
 });
 
-/// 「広告除去」購入済みかどうか。購入完了イベントで [markAdsRemoved] を呼ぶと
-/// 全画面のUIが即座に更新される。
-class AdsRemovedNotifier extends StateNotifier<bool> {
-  AdsRemovedNotifier(this._ref) : super(false) {
+/// 「広告除去+全ステージ解放」を購入済みかどうか。
+/// 単一の買い切りIAP（商品ID: [kRemoveAdsProductId]）で、広告非表示と
+/// 都道府県ロック解除の両方が有効になる。購入完了イベントで [markPurchased]
+/// を呼ぶと全画面のUIが即座に更新される。
+class PremiumNotifier extends StateNotifier<bool> {
+  PremiumNotifier(this._ref) : super(false) {
     _restoreFromPrefs();
   }
 
@@ -38,16 +40,17 @@ class AdsRemovedNotifier extends StateNotifier<bool> {
     }
   }
 
-  void markAdsRemoved() {
+  void markPurchased() {
     state = true;
   }
 }
 
-final adsRemovedProvider = StateNotifierProvider<AdsRemovedNotifier, bool>((ref) {
-  return AdsRemovedNotifier(ref);
+/// true の場合: 広告非表示 かつ 全都道府県プレイ可能。
+final premiumUnlockedProvider = StateNotifierProvider<PremiumNotifier, bool>((ref) {
+  return PremiumNotifier(ref);
 });
 
-/// ストア上の「広告除去」商品情報（価格表示用）。
+/// ストア上の「広告除去+全ステージ解放」商品情報（価格表示用）。
 final removeAdsProductProvider = FutureProvider<ProductDetails?>((ref) async {
   final service = ref.watch(purchaseServiceProvider);
   if (service == null) return null;

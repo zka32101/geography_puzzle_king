@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/config/difficulty_config.dart';
+import 'package:geography_puzzle_king/config/monetization_config.dart';
 import 'package:geography_puzzle_king/models/td_model.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
+import 'package:geography_puzzle_king/providers/monetization_provider.dart';
 import 'package:geography_puzzle_king/screens/game/game_screen.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
+import 'package:geography_puzzle_king/widgets/stage_locked_dialog.dart';
 
 class PrefectureSelectionScreen extends ConsumerStatefulWidget {
   const PrefectureSelectionScreen({Key? key}) : super(key: key);
@@ -109,6 +112,7 @@ class _PrefectureSelectionScreenState
   Widget _buildPrefectureGrid() {
     final prefs = _filteredPrefectures;
     final gameService = ref.read(gameServiceProvider);
+    final premiumUnlocked = ref.watch(premiumUnlockedProvider);
 
     return GridView.builder(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -123,37 +127,57 @@ class _PrefectureSelectionScreenState
         final pref = prefs[idx];
         final isCleared = gameService.isPrefectureClearedAny(pref.code);
         final clearedDiffs = gameService.getClearedDifficulties(pref.code);
+        final isLocked = !premiumUnlocked && !isPrefectureFree(pref.code);
 
         return GestureDetector(
-          onTap: () => _showDifficultyDialog(context, pref),
+          onTap: () {
+            if (isLocked) {
+              showStageLockedDialog(context);
+            } else {
+              _showDifficultyDialog(context, pref);
+            }
+          },
           child: Card(
             color: AppColors.surface,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Stack(
               children: [
-                Text(pref.geographyIcon, style: const TextStyle(fontSize: 32)),
-                const SizedBox(height: 8),
-                Text(
-                  pref.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Opacity(
+                  opacity: isLocked ? 0.4 : 1.0,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(pref.geographyIcon, style: const TextStyle(fontSize: 32)),
+                      const SizedBox(height: 8),
+                      Text(
+                        pref.name,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _diffStar('E', clearedDiffs.contains('easy')),
+                          const SizedBox(width: 2),
+                          _diffStar('N', clearedDiffs.contains('normal')),
+                          const SizedBox(width: 2),
+                          _diffStar('H', clearedDiffs.contains('hard')),
+                        ],
+                      ),
+                      if (isCleared)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 4),
+                          child: Icon(Icons.check_circle, size: 14, color: Colors.green),
+                        ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _diffStar('E', clearedDiffs.contains('easy')),
-                    const SizedBox(width: 2),
-                    _diffStar('N', clearedDiffs.contains('normal')),
-                    const SizedBox(width: 2),
-                    _diffStar('H', clearedDiffs.contains('hard')),
-                  ],
-                ),
-                if (isCleared)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 4),
-                    child: Icon(Icons.check_circle, size: 14, color: Colors.green),
+                if (isLocked)
+                  const Positioned.fill(
+                    child: Center(
+                      child: Icon(Icons.lock, size: 28, color: Colors.black54),
+                    ),
                   ),
               ],
             ),

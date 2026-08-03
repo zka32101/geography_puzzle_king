@@ -40,7 +40,7 @@ class _BannerAdBarState extends ConsumerState<BannerAdBar> {
 
   @override
   Widget build(BuildContext context) {
-    final adsRemoved = ref.watch(adsRemovedProvider);
+    final adsRemoved = ref.watch(premiumUnlockedProvider);
     if (adsRemoved || _failed || _bannerAd == null) {
       return const SizedBox.shrink();
     }

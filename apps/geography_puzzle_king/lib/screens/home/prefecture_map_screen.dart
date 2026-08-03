@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
+import 'package:geography_puzzle_king/config/monetization_config.dart';
 import 'package:geography_puzzle_king/models/td_model.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
+import 'package:geography_puzzle_king/providers/monetization_provider.dart';
 import 'package:geography_puzzle_king/screens/game/game_screen.dart';
 import 'package:geography_puzzle_king/services/td_engine.dart';
 import 'package:geography_puzzle_king/utils/badge_data.dart';
 import 'package:geography_puzzle_king/utils/history_stage_data.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/utils/region_data.dart';
+import 'package:geography_puzzle_king/widgets/stage_locked_dialog.dart';
 
 class PrefectureMapScreen extends ConsumerStatefulWidget {
   const PrefectureMapScreen({Key? key}) : super(key: key);
@@ -858,9 +861,15 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
     final diffColor = AppColors.difficulty(pref.difficultyRating);
     final hasExclusive =
         TdEngine.exclusiveFacilityForPrefecture(pref.code) != null;
+    final premiumUnlocked = ref.watch(premiumUnlockedProvider);
+    final isLocked = !premiumUnlocked && !isPrefectureFree(pref.code);
 
     return GestureDetector(
       onTap: () {
+        if (isLocked) {
+          showStageLockedDialog(context);
+          return;
+        }
         setState(() => _selectedPrefectureCode = pref.code);
         _showPrefectureDetail(context, pref);
       },
@@ -894,6 +903,15 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                   color: diffColor.withOpacity(0.8),
                 ),
               ),
+              if (isLocked)
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.black45,
+                    child: const Center(
+                      child: Icon(Icons.lock, color: Colors.white, size: 20),
+                    ),
+                  ),
+                ),
               // 限定施設バッジ（右上）
               if (hasExclusive)
                 Positioned(

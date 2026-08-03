@@ -269,7 +269,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Widget _buildRemoveAdsTile() {
-    final adsRemoved = ref.watch(adsRemovedProvider);
+    final adsRemoved = ref.watch(premiumUnlockedProvider);
     if (adsRemoved) {
       return const ListTile(
         leading: Icon(Icons.check_circle, color: AppColors.success),
