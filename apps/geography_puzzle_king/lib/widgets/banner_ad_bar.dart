@@ -13,23 +13,32 @@ class BannerAdBar extends ConsumerStatefulWidget {
 
 class _BannerAdBarState extends ConsumerState<BannerAdBar> {
   BannerAd? _bannerAd;
+  bool _loaded = false;
   bool _failed = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadAd());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 既に購入済みなら広告リクエスト自体を行わない（無駄な通信を避ける）。
+      if (mounted && !ref.read(premiumUnlockedProvider)) {
+        _loadAd();
+      }
+    });
   }
 
   void _loadAd() {
     final adService = ref.read(adServiceProvider);
     final ad = adService.createBannerAd(
+      onLoaded: () {
+        if (mounted) setState(() => _loaded = true);
+      },
       onLoadFailed: () {
         if (mounted) setState(() => _failed = true);
       },
     );
+    _bannerAd = ad;
     ad.load();
-    setState(() => _bannerAd = ad);
   }
 
   @override
@@ -40,8 +49,9 @@ class _BannerAdBarState extends ConsumerState<BannerAdBar> {
 
   @override
   Widget build(BuildContext context) {
-    final adsRemoved = ref.watch(premiumUnlockedProvider);
-    if (adsRemoved || _failed || _bannerAd == null) {
+    final premiumUnlocked = ref.watch(premiumUnlockedProvider);
+    // load()呼び出し後に購入された場合に備え、build時にも非表示条件を再確認する。
+    if (premiumUnlocked || _failed || !_loaded || _bannerAd == null) {
       return const SizedBox.shrink();
     }
     return SafeArea(

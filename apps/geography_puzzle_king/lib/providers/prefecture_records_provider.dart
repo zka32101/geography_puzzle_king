@@ -86,7 +86,10 @@ class PrefectureRecordsNotifier
 
   String? _getHighestDifficulty(String? current, String newOne) {
     if (current == null) return newOne;
-    const order = ['Easy', 'Normal', 'Hard'];
+    // difficulty はアプリ全体で小文字表記（'easy'/'normal'/'hard'）で統一されている。
+    // ここが大文字表記だと indexOf が常に -1 を返し、初回クリア後は
+    // 難易度がどれだけ上がっても highestDifficulty が更新されなくなる。
+    const order = ['easy', 'normal', 'hard'];
     final currentIdx = order.indexOf(current);
     final newIdx = order.indexOf(newOne);
     return newIdx > currentIdx ? newOne : current;

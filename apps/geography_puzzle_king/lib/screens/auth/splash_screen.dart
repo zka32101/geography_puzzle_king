@@ -57,64 +57,102 @@ class _SplashScreenState extends State<SplashScreen>
             colors: [AppColors.secondary, AppColors.primary],
           ),
         ),
-        child: Center(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius:
-                        BorderRadius.circular(AppRadius.large),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+        child: Stack(
+          children: [
+            Center(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(AppRadius.large),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.public,
-                    size: 64,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                const Text(
-                  '日本領土ディフェンス',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.surface,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                const Text(
-                  '日本全国の県をマスターしよう',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white70,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.white.withOpacity(0.8),
+                      child: const Icon(
+                        Icons.public,
+                        size: 64,
+                        color: AppColors.primary,
+                      ),
                     ),
-                    strokeWidth: 3,
+                    const SizedBox(height: AppSpacing.lg),
+                    const Text(
+                      '日本領土ディフェンス',
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.surface,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    const Text(
+                      '日本全国の県をマスターしよう',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white70,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                    SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.white.withOpacity(0.8),
+                        ),
+                        strokeWidth: 3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // 組織ロゴ（画面下部・控えめに表示）
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: SafeArea(
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(AppRadius.small),
+                          child: Image.asset(
+                            'assets/images/branding/yourwish_logo.jpg',
+                            width: 32,
+                            height: 32,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        const Text(
+                          'presented by Your Wish',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.white60,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

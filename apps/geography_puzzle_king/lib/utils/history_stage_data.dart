@@ -30,14 +30,14 @@ const List<HistoryStageData> allHistoryStages = [
   HistoryStageData(
     code: 'h01',
     name: '神代の決戦',
-    subTitle: 'ヤマトタケルの時代',
+    subTitle: 'スサノオの時代',
     emoji: '⚔️',
     color: Color(0xFF4527A0),
     bossName: '八岐大蛇',
     bossEmoji: '🐍',
     bossSkill: '増援召喚',
     totalWaves: 8,
-    lore: '古代日本、神々が大地を支配した時代。ヤマトタケルが平定せんとした国土に、伝説の八岐大蛇が降臨した。',
+    lore: '古代日本、神々が大地を支配した時代。スサノオが治めんとした出雲の地に、伝説の八岐大蛇が降臨した。',
   ),
   HistoryStageData(
     code: 'h02',

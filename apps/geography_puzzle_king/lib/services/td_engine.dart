@@ -712,7 +712,10 @@ class TdEngine {
     } else {
       startCoins = _startCoins(difficulty);
       baseHp = 12;
-      waves = totalWaves;
+      // 難易度ごとのウェーブ増減（waveAddition）を反映した実際の生成ウェーブ数に
+      // 合わせないと、Easyで存在しないウェーブへの範囲外アクセス、Hardで
+      // 本来より2ウェーブ早い勝利判定が発生する。
+      waves = _baseWavesForDifficulty(difficulty).length;
     }
     return TdGameState(
       cols: cols,
@@ -850,10 +853,14 @@ class TdEngine {
       enemies: const [],
     );
 
-    // スキル効果を適用
+    // スキル効果を適用（「次ウェーブのみ」の効果のため、適用後は必ずリセットする。
+    // これをUI側の手動リセットだけに頼ると、ウェーブ間カウントダウンが自動満了して
+    // tick() 経由でこの関数が呼ばれた場合にリセットされず、以降全ウェーブに
+    // 効果が永続的に残ってしまう）
     if (state.selectedSkill != null) {
       newState = applySkillEffect(newState, state.selectedSkill!);
     }
+    newState = newState.copyWith(selectedSkill: null);
 
     return newState;
   }
@@ -1231,7 +1238,7 @@ class TdEngine {
     } else if (enemies.isEmpty && spawner.spawned >= waveDef.enemyCount) {
       // ウェーブクリア
       score += 100;
-      if (state.currentWave >= totalWaves) {
+      if (state.currentWave >= state.totalWaves) {
         nextPhase = GamePhase.victory;
         events.add('victory');
       } else {
@@ -1303,7 +1310,7 @@ class TdEngine {
   ) {
     // 3x3範囲（中心 ± 1グリッド）内の敵を探す
     for (final enemy in enemies) {
-      if (enemy.isDead || enemy.id == '' && enemy == enemies.last) continue;
+      if (enemy.isDead) continue;
       final ePos = enemy.posOnPath(path);
       final dx = (ePos.dx - targetPos.dx).abs();
       final dy = (ePos.dy - targetPos.dy).abs();
@@ -1359,7 +1366,7 @@ class TdEngine {
         }
         break;
 
-      case FacilityType.heimeyuriTower:
+      case FacilityType.shisaGuardian:
         // 40% 確率でスタン1秒
         if (_rng.nextDouble() < 0.4) {
           if (!target.isStunned && target.stunEndTime <= now) {
@@ -1401,7 +1408,7 @@ class TdEngine {
       FacilityType.toyotaFactory,
       FacilityType.kiyomizuTemple,
       FacilityType.peaceShrine,
-      FacilityType.heimeyuriTower,
+      FacilityType.shisaGuardian,
       FacilityType.umeSakeBrewery,
       FacilityType.udonShop,
     ].contains(type);
@@ -1414,7 +1421,7 @@ class TdEngine {
     '23': FacilityType.toyotaFactory,  // 愛知
     '26': FacilityType.kiyomizuTemple, // 京都
     '34': FacilityType.peaceShrine,    // 広島
-    '47': FacilityType.heimeyuriTower, // 沖縄
+    '47': FacilityType.shisaGuardian, // 沖縄
     '30': FacilityType.umeSakeBrewery, // 和歌山
     '40': FacilityType.udonShop,       // 福岡
   };

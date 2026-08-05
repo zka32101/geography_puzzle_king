@@ -581,7 +581,7 @@ const List<PrefectureData> allPrefectures = [
   PrefectureData(
     code: '39', name: '高知県', kana: 'こうちけん',
     capitalCity: '高知市', population: 700000, area: 7103,
-    specialties: ['かつおのたたき', '土佐文旦', '龍馬', 'ゆず'],
+    specialties: ['かつおのたたき', '土佐文旦', '土佐犬', 'ゆず'],
     region: Region.shikoku, color: '#DC143C',
     boss: BossData(name: '海賊船長', type: 'pirate', baseHp: 160, baseAttack: 25, skill: '海賊突進'),
     companion: CompanionData(id: 'kochi_whale', name: '土佐の鯨', description: '太平洋を自由に泳ぐ巨大な海の王者', rarity: 'legend', skills: ['breach', 'sonar']),

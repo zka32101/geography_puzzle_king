@@ -22,7 +22,7 @@ const Map<String, String> facilityTypeImages = {
   'toyotaFactory': 'assets/images/facilities/トヨタ.jpg',
   'kiyomizuTemple': 'assets/images/facilities/清水寺.jpg',
   'peaceShrine': 'assets/images/facilities/広島平和.jpg',
-  'heimeyuriTower': 'assets/images/facilities/沖縄ひめゆり.jpg',
+  'shisaGuardian': 'assets/images/facilities/沖縄シーサー守り.jpg',
   'umeSakeBrewery': 'assets/images/facilities/梅酒.jpg',
   'udonShop': 'assets/images/facilities/博多うどん.jpg',
 };

@@ -1142,6 +1142,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => ResultScreen(

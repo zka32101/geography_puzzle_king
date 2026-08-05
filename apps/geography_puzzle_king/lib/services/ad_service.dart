@@ -29,12 +29,16 @@ class AdService {
 
   static Future<void> initialize() => MobileAds.instance.initialize();
 
-  BannerAd createBannerAd({required void Function() onLoadFailed}) {
+  BannerAd createBannerAd({
+    required void Function() onLoadFailed,
+    required void Function() onLoaded,
+  }) {
     return BannerAd(
       adUnitId: AdUnitIds.banner,
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
+        onAdLoaded: (ad) => onLoaded(),
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
           onLoadFailed();

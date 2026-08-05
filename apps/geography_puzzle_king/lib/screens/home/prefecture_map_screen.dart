@@ -1418,7 +1418,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
         return '敵への被ダメージ+40%';
       case FacilityType.peaceShrine:
         return '敵にシールドを付与し弱体化';
-      case FacilityType.heimeyuriTower:
+      case FacilityType.shisaGuardian:
         return '40%でスタン（1秒）';
       case FacilityType.umeSakeBrewery:
         return '50%でスロー付与';

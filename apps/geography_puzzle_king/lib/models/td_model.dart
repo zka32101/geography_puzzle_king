@@ -36,7 +36,7 @@ enum FacilityType {
   toyotaFactory,    // 愛知 (23)
   kiyomizuTemple,   // 京都 (26)
   peaceShrine,      // 広島 (34)
-  heimeyuriTower,   // 沖縄 (47)
+  shisaGuardian,   // 沖縄 (47)
   umeSakeBrewery,   // 和歌山 (30)
   udonShop,         // 福岡 (40)
 }
@@ -55,7 +55,7 @@ extension FacilityTypeX on FacilityType {
       case FacilityType.toyotaFactory: return 'トヨタ工場';
       case FacilityType.kiyomizuTemple: return '清水寺';
       case FacilityType.peaceShrine:  return '平和記念碑';
-      case FacilityType.heimeyuriTower: return 'ひめゆりの塔';
+      case FacilityType.shisaGuardian: return 'シーサー守り';
       case FacilityType.umeSakeBrewery: return '紀州梅酒醸造所';
       case FacilityType.udonShop:     return 'うどん店';
     }
@@ -74,7 +74,7 @@ extension FacilityTypeX on FacilityType {
       case FacilityType.toyotaFactory: return 140;
       case FacilityType.kiyomizuTemple: return 110;
       case FacilityType.peaceShrine:  return 125;
-      case FacilityType.heimeyuriTower: return 135;
+      case FacilityType.shisaGuardian: return 135;
       case FacilityType.umeSakeBrewery: return 115;
       case FacilityType.udonShop:     return 80;
     }
@@ -93,7 +93,7 @@ extension FacilityTypeX on FacilityType {
       case FacilityType.toyotaFactory: return 24;
       case FacilityType.kiyomizuTemple: return 22;
       case FacilityType.peaceShrine:  return 14;
-      case FacilityType.heimeyuriTower: return 15;
+      case FacilityType.shisaGuardian: return 15;
       case FacilityType.umeSakeBrewery: return 13;
       case FacilityType.udonShop:     return 11;
     }
@@ -112,7 +112,7 @@ extension FacilityTypeX on FacilityType {
       case FacilityType.toyotaFactory: return 1.6;
       case FacilityType.kiyomizuTemple: return 1.9;
       case FacilityType.peaceShrine:  return 2.1;
-      case FacilityType.heimeyuriTower: return 1.7;
+      case FacilityType.shisaGuardian: return 1.7;
       case FacilityType.umeSakeBrewery: return 2.0;
       case FacilityType.udonShop:     return 1.4;
     }
@@ -131,7 +131,7 @@ extension FacilityTypeX on FacilityType {
       case FacilityType.toyotaFactory: return 1.9;
       case FacilityType.kiyomizuTemple: return 1.2;
       case FacilityType.peaceShrine:  return 0.7;
-      case FacilityType.heimeyuriTower: return 1.0;
+      case FacilityType.shisaGuardian: return 1.0;
       case FacilityType.umeSakeBrewery: return 1.1;
       case FacilityType.udonShop:     return 2.0;
     }
@@ -150,7 +150,7 @@ extension FacilityTypeX on FacilityType {
       case FacilityType.toyotaFactory: return '🏗️';
       case FacilityType.kiyomizuTemple: return '🕯️';
       case FacilityType.peaceShrine:  return '🛡️';
-      case FacilityType.heimeyuriTower: return '🏝️';
+      case FacilityType.shisaGuardian: return '🦁';
       case FacilityType.umeSakeBrewery: return '🫖';
       case FacilityType.udonShop:     return '🍲';
     }
@@ -256,7 +256,7 @@ class Facility {
   double speedPenaltyEndTime;   // dairyFarm のデバフ期限
   double slowEndTime;            // 減速効果の期限
   int shieldHp;                  // peaceShrine のシールドHP
-  bool isStunned;                // heimeyuriTower のスタン状態
+  bool isStunned;                // shisaGuardian のスタン状態
   double stunEndTime;            // スタン期限
   String? specialFacility;        // 'airport' (1.5x攻撃速度), 'base' (3x3範囲ダメージ), or null
 
@@ -324,7 +324,7 @@ class Enemy {
   double umeSakeSlowEndTime; // umeSakeBrewery のスロー期限（×0.65）
   int shieldHp; // peaceShrine のシールド（敵が生成するテンポラリHP）
   double damageMultiplier; // kiyomizuTemple による最終ダメージボーナス倍率
-  double stunEndTime; // heimeyuriTower のスタン期限
+  double stunEndTime; // shisaGuardian のスタン期限
 
   Enemy({
     required this.id,
@@ -443,6 +443,12 @@ class TdGameState {
   bool get isGameOver => baseHp <= 0 || phase == GamePhase.defeat;
   bool get isVictory => phase == GamePhase.victory;
 
+  // copyWith で selectedSkill を明示的に null にリセットできるようにするための
+  // 番人（sentinel）値。単純な `selectedSkill ?? this.selectedSkill` パターンだと
+  // 呼び出し側が `selectedSkill: null` を渡しても「未指定」と区別できず、
+  // 元の値がそのまま残ってしまう（ウェーブスキルが永続化するバグの原因だった）。
+  static const Object _unset = Object();
+
   TdGameState copyWith({
     Map<GridPos, Facility>? facilities,
     List<Enemy>? enemies,
@@ -458,7 +464,7 @@ class TdGameState {
     double? enemySpeedPenalty,
     int? shieldHits,
     Map<FacilityType, double>? facilityBonusMap,
-    String? selectedSkill,
+    Object? selectedSkill = _unset,
     bool? waveSkillActive,
     double? hqCoinMultiplier,
   }) {
@@ -484,7 +490,9 @@ class TdGameState {
       facilityBonusMap: facilityBonusMap ?? this.facilityBonusMap,
       isRegionBattle: isRegionBattle,
       regionCode: regionCode,
-      selectedSkill: selectedSkill ?? this.selectedSkill,
+      selectedSkill: identical(selectedSkill, _unset)
+          ? this.selectedSkill
+          : selectedSkill as String?,
       waveSkillActive: waveSkillActive ?? this.waveSkillActive,
       hqCoinMultiplier: hqCoinMultiplier ?? this.hqCoinMultiplier,
     );

@@ -8,7 +8,7 @@ import 'package:geography_puzzle_king/utils/history_stage_data.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/utils/region_data.dart';
 
-class ResultScreen extends ConsumerWidget {
+class ResultScreen extends ConsumerStatefulWidget {
   final String prefectureCode;
   final String regionCode;
   final String difficulty;
@@ -28,38 +28,44 @@ class ResultScreen extends ConsumerWidget {
     required this.isCleared,
   }) : super(key: key);
 
-  PrefectureData? get _prefecture => getPrefectureByCode(prefectureCode);
-  RegionData? get _region => (!regionCode.startsWith('h') && regionCode.isNotEmpty)
-      ? getRegionByCode(regionCode)
+  @override
+  ConsumerState<ResultScreen> createState() => _ResultScreenState();
+}
+
+class _ResultScreenState extends ConsumerState<ResultScreen> {
+  PrefectureData? get _prefecture => getPrefectureByCode(widget.prefectureCode);
+  RegionData? get _region => (!widget.regionCode.startsWith('h') && widget.regionCode.isNotEmpty)
+      ? getRegionByCode(widget.regionCode)
       : null;
   HistoryStageData? get _historyStage =>
-      regionCode.startsWith('h') ? getHistoryStageByCode(regionCode) : null;
+      widget.regionCode.startsWith('h') ? getHistoryStageByCode(widget.regionCode) : null;
 
   String get _timeString {
-    final m = clearTime ~/ 60;
-    final s = clearTime % 60;
+    final m = widget.clearTime ~/ 60;
+    final s = widget.clearTime % 60;
     return m > 0 ? '$m分${s}秒' : '$s秒';
   }
 
-  String get _diffLabel => switch (difficulty) {
+  String get _diffLabel => switch (widget.difficulty) {
     'easy' => 'イージー',
     'hard' => 'ハード',
     _ => 'ノーマル',
   };
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    // クリア時に県記録を保存。initState はこの State の生存期間中に一度しか
+    // 呼ばれないため、build() 内で行っていた場合に発生していた
+    // rebuild毎の二重/三重報酬付与（EXP・スコア・バッジの重複加算）を防げる。
     final pref = _prefecture;
-    final earnedBadges = ref.read(gameServiceProvider).getEarnedBadgeIds();
-
-    // クリア時に県記録を保存
-    if (isCleared && pref != null && regionCode.isEmpty) {
+    if (widget.isCleared && pref != null && widget.regionCode.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final baseExp = 10 + (clearTime ~/ 60) * 2 +
-            (difficulty == 'hard' ? 20 : (difficulty == 'easy' ? -5 : 0));
+        final baseExp = 10 + (widget.clearTime ~/ 60) * 2 +
+            (widget.difficulty == 'hard' ? 20 : (widget.difficulty == 'easy' ? -5 : 0));
         ref
             .read(prefectureRecordsProvider.notifier)
-            .recordClear(prefectureCode, score, difficulty, baseExp)
+            .recordClear(widget.prefectureCode, widget.score, widget.difficulty, baseExp)
             .then((_) {
           // 成功したら何もしない（状態更新は provider が処理）
         }).catchError((e) {
@@ -67,6 +73,12 @@ class ResultScreen extends ConsumerWidget {
         });
       });
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pref = _prefecture;
+    final earnedBadges = ref.read(gameServiceProvider).getEarnedBadgeIds();
 
     return Container(
       width: double.infinity,
@@ -75,7 +87,7 @@ class ResultScreen extends ConsumerWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: isCleared
+          colors: widget.isCleared
               ? [const Color(0xFF1B5E20), const Color(0xFF2E7D32)]
               : [const Color(0xFF7F0000), const Color(0xFFB71C1C)],
         ),
@@ -140,25 +152,25 @@ class ResultScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.lg),
               // 歴史決戦クリア情報
-              if (isCleared && _historyStage != null)
+              if (widget.isCleared && _historyStage != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                   child: _buildHistoryClearCard(_historyStage!),
                 ),
               // 地方決戦クリア情報
-              if (isCleared && _region != null)
+              if (widget.isCleared && _region != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                   child: _buildRegionClearCard(_region!),
                 ),
               // 県ファクト（クリア時のみ・通常戦）
-              if (isCleared && pref != null && regionCode.isEmpty)
+              if (widget.isCleared && pref != null && widget.regionCode.isEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                   child: _buildKolegaLearningCard(pref),
                 ),
               // 特別バッジ獲得表示
-              if (isCleared && earnedBadges.isNotEmpty)
+              if (widget.isCleared && earnedBadges.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                   child: _buildEarnedBadgesSection(earnedBadges),
@@ -181,14 +193,14 @@ class ResultScreen extends ConsumerWidget {
     return Column(
       children: [
         Text(
-          isCleared ? '🎉' : '💀',
+          widget.isCleared ? '🎉' : '💀',
           style: const TextStyle(fontSize: 64),
         ),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          isCleared ? 'クリア！' : 'ゲームオーバー',
+          widget.isCleared ? 'クリア！' : 'ゲームオーバー',
           style: TextStyle(
-            color: isCleared ? Colors.amber : Colors.redAccent.shade100,
+            color: widget.isCleared ? Colors.amber : Colors.redAccent.shade100,
             fontSize: 32,
             fontWeight: FontWeight.bold,
             shadows: const [
@@ -211,7 +223,7 @@ class ResultScreen extends ConsumerWidget {
           children: [
             // スコア（大きく）
             Text(
-              '$score',
+              '${widget.score}',
               style: const TextStyle(
                 color: Colors.amber,
                 fontSize: 48,
@@ -227,7 +239,7 @@ class ResultScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _buildStat('⏱ 時間', _timeString),
-                _buildStat('💥 ミス', '$mistakes 回'),
+                _buildStat('💥 ミス', '${widget.mistakes} 回'),
               ],
             ),
           ],

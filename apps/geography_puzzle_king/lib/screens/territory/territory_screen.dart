@@ -14,28 +14,35 @@ class TerritoryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final recordsAsync = ref.watch(prefectureRecordsProvider);
 
-    return recordsAsync.when(
-      data: (records) => _buildContent(context, records, ref),
-      loading: () => Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.blue.shade100, Colors.cyan.shade50],
-          ),
-        ),
-        child: const Center(child: CircularProgressIndicator()),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('日本統一マップ'),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
       ),
-      error: (error, stackTrace) => Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.red.shade100, Colors.red.shade50],
+      body: recordsAsync.when(
+        data: (records) => _buildContent(context, records, ref),
+        loading: () => Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.blue.shade100, Colors.cyan.shade50],
+            ),
           ),
+          child: const Center(child: CircularProgressIndicator()),
         ),
-        child: Center(
-          child: Text('エラー: $error'),
+        error: (error, stackTrace) => Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.red.shade100, Colors.red.shade50],
+            ),
+          ),
+          child: Center(
+            child: Text('エラー: $error'),
+          ),
         ),
       ),
     );
