@@ -1137,11 +1137,16 @@ class _GameScreenState extends ConsumerState<GameScreen>
       );
     }
 
-    if (!ref.read(premiumUnlockedProvider)) {
-      ref.read(adServiceProvider).showInterstitial();
-    }
+    final showAd = !ref.read(premiumUnlockedProvider);
+    final adService = ref.read(adServiceProvider);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // 広告（ネイティブの全画面Activity）が閉じるのを待たずに画面遷移すると、
+      // 広告のオーバーレイと新しいFlutter画面の描画が競合して白画面になる
+      // 不具合があったため、必ず閉じるのを待ってから遷移する。
+      if (showAd) {
+        await adService.showInterstitial();
+      }
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(

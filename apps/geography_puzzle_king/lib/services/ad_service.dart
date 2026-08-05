@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -70,6 +71,12 @@ class AdService {
 
   /// 読み込み済みのインタースティシャル広告を表示する。
   /// 未読み込みの場合は何もせず終了し、次回のために読み込みを開始する。
+  ///
+  /// 返り値のFutureは、広告が実際に閉じられる（または表示に失敗する）まで
+  /// 完了しない。`ad.show()` 自体は表示を開始した時点で即座に完了してしまう
+  /// （閉じるまでは待たない）ため、呼び出し側がこれを待たずに画面遷移すると、
+  /// ネイティブ広告Activityと新しいFlutter画面の描画が競合し、白画面になる
+  /// 不具合があった。呼び出し側は必ず `await` してから遷移すること。
   Future<void> showInterstitial() async {
     final ad = _interstitialAd;
     if (ad == null) {
@@ -77,17 +84,22 @@ class AdService {
       return;
     }
     _interstitialAd = null;
+
+    final completer = Completer<void>();
     ad.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {
         ad.dispose();
         preloadInterstitial();
+        if (!completer.isCompleted) completer.complete();
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
         ad.dispose();
         preloadInterstitial();
+        if (!completer.isCompleted) completer.complete();
       },
     );
     await ad.show();
+    await completer.future;
   }
 
   void dispose() {
