@@ -1,4 +1,4 @@
-// 地理パズル王（日本領土ディフェンス）のアプリアイコンをLeonardo AIで生成する。
+// 地理パズル王（ゲームで学ぶ都道府県）のアプリアイコンをLeonardo AIで生成する。
 // 実行: LEONARDO_API_KEY を環境変数に設定した状態で `node generate_icon.js`
 const fs = require('fs');
 const path = require('path');

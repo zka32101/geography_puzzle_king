@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="日本領土ディフェンス"
+        android:label="ゲームで学ぶ都道府県"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
