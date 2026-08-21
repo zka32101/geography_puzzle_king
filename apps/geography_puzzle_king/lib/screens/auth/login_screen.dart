@@ -102,7 +102,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: AppSpacing.lg),
 
                   const Text(
-                    '日本領土ディフェンス',
+                    'ゲームで学ぶ都道府県',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 28,

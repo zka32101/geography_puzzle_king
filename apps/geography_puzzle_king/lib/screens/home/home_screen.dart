@@ -187,7 +187,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      '日本領土ディフェンス',
+                      'ゲームで学ぶ都道府県',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 22,

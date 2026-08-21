@@ -87,7 +87,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     const Text(
-                      '日本領土ディフェンス',
+                      'ゲームで学ぶ都道府県',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,

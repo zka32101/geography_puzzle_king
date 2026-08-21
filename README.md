@@ -6,7 +6,7 @@ Petit Works Apps の各アプリをまとめて管理するモノレポです。
 
 ```
 apps/
-  geography_puzzle_king/   # 日本領土ディフェンス（都道府県タワーディフェンス）
+  geography_puzzle_king/   # ゲームで学ぶ都道府県（都道府県タワーディフェンス）
   (今後、他アプリを追加していく想定)
 ```
 
