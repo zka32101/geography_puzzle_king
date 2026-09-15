@@ -257,30 +257,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.4.12"
-  cloud_functions:
-    dependency: "direct main"
-    description:
-      name: cloud_functions
-      sha256: b9ece944fc8c97ac0937cdf45e895f4670213c722ed819581e3d517b43413753
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.6.2"
-  cloud_functions_platform_interface:
-    dependency: transitive
-    description:
-      name: cloud_functions_platform_interface
-      sha256: "9720aa2ba715bfb1de6a131c70bbb0fa79329294ec1327fd24ce08004a080dcc"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.8.2"
-  cloud_functions_web:
-    dependency: transitive
-    description:
-      name: cloud_functions_web
-      sha256: "7756b6a6cf16016dc4c8631c88b31b81156b129c40914a84021216a841c0b3d8"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.11.5"
   code_assets:
     dependency: transitive
     description:
@@ -377,30 +353,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.1"
-  firebase_analytics:
-    dependency: "direct main"
-    description:
-      name: firebase_analytics
-      sha256: "4f85b161772e1d54a66893ef131c0a44bd9e552efa78b33d5f4f60d2caa5c8a3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "11.6.0"
-  firebase_analytics_platform_interface:
-    dependency: transitive
-    description:
-      name: firebase_analytics_platform_interface
-      sha256: a44b6d1155ed5cae7641e3de7163111cfd9f6f6c954ca916dc6a3bdfa86bf845
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.4.3"
-  firebase_analytics_web:
-    dependency: transitive
-    description:
-      name: firebase_analytics_web
-      sha256: c7d1ed1f86ae64215757518af5576ff88341c8ce5741988c05cc3b2e07b0b273
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.10+16"
   firebase_auth:
     dependency: "direct main"
     description:
@@ -1041,10 +993,10 @@ packages:
     dependency: transitive
     description:
       name: sqflite_common
-      sha256: b3ebf7b30c8ae279615f146dfc29ea6ba097299294193107c85a7531ec2346d9
+      sha256: "077e38e82c099534146a2fb31b608c2a3a4489a0f21d9af6b2f5c87b566a1ea0"
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.12"
+    version: "2.5.13"
   sqflite_darwin:
     dependency: transitive
     description:
