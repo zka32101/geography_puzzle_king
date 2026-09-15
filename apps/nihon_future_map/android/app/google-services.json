@@ -1,4 +1,4 @@
-{
+﻿{
   "project_info": {
     "project_number": "946448575860",
     "project_id": "apps2-752cb",
@@ -85,7 +85,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:946448575860:android:e82c933388f25e3a37d021",
         "android_client_info": {
-          "package_name": "com.yourwish.japanfuturemap"
+          "package_name": "com..japanfuturemap"
         }
       },
       "oauth_client": [],
