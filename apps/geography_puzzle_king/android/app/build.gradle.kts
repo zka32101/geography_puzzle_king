@@ -26,10 +26,10 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = "release"
-            keyPassword = "geography_puzzle_king"
+            keyAlias = "geography-puzzle-king"
+            keyPassword = "geography2024!"
             storeFile = file(System.getProperty("user.home") + "/.android/release-key.jks")
-            storePassword = "geography_puzzle_king"
+            storePassword = "geography2024!"
         }
     }
 
