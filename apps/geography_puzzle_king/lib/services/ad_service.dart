@@ -8,7 +8,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 /// AdMobコンソールで作成した実際の広告ユニットIDに置き換えること。
 class AdUnitIds {
   static String get banner {
-    if (Platform.isAndroid) return 'ca-app-pub-5058227312086483/9803714654';
+    if (Platform.isAndroid) return 'ca-app-pub-5058227312086483/7793638149';
     if (Platform.isIOS) return 'ca-app-pub-3940256099942544/2934735716'; // TODO: iOS本番ID設定待ち
     throw UnsupportedError('この端末では広告に対応していません');
   }
