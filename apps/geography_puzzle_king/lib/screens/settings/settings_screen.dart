@@ -56,12 +56,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             title: 'プレイヤー名',
                             subtitle: _playerName,
                             onTap: _showPlayerNameDialog,
-                          ),
-                          _buildSettingTile(
-                            icon: Icons.email,
-                            title: 'メールアドレス',
-                            subtitle: 'not.logged.in@example.com',
-                            onTap: () {},
                             showDivider: false,
                           ),
                         ],

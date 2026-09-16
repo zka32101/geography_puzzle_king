@@ -135,6 +135,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        const SizedBox(height: AppSpacing.xs),
+                        const Text(
+                          'ひらがなまたはカタカナで入力してください',
+                          style: TextStyle(
+                            color: Colors.white54,
+                            fontSize: 12,
+                          ),
+                        ),
                         const SizedBox(height: AppSpacing.md),
                         TextField(
                           controller: _nicknameController,
