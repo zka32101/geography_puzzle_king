@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>日本領土ディフェンス</string>
+	<string>ゲームで学ぶ都道府県</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -63,8 +63,7 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
-	<!-- AdMob App ID: Googleの公式テストID。本番リリース前に、
-	     AdMobコンソールで作成した実際のApp IDに置き換えること。 -->
+	<!-- AdMob App ID: iOS本番ID設定待ち（Android はv1で設定済み） -->
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-3940256099942544~1458002511</string>
 	<key>SKAdNetworkItems</key>

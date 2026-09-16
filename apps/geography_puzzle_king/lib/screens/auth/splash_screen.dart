@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -87,7 +87,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     const Text(
-                      '譌･譛ｬ鬆伜悄繝・ぅ繝輔ぉ繝ｳ繧ｹ',
+                      'ゲームで学ぶ都道府県',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -96,7 +96,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     const Text(
-                      '日本全国の地図をマスターしよう',
+                      '日本全国の県をマスターしよう',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.white70,
@@ -117,7 +117,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ),
             ),
-            // 終了ロゴ（判定画面右下・大きめに表示）
+            // 組織ロゴ（画面下部・控えめに表示）
             Positioned(
               left: 0,
               right: 0,
@@ -133,7 +133,7 @@ class _SplashScreenState extends State<SplashScreen>
                         ClipRRect(
                           borderRadius: BorderRadius.circular(AppRadius.small),
                           child: Image.asset(
-                            'assets/images/branding/_logo.jpg',
+                            'assets/images/branding/yourwish_logo.jpg',
                             width: 32,
                             height: 32,
                           ),
@@ -158,4 +158,3 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 }
-

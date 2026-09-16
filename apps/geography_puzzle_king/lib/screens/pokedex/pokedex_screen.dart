@@ -31,15 +31,33 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('図鑑'),
-        backgroundColor: AppColors.primary,
+        title: const Row(
+          children: [
+            Text('📖', style: TextStyle(fontSize: 20)),
+            SizedBox(width: AppSpacing.sm),
+            Text('図鑑'),
+          ],
+        ),
+        backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
+        elevation: 0,
+        flexibleSpace: const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.heroTop, AppColors.heroBottom],
+            ),
+          ),
+        ),
         bottom: TabBar(
           controller: _tabController,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
-          indicatorColor: Colors.white,
+          indicatorColor: AppColors.accent,
+          indicatorWeight: 3,
           tabs: const [
             Tab(text: 'クリア県'),
             Tab(text: '統計'),
