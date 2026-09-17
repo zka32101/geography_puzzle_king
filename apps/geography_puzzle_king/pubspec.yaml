@@ -89,6 +89,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true
 
   # SPM自動検出を明示的に無効化し、CocoaPods構成のみを使うようにする。
   config:
