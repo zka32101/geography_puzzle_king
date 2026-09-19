@@ -1,1355 +1,1355 @@
-# 日本の未来マップ — 実装ステータス
-
-**最終更新**: 2026-07-28  
-**フェーズ**: 課題一覧の投票ボタン廃止・CI用GitHubアカウント(zkacry)への移行・ビルド5でApp Store審査提出
-
-## 77. CI用GitHubアカウントをzkacryに移行・ビルド5でApp Store審査提出（2026-07-28）
-- 従来のCI用アカウント`zka32103-coder`が支払い停止でCI実行不能になったため、新アカウント
-  `zkacry`でリポジトリ`japan_future_map`を新規作成し、`git remote add origin-zkacry`で追加。
-  iOS署名用Secrets（APP_STORE_CONNECT_API_KEY_BASE64・ISSUER_ID・KEY_ID・FASTLANE_TEAM_ID・
-  IOS_DIST_CERT_BASE64・IOS_DIST_CERT_PASSWORD・IOS_PROVISION_PROFILE_BASE64）を
-  `H:\マイドライブ\key\`・`ios-signing\`のローカル保存ファイルから再設定（Issuer IDは
-  [[reference_apple_appstore_connect_credentials]]のメモリから復元）。動作確認のテストビルド成功
-- Android統一+投票修正（#75）・投票ボタン廃止（#76）を含むビルド5でTestFlightアップロード済み。
-  App Store Connect側で連絡先情報・スクリーンショット（iPhone 1284×2778px・iPad 2048×2732px）を
-  設定し、ビルド5を選択した状態で審査提出完了（2026-07-28）
-
-## 76. 課題一覧「投票する」ボタンの削除・「これは問題」ボタンの一本化（2026-07-28）
-- 課題一覧カードの「投票する」ボタンを削除し、「これは問題」（賛同）を主要アクションに統一。
-  課題詳細画面にも同じ「これは問題」ボタンを対策案セクションの直上に新規追加（`_AgreeSection`）
-- 使われなくなった`voteChallengeProvider`・`FirebaseService.voteChallenge()`を削除
-- おすすめ機能・実績バッジ（「一票を投じた」「投票マスター」等）の判定基準を、廃止した投票
-  （`votedChallengeIdsProvider`）から賛同（`agreedChallengeIdsProvider`にリネーム）ベースに変更。
-  マイページの表示文言（「あなたが投票した課題」→「あなたが賛同した課題」等）も整合させた
-- `flutter analyze`・`flutter test`（35件）ともにC:\apk同期コピー上でPASSを確認
-
-## 75. Android版のFirebaseプロジェクト統一とFirestore投票不具合の根本修正（2026-07-27）
-実機（Android）で「投票できない」を報告いただき、4段階の根本原因が見つかった。
-- **原因1: Android版が別のFirebaseプロジェクトに接続していた**: iOS版は`apps2-752cb`を使っているのに
-  Android版は`petit-works-apps-9029a`（未設定・ルール未公開）に接続していた。ユーザーの判断で
-  `apps2-752cb`に統一することとし、パッケージ名を`com.petitworksapps.japanfuturemap`→
-  `com.yourwish.japanfuturemap`に変更（`build.gradle.kts`のnamespace/applicationId、
-  `MainActivity.kt`のパッケージパス移動、新しい`google-services.json`への差し替え、
-  `firebase_options.dart`のandroidブロック更新）
-- **原因2: 名前付きFirestoreデータベースの不一致**: `apps2-752cb`は他アプリ（将棋アプリ等）と共用の
-  プロジェクトで、Firestoreは各アプリ専用の名前付きデータベース（`japanfuturemap`等）に分かれている。
-  `FirebaseFirestore.instance`は未指定だと`(default)`データベースに繋がってしまい、
-  `japanfuturemap`側にだけ公開したセキュリティルールが一切効かずPERMISSION_DENIEDになっていた。
-  `FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: 'japanfuturemap')`を明示指定して修正
-- **原因3: セキュリティルールが「自分の投票」の読み取りまで拒否していた**: `votes`/`agrees`/`likes`/
-  `policyVotes`の各サブコレクションが`allow read: if false`（誰にも読ませない）になっていたが、
-  アプリ側は投票前に`voteRef.get()`で「既に投票済みか」を自己チェックする実装のため、この自己チェック
-  自体がPERMISSION_DENIEDで失敗していた。`allow read: if request.auth.uid == userId`（本人のみ）に
-  変更し、他人の投票が見えないプライバシーは維持したまま自己チェックを通るよう修正
-- **原因4: セキュリティルールの`resource.data == null`判定がFirestore rules上で無効**: `challenges`/
-  `policyOptions`の書き込みルールで、未作成ドキュメントへの初回書き込みを許可する意図で
-  `resource.data == null ? {} : resource.data`と書いていたが、ドキュメントが存在しないとき
-  `resource`自体が`null`になるため`resource.data`へのアクセス時点でルール評価がエラーとなり、
-  常に拒否されていた。`resource == null ? {} : resource.data`に修正
-- 上記4点をすべて修正のうえ実機で対策案投票の成功を確認。`USER_PROCEDURE.md`のルール例も同様に更新
-- TestFlightビルド番号を`4`→`5`に更新（この修正をiOS版にも反映するため）
-
-## 74. 投票/賛同の不具合修正・iPad対応復元・アプリについて画面・省庁問い合わせ記録機能（2026-07-27）
-- **投票・賛同が常に失敗するバグを修正**: `FirebaseService.voteChallenge()`/`agreeChallenge()`が
-  `challenges/{id}`ドキュメントに対し`.update()`を使用していたが、このドキュメントはFirestore上に
-  一度も作成されていなかった（課題一覧は常にローカルモックデータを表示しており、Firestoreへの
-  書き込みが発生していなかったため）。`.update()`は対象ドキュメント不在だとNOT_FOUNDで失敗し、
-  例外はcatchされ`false`が返るだけでユーザーには何のエラー表示もされていなかった。
-  `set(..., SetOptions(merge: true))`に変更し、ドキュメントが無ければ作成・あれば増分するよう修正
-  （対策案投票`votePolicyOptionProvider`は元々この書き方で正常だった）
-- **iPad対応を一度iPhone専用に変更→ユーザー判断で復元**: 13インチiPadスクリーンショット要件を
-  一時回避するため`TARGETED_DEVICE_FAMILY`を`"1"`（iPhone専用）にしたが、iPad対応を維持したいとの
-  判断により`"1,2"`に復元。レイアウトはスマホ向け単一カラムのまま（iPad最適化は未実施・将来課題）
-- **「このアプリについて」画面を新規追加**（`about_screen.dart`）: アプリ概要・主な機能一覧・
-  データについての注記・プライバシーポリシー/サポートページへのリンクを掲載。マイページ最下部から遷移
-- **省庁・窓口への問い合わせ記録機能を新規追加**: `AgencyContact`エンティティ＋
-  `LoadAgencyContacts`ユースケースを、既存の`DietBill`/`IssueAdvocate`と同じ
-  「開発者がDartファイルに手動で記録を追記する」パターンで新設。
-  課題一覧カード・俯瞰マップに✉️バッジ、課題詳細画面に専用セクションを追加（該当課題がある場合のみ表示）。
-  **実際に問い合わせを行った記録のみを掲載する方針**のため、初期データは空
-- App Store提出用の自動スクリーンショット生成（fl_chartウィジェットツリーからのレンダリング）を
-  試みたが、`google_fonts`のネットワーク取得がテストのフェイク非同期ゾーンで失敗し、
-  `runAsync`経由に直しても10分以上ハングしたため撤回。実機（TestFlight）での手動撮影に切り替え
-- TestFlightビルド番号を 1→2（新機能追加）→3（投票修正）→4（アプリについて＋問い合わせ機能）の順で
-  4回アップロード。すべて`zka32103-coder/nihon_future_map`のCI経由で成功
-
-**確認事項**:
-- ✅ 全35テスト通過（`flutter test`、機能追加のたびに実行）
-- ✅ Android release APKビルド成功×2（56.1MB）
-- ✅ iOS署名付きビルド＋TestFlightアップロード成功×2（ビルド番号3・4）
-- 📝 `AgencyContact`のデータは空。実際に省庁・窓口へ問い合わせた際は、問い合わせ先・方法・
-  ステータス・内容要約・（あれば）回答要約・時点を`load_agency_contacts.dart`に追記する
-
-## 73. モックデータの初期投票数リセット（2026-07-25）
-- `firebase_service.dart`の`getMockChallenges()`内、全課題（51件）の`voteCount`・`agreeCount`を
-  ハードコードされていた初期値から`0`にリセット
-- `load_policy_options.dart`の全対策案（153件、`_o()`呼び出しの末尾引数）の`voteCount`も同様に`0`にリセット
-- ユーザー選択により、対象は**アプリ内モックデータの初期票数（コード側）のみ**。Firestore本番データや
-  端末ローカルの「投票済み」状態（`votedChallengeIdsProvider`等、現状アプリ再起動で消えるメモリ内state）は対象外
-- 副作用として、注目度マップ（`_AttentionMap`、[[project_nihon_future_map]]の72番で追加）が
-  `voteCount > 0`のみを対象にしていたため、リセット直後は空表示になる不具合を発見・修正。
-  全課題を対象にし、`voteCount == 0`の課題は賛同率0%（x=0）としてプロットするよう変更。
-  また`maxY`が0だと散布図が潰れる問題も`maxVotes == 0 ? 10 : maxVotes * 1.15`でガード
-- ✅ `dart format`・全35テストPASS
-
-## 72. 財務省の情報統制論争・注目度＆予算マップ・政党個人の主張機能を追加（2026-07-25）
-- **新規課題「財務省の情報発信力と『ザイム真理教』論争」**を追加（id: `finance_ministry_narrative_control`,
-  category: `structural`）。財務省が緊縮財政・増税路線を政治家・メディア・国民に浸透させているとの
-  批判（通称「ザイム真理教」、森永卓郎氏『ザイム真理教』2023年が起点）と、財政規律の必要性を訴える
-  反論（岸博幸氏の批判記事等）を両論併記。既存の`bureaucracy_influence`（官僚機構の影響力）とは
-  切り口を分け、情報発信・世論形成という角度に絞った。対策案3件・ChallengeDetail（macro/detail/outlook）も追加
-- **`Challenge`に`budgetTrillionYen`（予算規模・兆円、nullable）を追加**。出典・時点が確認できた
-  9課題のみ設定（国債費31.3兆円→`national_debt`、防衛関係費8.8兆円→`defense_budget_funding`、
-  地方交付税交付金等20.9兆円→`local_fiscal_dependency`、文教科学振興費6.0兆円→`education_gap`、
-  公共事業関係費6.1兆円→`disaster_recovery_cost`、特別会計歳出総額400兆円→`special_account_opacity`、
-  介護給付費3.7兆円→`caregiver_shortage`、少子化対策費3.5兆円→`childcare_waitlist`、一般会計総額
-  122.3兆円→新規課題。すべて財務省・厚労省の予算資料をWebSearchで確認した令和7-8年度の実数）
-- **政党・個人の主張を課題に関連付ける新機能**: `IssueAdvocate`エンティティ＋`LoadIssueAdvocates`
-  ユースケースを新設。一次資料（政党公式サイト・政府資料・報道）で裏取りできた6課題・16件のみ掲載
-  （`money_in_politics`＝企業団体献金への自民・立憲・共産の立場、`hereditary_politicians`＝世襲制限
-  への維新・立憲・自民の立場、`women_in_politics`＝クオータ制への立憲・共産・政府目標、
-  `defense_budget_funding`＝財源方針への政府与党・国民民主の立場、`income_stagnation`＝
-  「年収の壁」への国民民主の立場、新規課題`finance_ministry_narrative_control`＝森永卓郎氏・岸博幸氏の
-  両論）。`ChallengeDetailScreen`に「政党・個人が挙げている主張」セクションを`_DietBillSection`と
-  同様のパターンで追加（該当課題がある場合のみジャンプバーに表示）
-- **「週刊 ランキング」画面にマップタブを追加**（2タブ→3タブ）。`_ChallengeMapTab`で
-  `SegmentedButton`により2種類のfl_chart `ScatterChart`を切替表示:
-  - 注目度マップ: 横軸＝賛同率（agreeCount/voteCount）、縦軸＝投票数。右上ほど「多くの人が注目し
-    強く賛同している」課題、左下は「まだ知られていないが知られれば支持されるかもしれない」課題
-  - 予算マップ: 円の大きさ＝関連する国の予算区分の規模（兆円）、縦軸＝投票数。budgetTrillionYenが
-    設定された9課題のみ対象。個別課題への予算配分ではなく参考値である旨をUI上に明記
-  - いずれもプロットタップで該当`ChallengeDetailScreen`に遷移
-
-**確認事項**:
-- ✅ `dart format`実行（4ファイル整形）
-- ✅ 全35テスト通過（`flutter test`）
-- ⚠️ ローカル`flutter analyze`は既知の日本語パスLSPクラッシュ（[[reference_flutter_ios_github_actions_ci]]参照）で
-  実行不可のため未検証。CI（Linux）側の`analyze-and-test`ジョブでの確認が必要
-- 🔧 Android release APKビルドは`build-flutter-apk`スキルで実行中
-- 📝 政党・個人の主張データは6課題・16件のみ（全51課題中）。政治的機微さを考慮し、
-  一次資料で裏取りできたものに限定。範囲拡大は今後の課題
-
-## 71. iOS署名付きビルド・TestFlightアップロード パイプライン完全成功（2026-07-24）
-- `zka32103-coder/nihon_future_map`（4つ目のリポジトリ、請求ブロックのなかったアカウント）で
-  `build-ios-signed`ジョブの再実行（失敗ジョブのみ再実行、`gh run rerun --failed`でコスト削減）が
-  **全ジョブPASS**で完了。iOSの証明書インポート→署名→アーカイブ→IPA生成→TestFlightアップロードの
-  一連のパイプラインが、GitHub Actions上で完全に自動化された状態で動作することを実証した
-  （run: https://github.com/zka32103-coder/nihon_future_map/actions/runs/30087506632）
-- これまでの一連の作業で解決した問題（すべて解消済み）:
-  1. p12証明書パスワードの末尾改行混入（`echo`ではなく`printf`で登録）
-  2. OpenSSL 3.xのデフォルト暗号化方式とmacOS `security`コマンドの非互換（`-legacy`フラグで再生成）
-  3. Xcodeプロジェクトの署名方式が`Automatic`のままだった問題（`CODE_SIGN_STYLE=Manual`・
-     `DEVELOPMENT_TEAM`・`PROVISIONING_PROFILE_SPECIFIER`を明示設定）
-  4. Firebaseプラグインの非モジュラーヘッダー問題（メジャーバージョンアップで解決、
-     Podfileレベルの回避策では直せなかった）
-  5. Firebaseアップグレードに伴うSwift Package Manager自動検出との衝突
-     （`pubspec.yaml`で明示的に無効化）
-  6. 直前のTestFlightアップロード失敗はApple側の一時的な500エラーで、再実行のみで解決
-- 途中、GitHub Actionsの請求ブロックに**3つのアカウント**（`funvestment1-svg`・
-  `petitworksappsdev-hash`・`zka32101`）が次々と到達し、最終的に4つ目のアカウント
-  （`zka32103-coder`）で検証を完了した
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ Android debug APKビルド成功
-- ✅ **iOS署名付きIPAビルド＋TestFlightアップロード成功**（このアプリで初のiOS実配布物）
-- 📝 次のステップ: App Store ConnectでTestFlightのビルド処理完了を待ち、内部テスターへの
-  配信・実機での動作確認に進む
-
-## 70. Swift Package Manager自動検出の無効化（2026-07-24）
-- Firebaseパッケージのアップグレード（#69）により、以前の`Include of non-modular header`
-  エラーは解消したが、新しいFirebaseプラグインがSwift Package Manager (SPM)対応になったため、
-  Flutter 3.44がiOSビルド時に「全プラグインがSwift Package」と自動検出し、既存のPodfileベース
-  構成と混在させようとして`Error (Xcode): The sandbox is not in sync with the Podfile.lock`
-  というエラーになった
-- サブエージェントで調査した結果、これはキャッシュの問題ではなく、Flutter 3.44から
-  SPMがデフォルトで有効になったことによる既知の挙動（[flutter/flutter#151504](https://github.com/flutter/flutter/issues/151504)、
-  [公式ドキュメント](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers)）
-  と判明。BoringSSL-GRPC・gRPC-Coreへのソースパッチなど、既存のPodfile構成をそのまま維持したい
-  ため、SPMへの移行ではなく無効化を選択
-- `pubspec.yaml`に`flutter.config.enable-swift-package-manager: false`を追加し、
-  CocoaPodsのみを使う構成に固定
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ⏳ `build-ios-signed`ジョブの再実行結果は次項に追記予定
-
-## 69. Firebaseパッケージのメジャーバージョンアップ（2026-07-24）
-- `build-ios-signed`ジョブが`Include of non-modular header inside framework module
-  'firebase_messaging.FLTFirebaseMessagingPlugin'`で3回連続失敗（`use_modular_headers!`・
-  `CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES`の両Podfile修正を試すも解消せず）
-- サブエージェントで根本原因を調査した結果、**Podfileでは直せない、FlutterFireプラグイン
-  自体の既知の不具合**と判明。旧バージョンのFirebaseプラグインが古い`#import <Firebase/Firebase.h>`
-  （umbrella header）を使っており、Xcode 16の厳格なモジュラーヘッダーチェックに抵触していた。
-  メンテナーが2024年9月のリリース（[flutterfire#13400](https://github.com/firebase/flutterfire/pull/13400)）で
-  各プラグインのソースコード側を個別モジュラーimportに修正済み
-- ユーザー確認の上、Firebase関連パッケージをメジャーバージョンアップ:
-  - `firebase_core`: ^2.28.0 → ^3.6.0（解決: 3.15.2）
-  - `cloud_firestore`: ^4.15.0 → ^5.4.3（解決: 5.6.12）
-  - `firebase_auth`: ^4.19.0 → ^5.3.1（解決: 5.7.0）
-  - `firebase_analytics`: ^10.8.0 → ^11.3.3（解決: 11.6.0）
-  - `firebase_messaging`: ^14.7.0 → ^15.1.3（解決: 15.2.10）
-- Dartコード側のAPI利用は特に変更不要だった（既存の呼び出しパターンが新バージョンでも
-  引き続き有効）。全35テストPASS
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（55.9MB、Android側にFirebase SDKアップグレードの影響なし）
-- ⏳ `build-ios-signed`ジョブの再実行結果は次項に追記予定
-
-## 68. iOS署名付きビルド・TestFlightアップロードの自動化（2026-07-24）
-- 「アップロードビルドはどうやる」という要望を受け、GitHub Actionsで署名付きIPAを
-  ビルドしTestFlightへ自動アップロードする`build-ios-signed`ジョブを追加
-- **GitHubアカウントの移行**: `funvestment1-svg`・`petitworksappsdev-hash`の両アカウントが
-  Actions請求ブロック中だったため、新たに`zka32101`アカウント（Personal Access Token認証）に
-  リポジトリを移行。`git remote`は`origin-funvestment1`・`origin-petitworksappsdev`として
-  旧リモートを保持。CI正常動作を確認済み（test/build-android PASS）
-- **証明書一式をopensslでWindows上で生成**（Mac不要）: CSR生成→Apple Developerで
-  Distribution証明書発行→`.p12`変換までを`ios-signing/`フォルダ（gitignore対象）で実施。
-  1回目のアップロードは証明書とCSRの不一致でエラーになり、同じCSRファイルで再発行して解決
-- **Provisioning Profile**（`JapanFutureMap App Store`）をApple Developerで作成、
-  Bundle ID `com.yourwish.japanfuturemap`・Team ID `6UWJGP52W5`と正しく紐付くことを確認
-- **App Store Connect API Key**: 当初、別アプリ（Potion Kitchen）で発行済みのキーを
-  再利用しようとしたが、GitHub Secretsの値は読み出し不可のため、artifactに書き出す形での
-  移行を試みるも両アカウントの請求ブロックで断念。最終的にユーザーが`H:\マイドライブ\key\`に
-  保存していた同キー（Key ID: 32U89S87F4、Team 6UWJGP52W5配下で共通利用可能）を発見・使用
-  （保存場所は[[reference_apple_appstore_connect_credentials]]としてメモリに記録）
-- `ios/ExportOptions.plist`を新規作成（method: app-store-connect、手動署名、
-  Bundle ID→Provisioning Profile名のマッピング）
-- 7つのGitHub Secretsを`zka32101/nihon_future_map`に登録（証明書・パスワード・
-  プロビジョニングプロファイル・API Key・Key ID・Issuer ID・Team ID、すべてBase64/平文で）
-- `build-ios-signed`ジョブは他の2ジョブと同様、`workflow_dispatch`（手動実行）でのみ起動する
-  よう最初からゲート（[[feedback_ios_cicd_cost_optimization]]の3段階ゲート方針に準拠）
-
-**確認事項**:
-- ✅ 全35テスト通過（YAML/plist追加のみ、Dartコードへの影響なし）
-- ⏸ `build-ios-signed`ジョブの実際の実行結果は未確認（次回workflow_dispatchで手動実行して確認要）
-- ⚠️ `ios-signing/`フォルダ（秘密鍵・証明書原本）は`.gitignore`に追加しコミット対象外に
-
-## 67. ストア掲載用テキスト・プライバシーポリシーの作成（2026-07-13）
-- 「アプリ情報などの有力内容」という要望を受け、App Store Connect / Google Play Console に
-  そのまま貼り付けられる形で[STORE_LISTING.md](STORE_LISTING.md)を新規作成
-  - アプリ名・サブタイトル・プロモーションテキスト・詳しい説明文（実装済み機能を網羅）・
-    キーワード・推奨カテゴリ・年齢制限（コンテンツレーティング）の目安・
-    スクリーンショットのキャプション案
-- App内課金・プッシュ通知・Firebase Analytics/Firestoreを利用しているため両ストアで必須となる
-  [PRIVACY_POLICY.md](PRIVACY_POLICY.md)も新規作成。実際にコードが収集している情報のみを記載
-  （匿名認証ID・Analytics・投稿コメント/提案・通知トークン・購入完了フラグ・端末内ローカル
-  データ）し、個人を特定できる情報は収集していない旨を明記
-- **⏸ ユーザー対応が必要な項目**（両ドキュメントにプレースホルダーとして残っている）:
-  - プライバシーポリシーの実際のホスティング（GitHub Pages等でURLを発行し、両ストアの
-    掲載情報に登録する必要がある）
-  - お問い合わせ先（メールアドレス等）の記入
-  - サポートURLの確定（GitHubリポジトリをPublicにするか、別途問い合わせ手段を用意）
-
-**確認事項**:
-- ドキュメントのみの追加のためテスト・ビルドへの影響なし
-
-## 66. アプリアイコンをカスタムデザインに変更（2026-07-13）
-- 「アイコン・スクリーンショットの準備」の一環として、Flutterデフォルトのままだった
-  アプリアイコンをカスタムデザインに変更
-- 画像生成AIツールは未接続（[[reference_game_asset_generator_limitation]]）だったため、
-  Python（Pillow）で直接1024×1024のアイコンをプログラム的に描画: アプリのブランドカラー
-  （`AppColors.primary` #2563EB）を背景に、白い上昇トレンドの矢印（折れ線グラフ＋矢印ヘッド）
-  というシンプルな幾何学的デザイン。小サイズ（20px等）でも視認できるよう、結合点の丸め・
-  余白を調整して2回リデザイン
-- `assets/icon/icon.png`をソースとして`flutter_launcher_icons`パッケージ（新規dev_dependency）
-  を導入し、Android全解像度（mipmap-*）・iOS全サイズ（AppIcon.appiconset、1024×1024含む）に
-  自動展開。iOS向けは`remove_alpha_ios: true`でApp Store要件（アルファチャンネル不可）に対応
-- Xcodeでのプロジェクト設定はflutter_launcher_icons側で軽微な調整のみ
-  （`ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS`）、直前に追加した
-  `CODE_SIGN_ENTITLEMENTS`・`GoogleService-Info.plist`の参照には影響なし
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（55.6MB、新アイコン反映済み）
-- ⏸ iOS実機・シミュレータでの見た目確認は未実施（Mac環境が必要）
-
-## 65. iOS版Firebase設定完了（GoogleService-Info.plist配置）（2026-07-13）
-- ユーザーがFirebase ConsoleでiOSアプリを追加し取得した`GoogleService-Info.plist`を
-  `ios/Runner/`に配置し、`lib/firebase_options.dart`の`ios`ブロックに実際の値を設定。
-  `currentPlatform`のswitch文もiOSで`UnsupportedError`を投げる状態から`return ios;`に変更
-- **⚠️ 重要な仕様上の注意（ユーザー確認済み・承知の上で採用）**: iOS版が接続するFirebase
-  プロジェクトは`apps2-752cb`で、Android版が使う`petit-works-apps-9029a`とは**別プロジェクト**。
-  ユーザーに確認したところ「apps2-752cbのまま進める」という明示的な選択があったため、
-  この構成のまま実装。**この結果、iOS版とAndroid版でFirestoreデータ（課題への投票・
-  コメント・みんなの提案など）は共有されない**（OSごとに別々のデータベースに書き込まれる）。
-  将来的にデータ統合が必要になった場合は、iOS側を`petit-works-apps-9029a`に登録し直す
-  対応が必要になる
-- `ios/Runner.xcodeproj/project.pbxproj`に`GoogleService-Info.plist`のPBXFileReference・
-  PBXBuildFile・Resourcesビルドフェーズへの参照を追加し、Xcodeビルド時にアプリバンドルへ
-  正しく含まれるよう配線（ファイルを`ios/Runner/`に置くだけでは不十分なため）
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ⏸ Xcode実機ビルドでの動作確認は未実施（Mac環境が必要）
-
-## 64. Apple Developer登録手順のドキュメント化（2026-07-13）
-- 「APPLEのAPP登録方法」という質問を受け、USER_PROCEDURE.mdに新セクション
-  「0.1. Appleへのアプリ登録手順」を追加（すべてブラウザから行える手順、Mac不要）
-  - Step 1: Apple Developer Program登録（年間$99）
-  - Step 2: App ID作成（Bundle ID: `com.yourwish.japanfuturemap`、Push Notifications有効化）
-  - Step 3: App Store Connectで新規アプリ登録（名前・言語・Bundle ID・SKU）
-  - Step 4: プッシュ通知用APNs認証キー発行 → Firebase Consoleへの登録手順
-  - Step 5: 寄付機能の商品登録（既存の3.7セクションを参照）
-  - Step 6: 税務・銀行・連絡先情報の入力（App内課金に必須）
-  - Step 7: アイコン・スクリーンショット等のストア掲載情報
-  - Step 8: Mac環境でのビルド・提出（既存の「0.」セクションへ接続）
-- あわせて「0.」セクション内の古い記述（「ローカルではgit初期化されていません」）を、
-  実際にpush済みのリポジトリ（`petitworksappsdev-hash/nihon_future_map`）を踏まえて更新
-- コード変更なし（ドキュメントのみ）のため、テスト・ビルドは実施していない
-
-## 63. iOS Bundle ID変更・Push通知Entitlements追加（2026-07-13）
-- ユーザー指定によりiOS Bundle IDを`com.petitworks.nihonFutureMap`（実際にはRunnerTests側のみ
-  未統一だった旧値）→ **`com.yourwish.japanfuturemap`** に変更（`project.pbxproj`のRunner/
-  RunnerTests両ターゲット、`firebase_options.dart`のコメント・ひな形、USER_PROCEDURE.mdの
-  Firebase Console手順を更新）。Android版の`applicationId`（`com.petitworksapps.japanfuturemap`）
-  とは別のBundle IDとして運用する方針に変更
-- 「Capabilitiesは何にする？」という質問に対し、実際の使用機能から判定して回答:
-  - **必要**: Push Notifications（`firebase_messaging`使用）、Background Modes → Remote
-    notifications（Info.plistに設定済み）
-  - **不要**: Sign in with Apple／Google Sign-In（匿名認証のみ）、Associated Domains
-    （Universal Links不使用）、In-App Purchase明示設定（消耗型IAPはApp IDにデフォルトで
-    有効なため、Xcode Capability追加は必須ではない）
-- `ios/Runner/Runner.entitlements`を新規追加（`aps-environment: development`）し、
-  `project.pbxproj`のRunnerターゲット3構成（Debug/Profile/Release）に
-  `CODE_SIGN_ENTITLEMENTS`を配線。Push Notifications機能に必須の設定
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ⏸ 実際のXcodeでの署名・Capabilities画面表示確認は未実施（Mac環境が必要）
-- ⏸ App Store Connect側のBundle ID登録（`com.yourwish.japanfuturemap`、Apple Developer
-  Programでの新規App ID作成）はユーザー側の作業として残っている
-
-## 62. iOSビルドCIのコスト最適化・gRPC-Coreパッチ修正（2026-07-13）
-- GitHub Actionsで`build-ios`（macOSランナー）を試行錯誤していたところ、
-  「recent account payments have failed or your spending limit needs to be increased」
-  というエラーでActionsが起動不能になった。原因はmacOSランナーがLinuxの10倍の
-  Actions分数を消費するため、Podfile修正のたびにpushして再ビルドを繰り返したことで
-  アカウントの支出上限に達したこと（同日、Potion Kitchenでも同じ問題が発生した記録あり）
-- **`build-ios`ジョブを`pull_request`または`workflow_dispatch`（手動実行）でのみ
-  起動するようゲート**。通常の`push`では走らなくなり、無料枠のtest/build-android
-  （ubuntu-latest）のみが実行される構成に変更
-- あわせて`basic_seq.h`パッチの対象漏れも修正: このヘッダーファイルは`gRPC-Core`と
-  `gRPC-C++`の2つのPodにそれぞれ同一内容がコピーされて存在しており、修正対象を
-  `Pods/`配下の再帰検索（`Dir.glob`）に変更し、両方に確実にパッチが当たるようにした
-- **⏸ ユーザー待ち**: GitHub（`funvestment1-svg`アカウント）のBilling & plansで
-  支払い方法・支出上限を確認・対応してから、Actionsタブで`build-ios`を
-  手動実行（workflow_dispatch）して動作確認してください
-
-## 61. iOS寄付課金（App内課金）対応（2026-07-13）
-- 「IOSの寄付課金を追加したい」という要望を受け対応。`in_app_purchase`パッケージは
-  Android（Google Play課金）・iOS（App Store/StoreKit）の両対応federated pluginのため、
-  `DonationService`・`DonationScreen`のDartコードはプラットフォーム分岐なしで両OSに対応済み
-  （追加のコード実装は不要と判明）
-- コメントをGoogle Play専用の記述から両ストア対応の記述に更新
-  （`donation_service.dart`・`donation_tier.dart`）
-- `ios/Runner/Configuration.storekit`を新規追加。App Store Connectでの商品登録前でも、
-  Xcodeシミュレータでdonation_small/medium/largeの3商品（消耗型）の購入フローをテストできる
-- USER_PROCEDURE.mdに「3.7. 寄付機能（App Store課金）の商品登録（iOS）」を新設し、
-  Google Play Console向け手順（3.6）と対になる形でApp Store Connect側の手順を記載
-  （商品ID・価格例・StoreKit Configurationの使い方・Sandboxテスト手順）
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ⏸ 実際のiOSでの購入動作確認は未実施（App Store Connect商品登録・Mac環境が必要）
-
-## 60. iOSビルドアーティファクトのアップロード追加（2026-07-13）
-- 「PosionKichenでIOSビルドしているので同様に」という要望を受け、`potion_kitchen`アプリの
-  `.github/workflows/build.yml`の`build-ios`ジョブを参照し、同じ構成に揃えた
-- `flutter build ios --release --no-codesign`の後に`actions/upload-artifact`で
-  `build/ios/iphoneos/Runner.app`をアーティファクトとしてアップロードするステップを追加
-  （Potion Kitchenは`actions/upload-artifact@v3`だが、v3はGitHub側で2025年に廃止済みのため、
-  本プロジェクトの他ステップと合わせて`@v4`を採用）
-
-**確認事項**:
-- ✅ YAMLのみの変更のためDartコードへの影響なし（既存の全35テストに変更なし）
-- ⏸ 実際のGitHub Actions実行結果は未確認（リポジトリへのpush後にユーザー側で確認が必要）
-
-## 59. iOS向けGitHub Actionsビルドジョブ追加（2026-07-13）
-- 「github actionで実行予定」という要望を受け、既存の`.github/workflows/flutter_ci.yml`
-  （test / build-android の2ジョブ構成）に`build-ios`ジョブを追加
-- `runs-on: macos-latest`で`flutter build ios --release --no-codesign`を実行し、コンパイルが
-  通るかを確認する内容（Apple Developer Program・証明書が未登録のため、まずは署名なしビルドに限定）
-- GoogleService-Info.plistは未取得のためこのジョブには含めておらず、取得後にActions Secretsへ
-  Base64登録して復号配置するステップ例をコメントで用意
-- 実機インストール・App Store配信（`flutter build ipa`＋fastlane等でのアップロード）は、
-  証明書・プロビジョニングプロファイルの登録が済んでから別途追加が必要である旨をコメントで明記
-- 注意: このプロジェクトはローカルではgitリポジトリとして初期化されていない（`git status`で確認）。
-  GitHub Actionsを実際に動かすには、ユーザー側でリポジトリ作成・pushが必要
-
-**確認事項**:
-- ✅ 全35テスト通過（YAML追加のみ、Dartコードへの影響なし）
-- ⏸ 実際のGitHub Actions実行結果は未確認（リポジトリへのpush後にユーザー側で確認が必要）
-
-## 58. iOS向けコード対応（2026-07-13）
-- 「iOS版もびるど」という要望を受けたが、本プロジェクトはWindows環境（`H:\マイドライブ\apps\`）で
-  作業しており、iOSビルドにはmacOS＋Xcodeが必須のためこの場ではビルド不可。
-  ユーザーとの確認の結果、「iOS向けのコード対応だけ先に進める」を選択し、以下を実施
-- **Bundle ID統一**: iOS側の`PRODUCT_BUNDLE_IDENTIFIER`を`com.petitworks.nihonFutureMap`から、
-  Android版の`applicationId`（`com.petitworksapps.japanfuturemap`）に合わせて変更
-  （`ios/Runner.xcodeproj/project.pbxproj`）
-- **Info.plist整備**: 表示名を「日本の未来マップ」に変更、`CFBundleLocalizations`に`ja`を追加、
-  `firebase_messaging`のプッシュ通知に必要な`UIBackgroundModes: remote-notification`を追加
-- **firebase_options.dart**: iOS向けの分岐を追加。GoogleService-Info.plistが未取得のため、
-  実行時に「Firebase Consoleで iOS アプリを追加してください」という具体的な案内を出す
-  `UnsupportedError`を投げるようにし、値を埋める際のひな形コメントも追加
-- **⏸ ユーザー待ち（Console操作・macOS環境）**:
-  1. Firebase Console（プロジェクト: petit-works-apps-9029a）に iOS アプリを追加
-     （Bundle ID: `com.petitworksapps.japanfuturemap`）→ GoogleService-Info.plistを取得し
-     `ios/Runner/`に配置、`firebase_options.dart`のiosブロックを埋める
-  2. Apple Developer Program登録（年間$99）とApp Store Connectでのアプリ登録
-  3. macOS＋Xcode環境（実機 or クラウドビルドサービス）での`flutter build ios`実行
-  4. プッシュ通知を使うならAPNs認証キーをFirebase Consoleに登録
-  5. アプリアイコン・起動画面（LaunchScreen）のiOS向け差し替え（現状Flutterデフォルトのまま）
-
-**確認事項**:
-- ✅ 全35テスト通過（Dartコードへの影響なし、iOS設定ファイルのみの変更）
-- ⏸ 実際のiOSビルドは未実施（macOS環境が必要）
-
-## 57. 対策案が未設定の課題への追記（2026-07-13）
-- 「対策案が書いていないのがあるので追記」という報告を受け対応。`LoadPolicyOptions`を確認したところ、
-  直近#52〜#56で追加した政治構造カテゴリ15件＋全カテゴリ拡充10件、計25件の課題に対策案（3択・
-  想定される影響つき）が未設定だったことが判明
-- 25件すべてに対策案を3案ずつ追加（既存の`income_stagnation`等と同じ形式: title・description・
-  expectedImpact・voteCount）。センシティブな政治構造の課題（官僚機構の影響力・政治とカネ・
-  官邸主導と忖度など）についても、賛否が分かれる複数の対策を中立的に併記
-- `my_pension_balance`（年金診断ツール）は対策案を必要としない特殊コンテンツのため、
-  従来通り対象外のまま
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功
-- ⏸ 実機での目視確認は未実施
-
-## 56. 全カテゴリに課題を拡充（2026-07-13）
-- 「全体的に課題追加」という要望を受け、これまで政治構造カテゴリに偏っていた追加を、
-  経済・福祉・人口・政治・財政の既存5カテゴリにバランスよく拡充（各カテゴリ2件、計10件。WebSearchで実データ調査）
-  - economy: `non_regular_employment`（非正規雇用の広がり。非正規雇用者数の推移グラフ付き）、
-    `low_startup_rate`（開業率の低さ・産業の新陳代謝不足。日本4〜5% vs 独7%・英14%超）
-  - welfare: `caregiver_shortage`（介護人材の不足。有効求人倍率4倍超）、
-    `single_parent_poverty`（ひとり親家庭の貧困。就業率OECD最高水準なのに貧困率44.5%）
-  - demographic: `tokyo_concentration`（東京一極集中。転入超過数の推移グラフ付き）、
-    `foreign_worker_coexistence`（外国人との共生の課題。在留外国人数の推移グラフ付き）
-  - politics: `local_assembly_shortage`（地方議会のなり手不足。無投票当選56%/30.3%/25%）、
-    `candidacy_deposit_barrier`（選挙供託金の高さ。日本300万円は世界最高水準）
-  - debt: `defense_budget_funding`（防衛費増額の財源問題。GDP比2%・約9兆円への引き上げ方針）、
-    `special_account_opacity`（特別会計の不透明さ。予算規模は一般会計の約4倍）
-- 実データの裏付けが弱い項目（開業率の年次推移・無投票当選の内訳グラフ）は、根拠のない数値を
-  チャート化しないよう、本文の定性説明のみに留めグラフは追加しなかった
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功
-- ⏸ 実機での目視確認は未実施
-
-## 55. 政治構造カテゴリに大きな課題を追加（2026-07-13）
-- 「おおきなかだいからどんどん追加」という要望を受け、影響範囲の大きい政治構造の課題を4件追加
-  （WebSearchで実データを調査）
-  - `vote_value_disparity`（一票の格差）: 2024年衆院選で最大2.06倍の格差、10選挙区で2倍超。
-    最高裁は3回連続で合憲判断。選挙区間の最大格差の推移（2017/2021/2024年）グラフ付き
-  - `hereditary_politicians`（世襲政治）: 2024年衆院選で世襲候補130人（9.7%）、
-    自民党の世襲比率27.2%（米国下院・上院の世襲率5%程度と対比）
-  - `ministry_silos`（縦割り行政）: 複数省庁にまたがる課題への対応の遅れ。こども家庭庁・デジタル庁など
-    横断組織の設置とその実効性の論点
-  - `kantei_led_politics`（官邸主導と「忖度」の構造）: 2014年の内閣人事局設置による幹部人事一元化と、
-    それに伴う官僚の「忖度」への懸念を両論併記
-- これで政治構造カテゴリは計15件
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功
-- ⏸ 実機での目視確認は未実施
-
-## 54. カテゴリ名変更（本質→政治構造）＋課題追加（2026-07-13）
-- 「カテゴリは本質ではなく、政治構造に変更、さらに追加」という要望を受け、
-  `structural`カテゴリのラベルを「本質」→「**政治構造**」に変更（`AppColors.categoryLabel`）
-- 政治構造に関する課題を4件追加（WebSearchで実データを調査）:
-  - `electoral_wasted_votes`（小選挙区制と死票の多さ）: 小選挙区の死票率は2021年46.5%→2024年52%→
-    2026年48%で推移。報道各社の選挙結果集計に基づくグラフ付き
-  - `amakudari_structure`（天下りの構造）: 退職官僚の業界再就職による利益相反の懸念。
-    国家公務員法の再就職等規制・内閣人事局の公表制度についても言及
-  - `local_fiscal_dependency`（中央集権と地方の財源不足（三割自治）: 国税・地方税は55:45だが
-    歳出は42:58と逆転し、地方が交付税等に依存する構造を解説
-  - `policy_evaluation_weakness`（政策評価・検証の甘さ）: 政策評価が自己評価にとどまりPDCAが
-    働きにくい問題。EBPM（データに基づく政策立案）にも言及
-- これで政治構造カテゴリは計11件
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功
-- ⏸ 実機での目視確認は未実施
-
-## 53. 本質的な課題の追加（権力・お金の構造）（2026-07-13）
-- 「本質的な課題追加、財務省の闇なども含め」という要望を受け、`structural`カテゴリに
-  権力・お金の構造に関する本質的な課題を3件追加
-- **重要な扱い方針**: 「財務省の闇」は陰謀論的な断定ではなく、日本で広く議論されている
-  「官僚機構（特に財務省）の予算編成権に由来する影響力の大きさ」への**指摘・批判**として、
-  賛否両論（緊縮バイアス批判 vs 財政規律を守る役割という擁護）を併記した中立・事実ベースで記述
-- 追加した課題:
-  - `bureaucracy_influence`（官僚機構の影響力（財務省など））: 選挙で選ばれない官僚の政策影響力・
-    緊縮バイアスへの指摘と反論を併記。国民負担率の推移（財務省データ）グラフ付き
-  - `money_in_politics`（政治とカネの構造）: 企業・団体献金や組織票による政策のゆがみ。定性的説明中心
-  - `press_independence`（報道と権力の距離）: 記者クラブ制度と報道の監視機能への指摘。
-    世界報道自由度ランキング（国境なき記者団）の推移グラフ付き
-- いずれも「個人の不正」ではなく「そうなりやすい仕組み」に注目する視点、および
-  有権者自身が監視することの重要性を本文で明示
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功
-- ⏸ 実機での目視確認は未実施
-
-## 52. 本質的な課題（構造的な根本原因）の追加（2026-07-13）
-- 「ほんしつてきな課題追加」という要望を受け、既存の課題の多くが「症状」レベルだったのに対し、
-  それらの根っこにある構造的な根本原因を「本質的な課題」として新カテゴリで追加
-- 新カテゴリ`structural`（ラベル「本質」、色: ティール `0xFF0D9488`、アイコン: `Icons.hub_outlined`）を
-  `AppColors`に追加。課題一覧・俯瞰マップのカテゴリ一覧の**先頭**に配置して優先的に見せる
-- 本質的な課題を4件追加（`FirebaseService.getMockChallenges`）:
-  - `silver_democracy`（シルバー民主主義）: 有権者の多数を高齢者が占め政策が偏り負担が先送りされる構造。
-    有権者に占める60歳以上の割合の推移グラフ付き
-  - `low_labor_productivity`（労働生産性の低さ）: 時間あたり生産性がG7最下位。賃金停滞の根本原因。
-    時間あたり労働生産性の推移グラフ付き
-  - `unmarried_structure`（未婚化・晩婚化の進行）: 少子化の主因。生涯未婚率（男女）の推移グラフ付き
-  - `reform_deferral`（改革の先送り体質）: 痛みを伴う抜本改革を先送りする政治・行政の構造。定性的説明中心
-- 各課題に`LoadChallengeDetail`の詳細（macroConnection・detailedDescription・20年後/50年後の見通し・
-  出典付きデータ系列）を追加。他の課題との「共通の根っこ」であることを本文で明示
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功
-- ⏸ 実機での目視確認は未実施
-
-## 51. フォント修正・全体俯瞰マップ画面の再構成（2026-07-13）
-- 「漢字が一部おかしいのがあるから、フォント変更」という報告を受け対応。
-  端末の標準フォントだと一部の漢字が中国語（簡体字寄り）の字形にフォールバックして
-  表示されることがある問題のため、`google_fonts`パッケージを導入し、
-  アプリ全体のテキストテーマ・AppBarタイトルに日本語字形の「Noto Sans JP」を明示的に適用
-- 「画面構成をわかりやすく再構成」という要望を受け、前項（#50）で作った全体俯瞰マップ画面
-  （`OverviewMapScreen`）を再構成。ユーザーとの確認の結果、対象は俯瞰マップ画面内のレイアウトと確定
-  - 変更前: カテゴリチップで「1つ選ぶと他が隠れる」フィルター式の単一グリッド
-  - 変更後: 経済／福祉／人口／政治／財政の5カテゴリ＋「良くなっていること」を
-    セクション見出し付きで**すべて常時表示**する構成に変更。何も隠さず全体を見渡せることを優先
-  - 上部にセクションジャンプ用のチップ（課題詳細画面の`_SectionJumpBar`と同じ設計）を追加し、
-    タップで該当セクションまでスムーズスクロールできるようにした
-  - サマリーカードは4項目を横並びの`Row`にレイアウトし直し、視認性を向上
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功
-- ⏸ 実機での目視確認は未実施（特にNoto Sans JP適用後の漢字表示が正しくなっているかは実機確認が必要）
-
-## 50. 全体俯瞰マップ画面の追加（2026-07-13）
-- 「局所的にならないように、全体感から俯瞰してみれるような工夫」という要望を受け、
-  課題一覧・課題詳細・良くなっていることが個別画面に分かれていて全体像が掴みづらい問題に対応
-- 新規`OverviewMapScreen`を追加: 24件の課題＋良くなっていることを1画面のグリッドマップとして表示
-  - 上部に「課題／良くなっていること／国会議案あり／世界比較あり」の件数サマリーを表示
-  - カテゴリ（経済／福祉／人口／政治／財政）で絞り込めるチップフィルターを搭載
-  - 各タイルにはカテゴリアイコン・タイトル・投票数に加え、国会議案（🏛）・世界比較（🌐）データの
-    有無を示す小アイコンを表示し、タップで該当の詳細画面へ遷移
-  - 「良くなっていること」は緑のタイルで区別し、タップで一覧画面へ遷移
-- 課題一覧画面（`ChallengeListScreen`）のAppBarに「全体を俯瞰する」アイコンを追加してエントリーポイントとした
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功
-- ⏸ 実機での目視確認は未実施
-
-## 49. 課題詳細画面のナビゲーション改善（2026-07-13）
-- 「操作性改善」という要望を受け、コンテンツが増え縦に長くなった課題詳細画面
-  （`ChallengeDetailScreen`）にセクションジャンプメニューと「トップに戻る」ボタンを追加
-- `ConsumerWidget` → `ConsumerStatefulWidget` に変更し、`ScrollController`と
-  各セクションの`GlobalKey`（データ／将来予測／賛同度／国会／世界との比較／対策案／みんなの声）を保持
-- AppBar下に横スクロールのチップ型ジャンプメニュー（`_SectionJumpBar`）を追加。
-  タップすると該当セクションへスムーズにスクロール（`Scrollable.ensureVisible`）
-  - 「国会」「世界」チップは、該当する課題にそのデータが存在する場合のみ表示
-- 400px以上スクロールすると右下に「トップに戻る」の`FloatingActionButton`が出現
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功
-- ⏸ 実機での目視確認は未実施（ジャンプメニューのタップ動作・スクロール位置の見た目を確認要）
-
-## 48. 国会議案・世界との比較の全体的な拡充（2026-07-09）
-- 「新規追加した項目を全体的に反映」という要望を受け、前項（#47）で一部の課題のみだった
-  「国会議案」「世界との比較」のカバー範囲を大幅に拡大
-- **世界との比較を7件追加**（計13件、24課題+4良くなっていること中）: 合計特殊出生率（population_decline）、
-  相対的貧困率（child_poverty）、医療費対GDP比（healthcare_cost）、高等教育進学率（education_gap）、
-  女性議員比率（women_in_politics）、対内直接投資（foreign_direct_investment）、
-  実質賃金の伸び率（income_stagnation、G7内でイタリアと並び最低水準）
-- **国会議案を4件追加**（計9課題）: 孤独・孤立対策推進法（isolated_elderly、2024年4月施行）、
-  子ども・若者育成支援推進法等改正（young_carers、ヤングケアラーを法律上初めて定義）、
-  GX推進法（climate_change_response、2026年4月からカーボンプライシング義務化）、
-  改正医療法（regional_healthcare_gap、医師偏在是正、2025年12月成立）
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（313.2秒、54.2MB）
-- ⏸ 実機での目視確認は未実施
-
-## 47. 世界との比較を追加（2026-07-09）
-- 「課題や良くなっていることは、政府政策との関連付け、世界との比較を表す」という要望のうち、
-  政府政策との関連付け（国会議案）は前々項（#39）で実装済みのため、今回は「世界との比較」を新設
-- WebSearchで6テーマの国際比較データを調査し、実装:
-  - 国債残高対GDP比（日本214.5%、G7で最悪。ドイツ62.2%等と比較）
-  - 男女の賃金格差（日本21.3%、OECD平均11.0%の約2倍、加盟36カ国中35位）
-  - エネルギー自給率（日本13.3%、OECD38カ国中37位、韓国18.0%より低い）
-  - 投票率の低下（日本55.93%、世界200の国・地域中158位）
-  - 「良くなっていること」の再生可能エネルギー比率（日本26.7% vs 英独36〜38%）
-  - 「良くなっていること」の女性就業率（日本74.1% vs ドイツ73.7%、大きく改善したが北欧にはまだ及ばず）
-- `InternationalComparison`エンティティ・`LoadInternationalComparisons`・共通ウィジェット
-  `InternationalComparisonSection`（横棒グラフ、日本を赤で強調表示）を新設。
-  課題詳細画面・「良くなっていること」画面の両方で同じウィジェットを再利用
-- データが存在する場合のみ「世界との比較」セクションが表示される設計（該当データがない課題では非表示）
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（135.8秒、54.2MB）
-- ⏸ 実機での目視確認は未実施
-
-## 46. 「良くなっていること」コンテンツ追加（2026-07-09）
-- 「課題だけではなく、良くなっている事案も追加する」という要望を受け、社会課題（悪くなっていること）と
-  対になる、実際に改善している社会の動きを伝えるコンテンツを新設
-- WebSearchで実データを調査し、4件を厳選（すべて出典・一次情報源リンク付き）:
-  - 待機児童数の8年連続減少（2017年26,081人→2025年2,254人。ただし「隠れ待機児童」約7万人の残存も明記）
-  - 再生可能エネルギー比率の拡大（2013年度10.9%→2024年26.7%）
-  - 女性の就業率上昇・M字カーブ解消（1986年53.1%→2024年74.1%）
-  - 刑法犯認知件数の長期減少（2002年285万件→2020年61万件）と体感治安とのギャップ（2022年以降は3年連続増）
-    — 単純な「良い話」だけでなく、長期改善と最近の逆行・体感とのギャップも隠さず記載し、既存の
-    「公式データvs民間分析」的な誠実さのトーンを踏襲
-- `GoodNewsItem`エンティティ・`LoadGoodNews`・`GoodNewsScreen`（トレンドグラフ付きカード形式）を新設
-- 課題一覧画面の検索バー下に「課題だけじゃない／良くなっていることも見てみよう」という常設バナーを追加し、
-  課題を見ているまさにその場で気づけるようにした
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（57.6秒、54.2MB）
-- ⏸ 実機での目視確認は未実施
-
-## 45. 実績バッジ獲得演出（2026-07-09）
-- 「良い流れを追加する」という要望を受け、実績バッジを**その場で**（マイページを開いて初めて気づくのではなく）
-  獲得した瞬間にお祝いポップアップを表示するようにした
-- `CheckNewAchievements`ユースケースを新設: `ActivityStore`への記録前後で`ActivityStats`を比較し、
-  新しく解除された実績だけを検出する（`ActivityStore.currentStats()`を前項のマイページと共用）
-- `showAchievementUnlockDialogs`: 弾むようなスケールインアニメーション（`Curves.elasticOut`）+
-  触覚フィードバック（`HapticFeedback.mediumImpact()`）付きのお祝いダイアログ。複数同時解除にも対応し、順番に表示
-- 既存の全ての活動記録ポイント（課題投票・対策案投票・コメント投稿・提案投稿・提案への投票・
-  クイズ完了・年金診断・寄付）に組み込み。画面遷移やSnackBar表示の前にダイアログを挟むよう調整
-  （例: 提案投稿後は「投稿しました」のSnackBar→お祝いダイアログ→画面を閉じる、の順）
-- 実装中、`my_page_screen.dart`から`ActivityStats`のimportを誤って削除してしまいビルドエラーになる
-  不具合があったため、修正して解消
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（144.6秒、54.2MB）
-- ⏸ 実機での演出確認（バイブレーション・アニメーションの実際の見た目）は未実施
-
-## 44. マイページ・実績バッジ機能（2026-07-09）
-- 「魅力を高める機能」として、散らばっていた自分の活動（投票・コメント・対策案選択・提案・クイズ・寄付）を
-  一箇所で振り返れる「マイページ」を新設し、参加数に応じた実績バッジでゲーム性を持たせた
-- **端末ローカル保存に`hive_flutter`を初めて使用**: 以前から依存関係には入っていたが未使用だったパッケージ。
-  Firestore側の`votes/{userId}`等はドキュメント存在チェック専用で読み取り禁止にしているため、
-  「自分が何に投票したか」を横断的に一覧するには端末内保存が現実的な選択肢だった
-  - `ActivityStore`: 投票した課題ID・提案ID・自分が投稿した提案ID・対策案投票した課題ID・
-    コメント数・クイズ完了数・寄付回数・年金診断済みフラグを保存
-  - Firebase未初期化のテスト環境でも例外を起こさないよう、`AnalyticsService`等と同様に全操作を防御的に実装
-- `Achievement`/`Achievements`: 9種類の実績バッジ（はじめの一歩・投票マスター・声を届けた・政策通・
-  クイズマスター・提案者デビュー・応援団・サポーター等）を活動統計から自動判定
-- `MyPageScreen`: 活動件数のグリッド、実績バッジ一覧（未達成はグレーアウト）、自分が投票した課題一覧、
-  自分が提案した課題一覧を表示。ダッシュボードAppBarの人物アイコンから遷移
-- 既存の投票・コメント・対策案投票・提案投稿・クイズ完了・寄付の各成功ハンドラに`ActivityStore`への
-  記録を追加（`submitProposal`は「自分の提案」を特定するため、戻り値を`bool`から新規ドキュメントID
-  （`String?`）に変更）
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（147.3秒、54.2MB）
-- ⏸ 実機での動作確認（アプリ再起動後も活動履歴が保持されるかを含む）は未実施
-
-## 43. 広告なし・寄付機能（2026-07-09）
-- 「広告なしで運営する代わりに寄付機能を実装する」方針に基づき実装（このアプリはもともと広告SDKを
-  導入していないため、「広告なし」は既に事実。今回はその価値をユーザーに明示しつつ、寄付導線を新設）
-- `in_app_purchase`パッケージを追加し、Google Play課金（消費型アイテム）による寄付を実装
-  - `DonationTier`: コーヒー1杯分（`donation_small`）/ランチ1食分（`donation_medium`）/がっつり応援（`donation_large`）の3段階
-  - `DonationScreen`: 「広告なしで運営しています」という説明＋各ティアの購入ボタン
-  - ダッシュボードのAppBar（ハートアイコン）と、画面下部の常設バナーの2箇所から導線
-  - 購入成功時に`content_shared`と同様のパターンで`donation_purchased`イベントをアナリティクスに記録
-- **Google Play Consoleでの商品登録が別途必要**（未登録の間は「準備中です」と表示され、安全に動作する設計）。
-  `USER_PROCEDURE.md`に商品ID・登録手順を追記（商品IDはコード側と完全一致させる必要がある旨を明記）
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（338.5秒。53.6MB）
-- ⏸ 実機での動作確認・Google Play Console側の商品登録は未実施
-
-## 42. プッシュ通知機能（2026-07-09）
-- `firebase_messaging`を追加し、`NotificationService`を新設
-- アプリ起動時に通知許可をリクエストし、`weekly_updates`トピックを自動購読
-  （送信はCloud Functions等の自動配信基盤が未整備のため、Firebase Console → Engage → Messaging から
-  手動でトピック宛てに配信する運用。`USER_PROCEDURE.md`に送信手順を追記）
-- フォアグラウンド受信時はアプリ内にスナックバーで表示（Androidの標準仕様上、フォアグラウンド中は
-  システム通知トレイに出ないため）。バックグラウンド/終了時は通常の通知トレイに表示される
-- 通知タップ時はホーム（ダッシュボード）に戻る動作を実装（`message.data`を使った画面出し分けは将来拡張可）
-- Firebase未初期化のテスト環境でも例外でアプリを止めないよう、`AnalyticsService`等と同様に
-  `initialize()`全体を`try-catch`で防御し、`flutter test`実行時はエラーがログに記録されるのみで
-  テスト自体は失敗しないことを確認
-
-**確認事項**:
-- ✅ 全35テスト通過（Firebase未初期化のため通知初期化はエラーとしてログに記録されるが、テスト自体は成功）
-- ✅ `flutter build apk --release` 成功（602.2秒・約10分。`firebase_messaging`のネイティブプラグイン初回登録分で
-  通常より大幅に時間がかかった。53.1MB）
-- ⏸ 実機での通知受信確認（フォアグラウンド/バックグラウンド両方）は未実施
-
-## 41. ユーザー課題提案・投票・政府提出状況の追跡機能（2026-07-09）
-- **「みんなの提案」機能を新設**: ユーザーが自由に新しい社会課題を提案できるようになった
-  - `UserProposal`エンティティ（title/description/category/voteCount/submissionStatus等）を新設
-  - 提案投稿画面（`SubmitProposalScreen`）: タイトル・説明・カテゴリを入力して投稿。NGワード・URL・
-    同一文字の連続などを`ValidateProposal`でチェック（既存の`ValidateComment`と共通のNGワードリストを
-    `ng_words.dart`に切り出して共有）
-  - 提案一覧画面（`ProposalListScreen`）: 投票受付中の提案を得票数順に表示、投票ボタンで1人1票
-  - **20票を超えると「正式課題候補」として上部セクションに自動的に移動**（`UserProposal.isPromoted`、
-    サーバー側の承認処理なしにクライアント側で判定する設計）
-- **政府への提出状況の追跡**: `submissionStatus`（未提出/提出済み/回答待ち/採択された/見送りとなった）、
-  `submissionNote`（提出先の説明）、`submissionUrl`、`submissionDate`をカードにバッジ表示
-  - 実際に自治体・省庁等へ提出した際は、Firebase Consoleから該当ドキュメントのフィールドを手動更新する運用
-    （アプリのFirestoreルールは`voteCount`のインクリメント以外の書き込みを禁止しており、
-    ステータス管理は開発者がConsole経由でのみ行える設計）
-  - `USER_PROCEDURE.md`に更新手順を追記
-- 一覧画面のAppBarに「みんなの提案」への導線（メガホンアイコン）を追加
-- Firestoreルール案（`userProposals`コレクション + `votes`サブコレクション）を`USER_PROCEDURE.md`に追記
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（95.6秒、53.0MB）
-- ⏸ 実機での目視確認・Firestoreルール適用は未実施
-
-## 40. 議案データの一次ソース調査・効果の記載追加（2026-07-09）
-- **一次ソースからの自動取得はWebSearchで調査した結果、現状は非現実的と判断**（詳細は`IMPLEMENTATION_STATUS.md`本項参照）:
-  - 衆議院・参議院の「議案情報」ページ（shugiin.go.jp / sangiin.go.jp）はHTMLのみでAPI提供なし
-  - 国立国会図書館の「国会会議録検索システム」は公式APIがあるが、対象は会議録（発言記録）の全文検索であり、
-    「議案が審議中/成立か」を構造化データとして返す機能ではない
-  - 第三者（SmartNews メディア研究所）が参議院データを元にしたCSV/JSONを公開しているが、参議院のみ・二次データであり、
-    継続的な更新保証もない
-  - → 結論として、アプリ内から信頼できるライブ取得は困難。Cloud Functions等でスクレイピング基盤を新設すれば
-    技術的には可能だが、大規模な開発が必要。当面は既存の「一次ソースへの外部リンク」を維持しつつ、
-    定期的な手動更新でデータの鮮度を保つ運用とする
-- `DietBill`に`effect`（想定される効果・影響）フィールドを追加し、既存5件の議案データすべてに、
-  対策案と同様のメリット/懸念点を併記するスタイルで記載
-- 課題詳細画面の議案カードに、要約の下に効果・影響のハイライトボックスを追加表示
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（81.1秒、52.6MB）
-- ⏸ 実機での目視確認は未実施
-
-## 39. 国会の実際の議案との連動（2026-07-09）
-- `DietBill`エンティティと`LoadDietBills`を新設。WebSearchで実際の国会審議状況を調査し、
-  5課題（年金危機・政治家の待遇・自然災害の復旧費用・保育園の待機児童・行政のデジタル化の遅れ）に
-  実在する国会の法案・議案を紐づけた
-  - 年金制度改正法（2026年6月成立）、政治資金規正法等改正（一部施行済み・追加改正案審議中）、
-    防災庁設置法案（衆院通過・参院審議中）、子ども・子育て支援法等改正（2026年4月施行済み）、
-    マイナンバー法等改正案（参院特別委員会で可決）
-- 課題詳細画面に「国会での関連する動き」セクションを追加。法案名・審議状況（ステータスバッジ）・
-  内容の要約・出典（情報時点付き）・一次情報源への外部リンク（`url_launcher`）を表示
-- 国会の審議状況は日々変化するため、各データに「情報時点」（2026年7月時点）を明記し、
-  コード側にも定期更新が必要な旨のコメントを残した
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（245.8秒、52.5MB）
-- ⏸ 実機での目視確認・外部リンクの実際の遷移確認は未実施
-
-## 38. ランキング画面に対策案タブ追加（2026-07-09）
-- 「週刊 課題ランキング」画面を「週刊 ランキング」にリニューアルし、`TabBar`で「課題」「対策案」の2タブ構成に変更
-  （既存の課題ランキングタブはロジック・見た目とも変更なし）
-- 「対策案」タブ: 全24課題の対策案（計72件）を横断して得票数順に並べたランキングを表示。
-  各行に対策案タイトル・元の課題名（カテゴリ色付き）・得票数を表示し、タップで該当課題の詳細画面に遷移
-- `allPolicyOptionsProvider`（`FutureProvider`）を新設。`LoadPolicyOptions.challengeIds`で対策案のある
-  全課題IDを取得し、既存の`policyOptionsProvider`（ベース投票数+Firestore実投票数の合算）を`Future.wait`で
-  横断集計する設計とし、単一課題向けのロジックをそのまま再利用
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（100.1秒、52.4MB）
-- ⏸ 実機での目視確認は未実施
-
-## 37. コンテンツ第4弾拡充（2026-07-09）
-- **社会課題**: 20件→**24件**に拡大（年金診断を含めると25件）
-  - 追加: 気候変動対応の遅れ（debt）・ヤングケアラーの負担（welfare）・行政のデジタル化の遅れ（politics）・
-    単身高齢者の孤立（demographic）
-  - カテゴリのバランスを考慮し、比較的少なかったdebt/politics/demographicを中心に追加
-  - 4件とも詳細データ（背景説明・公式vs民間データの比較グラフ・20年後/50年後の生活影響・タグ）を整備
-- **対策案**: 新規4課題それぞれに3つずつ対策案（内容＋想定される効果・影響）を追加
-- **用語集**: 新規コンテンツに登場する用語6語（カーボンニュートラル・国境炭素税・ヤングケアラー・
-  デジタルデバイド・孤立死・民生委員）を追加（計36語）
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（159.3秒、52.1MB）
-- ⏸ 実機での目視確認は未実施
-
-## 36. 対策案投票結果のSNSシェア（2026-07-09）
-- 対策案に投票した後、「投票結果をシェアする」ボタンを表示。テキストベースで`Share.share()`を使い、
-  課題名・自分が選んだ対策案・全対策案の得票率（✅で自分の選択を明示）をまとめて共有できるようにした
-  （年金カード/クイズ結果は画像＋テキストのシェアだが、対策案は動的な集計値のため軽量なテキストシェアを採用）
-- シェア成功時は`content_shared`（`content_type: 'policy_option_result'`）としてアナリティクスにも記録
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（275.7秒、52.0MB）
-- ⏸ 実機でのシェアシート表示確認は未実施
-
-## 35. アナリティクス計測（2026-07-09）
-- `firebase_analytics`は依存関係に入っていたが未使用だった（設計書記載の`loss_calculated`/`vote_submitted`/`content_shared`が
-  「実装予定」のまま放置されていた）ため、`AnalyticsService`を新設して実装
-- 計測イベント: `loss_calculated`（年金診断）、`vote_submitted`/`agree_submitted`（課題投票・賛同）、
-  `content_shared`（年金カード・クイズ結果のシェア、`content_type`で区別）、`comment_posted`/`comment_liked`（コメント）、
-  `policy_option_voted`（対策案投票）、`quiz_completed`（診断レベル・正答度・上級モードかどうか）
-- Firebase未初期化環境（`flutter test`のウィジェットテストなど）でも例外でアプリを止めないよう、
-  `AnalyticsService`は`FirebaseAnalytics.instance`取得と送信の両方を`try-catch`で防御的に実装
-  （最初はcatchなしで実装したため`age_input_screen_test`/`quiz_screen_test`が
-  `[core/no-app] No Firebase App`例外で落ちる不具合があり、修正して解消）
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（136.4秒、52.0MB）
-- ⏸ Firebase ConsoleのAnalyticsダッシュボードでの実イベント確認は未実施（実機操作後、反映まで数時間かかる場合あり）
-
-## 34. オフライン対応（2026-07-09）
-- Firestoreのローカルキャッシュ・書き込みキューを明示的に有効化（`Settings(persistenceEnabled: true, cacheSizeBytes: unlimited)`）。
-  これにより、オフライン中の投票・コメント・対策案投票もローカルに保存され、オンライン復帰時に自動同期される
-  （課題データ自体はモック中心のため、ダッシュボード/一覧/クイズ/タイムマシンはそもそも常にオフラインで完結する）
-- `connectivity_plus`パッケージを追加し、`connectivityProvider`でオンライン/オフライン状態を監視
-- オフライン時は一覧・詳細・ダッシュボード画面上部に「オフラインです。直近のデータを表示しています。投票・コメントは
-  ネットワーク復帰後に反映されます」というバナーを表示
-- コメント欄が空の場合、オンライン時は「まだコメントはありません」、オフライン時は「オフラインのため最新のコメントを
-  取得できません」と、状況に応じたメッセージに切り替え
-- 実装当初は`InternetAddress.lookup` + `Stream.periodic`によるポーリングを検討したが、`flutter test`で
-  「Timer is still pending」エラーが発生したため、プラットフォームイベントベースの`connectivity_plus`に切り替え、
-  テストへの副作用なく実装
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（156.4秒、52.0MB）
-- ⏸ 実機での目視確認（機内モードでの動作確認含む）は未実施
-
-## 33. グラフのY軸ラベル追加（2026-07-09）
-- 「スケールがわかりづらい」という指摘を受け、全5箇所の折れ線グラフに縦軸（Y軸）の数値ラベルと薄い横グリッド線を追加
-  - マクロダッシュボード: 人口推移／エネルギー自給率／医療費推移（3グラフ）
-  - 課題詳細画面: 公式データ vs 民間分析の比較グラフ
-  - タイムマシン画面: 政策シミュレーショングラフ
-- 共通ユーティリティ`niceAxisInterval()`（`lib/presentation/widgets/chart_axis.dart`）を新設し、データの範囲から
-  「きりのいい」目盛り間隔（1・2・5・10のいずれかの桁）を自動計算するようにした
-- 単位表示は各グラフの`unit`フィールドを使い、「%（消滅可能性自治体の割合）」のような長い注釈は
-  括弧より前の短い単位（「%」等）だけを軸ラベルに使うようにして、狭い軸スペースでも収まるようにした
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（70.9秒、52.0MB）
-- ⏸ 実機での目視確認は未実施
-
-## 32. 対策案への投票機能追加（2026-07-09）
-- `PolicyOption`エンティティ（title/description/expectedImpact/voteCount）と`LoadPolicyOptions`を新設。
-  20課題（年金診断を除く全課題）それぞれに3つの対策案を用意し、各案の内容と想定される効果・影響（メリット/デメリット）を明記
-- 課題詳細画面に「あなたなら、どの対策案を選ぶ？」セクションを追加。1課題につき1案のみ選択可能
-  - 投票前は各案がカード形式で表示され、「この案を選ぶ」ボタンで選択
-  - 投票後は全員の投票割合（%・件数）が棒グラフで表示され、最多得票案には🏆アイコン、自分が選んだ案には✓アイコンが付く
-    （＝「選択数は周りが見れるように」という要件を、投票後に全選択肢の得票率を公開する形で実現）
-- Firestore: `challenges/{id}/policyOptions/{optionId}`（`voteCount`をFieldValue.incrementで加算）、
-  `challenges/{id}/policyVotes/{userId}`（1ユーザー1票を保証、ドキュメントIDをuserIdにして二重投票を防止）を新設。
-  課題データがローカルモック中心のため、`update()`ではなく`set(merge:true)`を使い親ドキュメント未作成でもエラーにならないようにした
-- `USER_PROCEDURE.md`のFirestoreルール案に`policyOptions`/`policyVotes`のルールを追記
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（55.6秒、52.0MB）
-- ⏸ 実機での目視確認・Firestoreルール適用は未実施
-
-## 31. 白文字バグ修正・コメント機能強化（2026-07-09）
-- **白文字バグ修正**: `GlossaryText`（前項で追加）が素の`RichText`を使っており、`Text`ウィジェットと違って
-  アンビエントの`DefaultTextStyle`（文字色）を継承していなかった。`DefaultTextStyle.of(context).style.merge(widget.style)`
-  で明示的にマージするよう修正し、「20年後/50年後の見通し」等の文字が見えなくなる問題を解消
-- **NGワード・スパム対策**: `ValidateComment`ユースケースを新設。死ね等のNGワード・URL・同一文字の過剰な連続を
-  投稿前にクライアント側でブロックし、該当時はエラーメッセージを表示して投稿を中断
-- **コメント投稿失敗の修正**: `postCommentProvider`が匿名認証の完了を待たずにFirestoreへ書き込んでいたため、
-  認証必須のセキュリティルール下では確実に失敗する不具合があった。vote/agreeと同様に`userIdProvider.future`を
-  待ってから投稿するよう修正（`USER_PROCEDURE.md`のFirestoreルール未適用の場合は引き続き失敗するため、
-  ルール適用が必要な旨を追記）
-- **コメントの「いいね」機能**: `Comment`に`likeCount`を追加、`likes`サブコレクション（ユーザーIDをドキュメントIDにして二重いいね防止）
-  で管理。いいねが多い順→新しい順にソートし、3件以上いいねされたコメントは「人気のコメント」バッジ付きでハイライト表示
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（70.8秒、51.8MB）
-- ⏸ 実機での目視確認・Firestoreルール適用は未実施
-
-## 30. 用語集機能追加（2026-07-09）
-- `GlossaryTerm`エンティティ・`LoadGlossaryTerms`（30語の用語データ: 実質賃金・賦課方式・GDP比・相対的貧困・少子高齢化 等）を新設
-- `GlossaryScreen`: 用語を検索・一覧表示する専用ページ（読み仮名・定義付き、キーワード検索対応）
-- `GlossaryText`ウィジェット: 通常の説明文の中で登録済み用語を自動ハイライトし、タップするとボトムシートで定義を即確認できる共通コンポーネント
-  - 課題一覧カードの説明文、課題詳細画面（説明・詳細背景・生活とのつながり・20年後/50年後の見通し）に適用
-- 一覧画面・課題詳細画面・マクロダッシュボード・タイムマシン画面のAppBarに「用語集」アイコンを追加し、どのコンテンツからも用語集ページへすぐ遷移できるように
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（67.5秒、51.8MB）
-- ⏸ 実機での目視確認は未実施
-
-## 29. 検索・タグ機能追加（2026-07-09）
-- `Challenge`エンティティに`tags`フィールドと`matchesSearch()`（名前・説明・タグの部分一致判定）を追加
-- `getMockChallenges()`の全21件（年金診断含む）に検索用タグを付与（例: 年金・子育て・地方・ジェンダー・財政 等、計19種のタグプール）
-- `_challengeFromFirestore()`もFirestoreの`tags`フィールドをパースするよう対応（本番データ投入時も動作するように）
-- 一覧画面（`ChallengeListScreen`）に検索バーを追加（`searchQueryProvider`で状態管理）
-  - キーワード検索でカテゴリフィルターと併用可能、該当なし時は空メッセージ表示
-  - 各課題カードにタグチップを表示し、タップするとそのタグで検索できるように
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（102.2秒、51.6MB）
-- ⏸ 実機での目視確認は未実施
-
-## 28. 起動時クラッシュ修正（2026-07-08）
-- パッケージ名変更（`com.petitworks.nihon_future_map` → `com.petitworksapps.japanfuturemap`）後、`am start`で
-  `Error: Activity class ... does not exist` により即クラッシュしていた不具合を修正
-- 原因: `build.gradle.kts`の`applicationId`/`namespace`は変更したが、`MainActivity.kt`の実ファイルが旧パッケージのディレクトリ
-  （`kotlin/com/petitworks/nihon_future_map/`）に残ったままだった（`package`宣言も旧のまま）
-- 新パッケージのディレクトリ（`kotlin/com/petitworksapps/japanfuturemap/`）に`MainActivity.kt`を作成し直し、旧ファイル・空ディレクトリを削除して解消
-- `adb shell pidof`でPIDが安定していること、`adb logcat --pid=<pid>`にエラーが出ないこと、`dumpsys window`のフォーカスが
-  正しい新パッケージ名になっていることを実機で確認済み
-
-## 27. コンテンツ第3弾拡充（2026-07-08）
-- **社会課題**: 15件→**20件**に拡大
-  - 追加: 保育園の待機児童（welfare）・中小企業の後継者不足（economy）・男女の賃金格差（economy）・自然災害の激甚化と復旧費用（debt）・地方の医療格差/医師不足（welfare）
-  - 全20件に対応する詳細データ（背景説明・公式vs民間データ・20年後/50年後の生活影響）を整備済み
-- **マクロダッシュボードに新指標追加**: 「医療費はどれだけ増えている？」セクション（国民医療費 2000〜2025年推移、30.1兆円→47.0兆円）
-  - `MacroDashboard`に`healthcareCostTrend`（`HealthcareCostData`リスト）を追加
-  - 既存のエネルギー自給率セクションと同じ折れ線グラフパターンで実装、`interval: 1`で軸ラベル重複を回避
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（exit code 0、99.5秒、**51.0MB**）
-- ⏸ 実機での目視確認は未実施
-
-## 26. パッケージ名・Firebaseアカウント変更（2026-07-08）
-- **方針変更**: 今後Firebase/Google Play Consoleは `funvestment1@gmail.com` に統一（旧: petitworksdev/petitworksappsdev）
-- **applicationId変更**: `com.petitworks.nihon_future_map` → **`com.petitworksapps.japanfuturemap`**（`android/app/build.gradle.kts`の`namespace`/`applicationId`両方）
-  - Androidでは別アプリ扱いになるため、実機に旧パッケージ名のアプリが入っている場合はアンインストールが必要
-- **google-services.json 更新**: 新パッケージ名用のエントリを含むファイルに差し替え（同一Firebaseプロジェクト`petit-works-apps-9029a`内の新規clientエントリ）
-- **firebase_options.dart 更新**: `appId`を新しい値（`1:216377882454:android:189037cc74accf69d108f7`）に変更
-- **メモリ更新**: `user_firebase_account.md`にアカウント方針変更を記録。次回このアプリのFirebase設定を触る際は、petitworksdev共通プロジェクトのままか、funvestment1側に作り直すかを要確認と明記
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（exit code 0、145.6秒、**50.9MB**）
-- ⚠️ 実機に旧パッケージ名（`com.petitworks.nihon_future_map`）のアプリが入っている場合、新APKは別アプリとしてインストールされる（上書きされない、手動アンインストール推奨）
-
-## 25. タイムマシン新指標・クイズ難易度分岐（2026-07-08）
-- **タイムマシン新指標追加**: 3指標→**5指標**に拡大（医療費・空き家率を追加、いずれも`lowerIsBetter: true`）
-  - `SegmentedButton`が5項目で画面幅を超える可能性があるため`SingleChildScrollView`で横スクロール対応
-- **診断クイズの難易度分岐**: `QuizQuestion`に`difficulty`フィールドを追加し、`LoadQuizQuestions.advanced()`で上級問題5問を新設（一般会計予算総額・生活保護受給者数・平均寿命・消費税収・市区町村数）
-  - 診断結果が「社会課題マスター」判定の場合のみ「上級問題に挑戦する」ボタンを表示
-  - `isAdvancedQuizProvider`で出題セットを切り替え、AppBarタイトルに「上級」表示
-  - 「トップに戻る」で上級モードをリセット
-- **テスト追加**: `load_policy_simulation_test.dart`に新指標2件のテストを追加（全35テスト）
-
-**確認事項**:
-- ✅ 全35テスト通過
-- ✅ `flutter build apk --release` 成功（exit code 0、57.0秒、**51.5MB**）
-- ⏸ 実機での目視確認は未実施
-
-## 24. 追加実装案の順次実装（2026-07-08）
-- **世代別賛同マップ**: `Challenge.generationAgreement`（既存データ）を課題詳細画面に横棒グラフで可視化。最も賛同度が高い世代を自動でハイライト
-- **SNSへの直接シェア**: `share_plus`パッケージを追加し、クリップボードコピーのみだった共有を、ネイティブ共有シート呼び出し（LINE/X等へ直接）に変更
-  - `share_preview_screen.dart`: 画像を一時ファイルに書き出し`Share.shareXFiles`で共有（`path_provider`で一時ディレクトリ取得）
-  - `quiz_result_screen.dart`: `Share.share()`でテキスト共有、クリップボードコピーはサブボタンとして併存
-- **課題へのコメント機能**: `Comment`エンティティ新設、Firestoreの`challenges/{id}/comments`サブコレクションに投稿・取得する`FirebaseService`メソッドを追加。課題詳細画面に入力欄＋コメント一覧を実装
-- **ビルド障害と対処**（2段階）:
-  1. `compileSdk = flutter.compileSdkVersion`（33相当）→ `compileSdk = 36`に固定したが解決せず
-  2. 真因は`share_plus 7.2.2`自体のAARが古いandroidx依存を宣言しておりcompileSdk設定と無関係に競合 → `share_plus: ^10.0.0`にアップグレードして解決（classic `Share.share()`/`Share.shareXFiles()` APIのまま利用可能）
-
-**確認事項**:
-- ✅ 全33テスト通過
-- ✅ `flutter build apk --release` 成功（exit code 0、230.5秒、**51.5MB**）
-- ⚠️ Firestoreへのコメント投稿・取得、SNSシェアシートの実機動作は未検証（次回実機確認で要チェック）
-
-## 23. コンテンツ充実・発見機能・グラフ修正（2026-07-08）
-- **グラフ横軸バグ修正**: fl_chartの`bottomTitles`に`interval`未指定だったため軸ラベルが重複表示（「2023 2023 2030 2030…」）されていた → `interval: 1`を明示し`value.round()`で丸めるよう修正（`macro_dashboard_screen.dart`の2箇所、`challenge_detail_screen.dart`の1箇所）
-- **課題説明の充実**: `ChallengeDetail`に`detailedDescription`フィールドを新設。全15課題に背景説明（2〜4文）を追加し、詳細画面に表示
-- **生活影響の具体化**: 全15課題の`outlook20Years`/`outlook50Years`を、マクロな数値だけでなく「給与明細の保険料」「進学の選択肢」「実家の空き家」など具体的な生活シーンに紐づけた記述に書き換え
-- **発見機能（新規）**:
-  - カテゴリフィルターチップ（すべて/経済/福祉/人口/政治/財政）を課題一覧上部に追加
-  - 「あなたにおすすめ」セクション: 投票済み課題のカテゴリに近い未投票課題を投票数順に最大2件表示（`votedChallengeIdsProvider`で投票履歴をセッション内追跡）
-  - AppBarに週刊ランキング画面への導線（`Icons.leaderboard_outlined`）を追加
-
-**確認事項**:
-- ✅ 全33テスト通過
-- ✅ `flutter build apk --release` 成功（exit code 0、137.1秒、**50.9MB**）
-- ⏸ 実機での目視確認は未実施（次回セッションで確認推奨）
-
-## 22. 実機バグ修正（2026-07-08）
-- **白画面クラッシュ修正**: 未使用の`firebase_crashlytics`がFirebase初期化時にNullPointerExceptionを発生させていた → pubspec.yamlから削除
-- **シェアカード重なり修正**: 非表示キャプチャ用ウィジェットが`OverflowBox`単体だとその場に描画され可視コンテンツと重なる → `Transform.translate(-9999,-9999)`で実際に画面外へ移動
-- **シェア画像の空白修正**: `LossShareCard`内`Column`が`mainAxisSize.max`のままキャプチャ時の`maxHeight:900`まで引き伸ばされ、余白ごと画像化されていた → `mainAxisSize.min`に変更
-- **アプリ起動フロー変更**: `main.dart`の`home`を`AgeInputScreen`から`MacroDashboardScreen`に変更。年金計算は「あなたの年金は得？損？」という通常の課題カード（`id: 'my_pension_balance'`, category: welfare）として課題一覧の先頭に統合し、タップで`AgeInputScreen`に遷移する方式に変更
-- **実機確認済み**（uiautomator dumpで正確な座標を取得し検証）:
-  - コールドスタート起動 → マクロダッシュボード正常表示
-  - 「課題に投票する」→ 課題一覧遷移正常
-  - 年金カード → タップで年齢入力画面に正常遷移
-  - シェアカード生成（重なり・空白なし）
-- **APK**: `H:\マイドライブ\apk\nihon_future_map-app-release.apk`（50.8MB）
+﻿# 譌･譛ｬ縺ｮ譛ｪ譚･繝槭ャ繝・窶・螳溯｣・せ繝・・繧ｿ繧ｹ
+
+**譛邨よ峩譁ｰ**: 2026-07-28  
+**繝輔ぉ繝ｼ繧ｺ**: 隱ｲ鬘御ｸ隕ｧ縺ｮ謚慕･ｨ繝懊ち繝ｳ蟒・ｭ｢繝ｻCI逕ｨGitHub繧｢繧ｫ繧ｦ繝ｳ繝・zkacry)縺ｸ縺ｮ遘ｻ陦後・繝薙Ν繝・縺ｧApp Store蟇ｩ譟ｻ謠仙・
+
+## 77. CI逕ｨGitHub繧｢繧ｫ繧ｦ繝ｳ繝医ｒzkacry縺ｫ遘ｻ陦後・繝薙Ν繝・縺ｧApp Store蟇ｩ譟ｻ謠仙・・・026-07-28・・
+- 蠕捺擂縺ｮCI逕ｨ繧｢繧ｫ繧ｦ繝ｳ繝・zka32103-coder`縺梧髪謇輔＞蛛懈ｭ｢縺ｧCI螳溯｡御ｸ崎・縺ｫ縺ｪ縺｣縺溘◆繧√∵眠繧｢繧ｫ繧ｦ繝ｳ繝・
+  `zkacry`縺ｧ繝ｪ繝昴ず繝医Μ`japan_future_map`繧呈眠隕丈ｽ懈・縺励～git remote add origin-zkacry`縺ｧ霑ｽ蜉縲・
+  iOS鄂ｲ蜷咲畑Secrets・・PP_STORE_CONNECT_API_KEY_BASE64繝ｻISSUER_ID繝ｻKEY_ID繝ｻFASTLANE_TEAM_ID繝ｻ
+  IOS_DIST_CERT_BASE64繝ｻIOS_DIST_CERT_PASSWORD繝ｻIOS_PROVISION_PROFILE_BASE64・峨ｒ
+  `H:\繝槭う繝峨Λ繧､繝暴key\`繝ｻ`ios-signing\`縺ｮ繝ｭ繝ｼ繧ｫ繝ｫ菫晏ｭ倥ヵ繧｡繧､繝ｫ縺九ｉ蜀崎ｨｭ螳夲ｼ・ssuer ID縺ｯ
+  [[reference_apple_appstore_connect_credentials]]縺ｮ繝｡繝｢繝ｪ縺九ｉ蠕ｩ蜈・ｼ峨ょ虚菴懃｢ｺ隱阪・繝・せ繝医ン繝ｫ繝画・蜉・
+- Android邨ｱ荳+謚慕･ｨ菫ｮ豁｣・・75・峨・謚慕･ｨ繝懊ち繝ｳ蟒・ｭ｢・・76・峨ｒ蜷ｫ繧繝薙Ν繝・縺ｧTestFlight繧｢繝・・繝ｭ繝ｼ繝画ｸ医∩縲・
+  App Store Connect蛛ｴ縺ｧ騾｣邨｡蜈域ュ蝣ｱ繝ｻ繧ｹ繧ｯ繝ｪ繝ｼ繝ｳ繧ｷ繝ｧ繝・ヨ・・Phone 1284ﾃ・778px繝ｻiPad 2048ﾃ・732px・峨ｒ
+  險ｭ螳壹＠縲√ン繝ｫ繝・繧帝∈謚槭＠縺溽憾諷九〒蟇ｩ譟ｻ謠仙・螳御ｺ・ｼ・026-07-28・・
+
+## 76. 隱ｲ鬘御ｸ隕ｧ縲梧兜逾ｨ縺吶ｋ縲阪・繧ｿ繝ｳ縺ｮ蜑企勁繝ｻ縲後％繧後・蝠城｡後阪・繧ｿ繝ｳ縺ｮ荳譛ｬ蛹厄ｼ・026-07-28・・
+- 隱ｲ鬘御ｸ隕ｧ繧ｫ繝ｼ繝峨・縲梧兜逾ｨ縺吶ｋ縲阪・繧ｿ繝ｳ繧貞炎髯､縺励√後％繧後・蝠城｡後搾ｼ郁ｳ帛酔・峨ｒ荳ｻ隕√い繧ｯ繧ｷ繝ｧ繝ｳ縺ｫ邨ｱ荳縲・
+  隱ｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢縺ｫ繧ょ酔縺倥後％繧後・蝠城｡後阪・繧ｿ繝ｳ繧貞ｯｾ遲匁｡医そ繧ｯ繧ｷ繝ｧ繝ｳ縺ｮ逶ｴ荳翫↓譁ｰ隕剰ｿｽ蜉・・_AgreeSection`・・
+- 菴ｿ繧上ｌ縺ｪ縺上↑縺｣縺歔voteChallengeProvider`繝ｻ`FirebaseService.voteChallenge()`繧貞炎髯､
+- 縺翫☆縺吶ａ讖溯・繝ｻ螳溽ｸｾ繝舌ャ繧ｸ・医御ｸ逾ｨ繧呈兜縺倥◆縲阪梧兜逾ｨ繝槭せ繧ｿ繝ｼ縲咲ｭ会ｼ峨・蛻､螳壼渕貅悶ｒ縲∝ｻ・ｭ｢縺励◆謚慕･ｨ
+  ・・votedChallengeIdsProvider`・峨°繧芽ｳ帛酔・・agreedChallengeIdsProvider`縺ｫ繝ｪ繝阪・繝・峨・繝ｼ繧ｹ縺ｫ螟画峩縲・
+  繝槭う繝壹・繧ｸ縺ｮ陦ｨ遉ｺ譁・ｨ・医後≠縺ｪ縺溘′謚慕･ｨ縺励◆隱ｲ鬘後坂・縲後≠縺ｪ縺溘′雉帛酔縺励◆隱ｲ鬘後咲ｭ会ｼ峨ｂ謨ｴ蜷医＆縺帙◆
+- `flutter analyze`繝ｻ`flutter test`・・5莉ｶ・峨→繧ゅ↓C:\apk蜷梧悄繧ｳ繝斐・荳翫〒PASS繧堤｢ｺ隱・
+
+## 75. Android迚医・Firebase繝励Ο繧ｸ繧ｧ繧ｯ繝育ｵｱ荳縺ｨFirestore謚慕･ｨ荳榊・蜷医・譬ｹ譛ｬ菫ｮ豁｣・・026-07-27・・
+螳滓ｩ滂ｼ・ndroid・峨〒縲梧兜逾ｨ縺ｧ縺阪↑縺・阪ｒ蝣ｱ蜻翫＞縺溘□縺阪・谿ｵ髫弱・譬ｹ譛ｬ蜴溷屏縺瑚ｦ九▽縺九▲縺溘・
+- **蜴溷屏1: Android迚医′蛻･縺ｮFirebase繝励Ο繧ｸ繧ｧ繧ｯ繝医↓謗･邯壹＠縺ｦ縺・◆**: iOS迚医・`apps2-752cb`繧剃ｽｿ縺｣縺ｦ縺・ｋ縺ｮ縺ｫ
+  Android迚医・`petit-works-apps-9029a`・域悴險ｭ螳壹・繝ｫ繝ｼ繝ｫ譛ｪ蜈ｬ髢具ｼ峨↓謗･邯壹＠縺ｦ縺・◆縲ゅΘ繝ｼ繧ｶ繝ｼ縺ｮ蛻､譁ｭ縺ｧ
+  `apps2-752cb`縺ｫ邨ｱ荳縺吶ｋ縺薙→縺ｨ縺励√ヱ繝・こ繝ｼ繧ｸ蜷阪ｒ`com.petitworksapps.japanfuturemap`竊・
+  `com..japanfuturemap`縺ｫ螟画峩・・build.gradle.kts`縺ｮnamespace/applicationId縲・
+  `MainActivity.kt`縺ｮ繝代ャ繧ｱ繝ｼ繧ｸ繝代せ遘ｻ蜍輔∵眠縺励＞`google-services.json`縺ｸ縺ｮ蟾ｮ縺玲崛縺医・
+  `firebase_options.dart`縺ｮandroid繝悶Ο繝・け譖ｴ譁ｰ・・
+- **蜴溷屏2: 蜷榊燕莉倥″Firestore繝・・繧ｿ繝吶・繧ｹ縺ｮ荳堺ｸ閾ｴ**: `apps2-752cb`縺ｯ莉悶い繝励Μ・亥ｰ・｣九い繝励Μ遲会ｼ峨→蜈ｱ逕ｨ縺ｮ
+  繝励Ο繧ｸ繧ｧ繧ｯ繝医〒縲：irestore縺ｯ蜷・い繝励Μ蟆ら畑縺ｮ蜷榊燕莉倥″繝・・繧ｿ繝吶・繧ｹ・・japanfuturemap`遲会ｼ峨↓蛻・°繧後※縺・ｋ縲・
+  `FirebaseFirestore.instance`縺ｯ譛ｪ謖・ｮ壹□縺ｨ`(default)`繝・・繧ｿ繝吶・繧ｹ縺ｫ郢九′縺｣縺ｦ縺励∪縺・・
+  `japanfuturemap`蛛ｴ縺ｫ縺縺大・髢九＠縺溘そ繧ｭ繝･繝ｪ繝・ぅ繝ｫ繝ｼ繝ｫ縺御ｸ蛻・柑縺九★PERMISSION_DENIED縺ｫ縺ｪ縺｣縺ｦ縺・◆縲・
+  `FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: 'japanfuturemap')`繧呈・遉ｺ謖・ｮ壹＠縺ｦ菫ｮ豁｣
+- **蜴溷屏3: 繧ｻ繧ｭ繝･繝ｪ繝・ぅ繝ｫ繝ｼ繝ｫ縺後瑚・蛻・・謚慕･ｨ縲阪・隱ｭ縺ｿ蜿悶ｊ縺ｾ縺ｧ諡貞凄縺励※縺・◆**: `votes`/`agrees`/`likes`/
+  `policyVotes`縺ｮ蜷・し繝悶さ繝ｬ繧ｯ繧ｷ繝ｧ繝ｳ縺形allow read: if false`・郁ｪｰ縺ｫ繧りｪｭ縺ｾ縺帙↑縺・ｼ峨↓縺ｪ縺｣縺ｦ縺・◆縺後・
+  繧｢繝励Μ蛛ｴ縺ｯ謚慕･ｨ蜑阪↓`voteRef.get()`縺ｧ縲梧里縺ｫ謚慕･ｨ貂医∩縺九阪ｒ閾ｪ蟾ｱ繝√ぉ繝・け縺吶ｋ螳溯｣・・縺溘ａ縲√％縺ｮ閾ｪ蟾ｱ繝√ぉ繝・け
+  閾ｪ菴薙′PERMISSION_DENIED縺ｧ螟ｱ謨励＠縺ｦ縺・◆縲Ａallow read: if request.auth.uid == userId`・域悽莠ｺ縺ｮ縺ｿ・峨↓
+  螟画峩縺励∽ｻ紋ｺｺ縺ｮ謚慕･ｨ縺瑚ｦ九∴縺ｪ縺・・繝ｩ繧､繝舌す繝ｼ縺ｯ邯ｭ謖√＠縺溘∪縺ｾ閾ｪ蟾ｱ繝√ぉ繝・け繧帝壹ｋ繧医≧菫ｮ豁｣
+- **蜴溷屏4: 繧ｻ繧ｭ繝･繝ｪ繝・ぅ繝ｫ繝ｼ繝ｫ縺ｮ`resource.data == null`蛻､螳壹′Firestore rules荳翫〒辟｡蜉ｹ**: `challenges`/
+  `policyOptions`縺ｮ譖ｸ縺崎ｾｼ縺ｿ繝ｫ繝ｼ繝ｫ縺ｧ縲∵悴菴懈・繝峨く繝･繝｡繝ｳ繝医∈縺ｮ蛻晏屓譖ｸ縺崎ｾｼ縺ｿ繧定ｨｱ蜿ｯ縺吶ｋ諢丞峙縺ｧ
+  `resource.data == null ? {} : resource.data`縺ｨ譖ｸ縺・※縺・◆縺後√ラ繧ｭ繝･繝｡繝ｳ繝医′蟄伜惠縺励↑縺・→縺・
+  `resource`閾ｪ菴薙′`null`縺ｫ縺ｪ繧九◆繧～resource.data`縺ｸ縺ｮ繧｢繧ｯ繧ｻ繧ｹ譎らせ縺ｧ繝ｫ繝ｼ繝ｫ隧穂ｾ｡縺後お繝ｩ繝ｼ縺ｨ縺ｪ繧翫・
+  蟶ｸ縺ｫ諡貞凄縺輔ｌ縺ｦ縺・◆縲Ａresource == null ? {} : resource.data`縺ｫ菫ｮ豁｣
+- 荳願ｨ・轤ｹ繧偵☆縺ｹ縺ｦ菫ｮ豁｣縺ｮ縺・∴螳滓ｩ溘〒蟇ｾ遲匁｡域兜逾ｨ縺ｮ謌仙粥繧堤｢ｺ隱阪ＡUSER_PROCEDURE.md`縺ｮ繝ｫ繝ｼ繝ｫ萓九ｂ蜷梧ｧ倥↓譖ｴ譁ｰ
+- TestFlight繝薙Ν繝臥分蜿ｷ繧蛋4`竊蛋5`縺ｫ譖ｴ譁ｰ・医％縺ｮ菫ｮ豁｣繧段OS迚医↓繧ょ渚譏縺吶ｋ縺溘ａ・・
+
+## 74. 謚慕･ｨ/雉帛酔縺ｮ荳榊・蜷井ｿｮ豁｣繝ｻiPad蟇ｾ蠢懷ｾｩ蜈・・繧｢繝励Μ縺ｫ縺､縺・※逕ｻ髱｢繝ｻ逵∝ｺ∝撫縺・粋繧上○險倬鹸讖溯・・・026-07-27・・
+- **謚慕･ｨ繝ｻ雉帛酔縺悟ｸｸ縺ｫ螟ｱ謨励☆繧九ヰ繧ｰ繧剃ｿｮ豁｣**: `FirebaseService.voteChallenge()`/`agreeChallenge()`縺・
+  `challenges/{id}`繝峨く繝･繝｡繝ｳ繝医↓蟇ｾ縺輿.update()`繧剃ｽｿ逕ｨ縺励※縺・◆縺後√％縺ｮ繝峨く繝･繝｡繝ｳ繝医・Firestore荳翫↓
+  荳蠎ｦ繧ゆｽ懈・縺輔ｌ縺ｦ縺・↑縺九▲縺滂ｼ郁ｪｲ鬘御ｸ隕ｧ縺ｯ蟶ｸ縺ｫ繝ｭ繝ｼ繧ｫ繝ｫ繝｢繝・け繝・・繧ｿ繧定｡ｨ遉ｺ縺励※縺翫ｊ縲：irestore縺ｸ縺ｮ
+  譖ｸ縺崎ｾｼ縺ｿ縺檎匱逕溘＠縺ｦ縺・↑縺九▲縺溘◆繧・ｼ峨Ａ.update()`縺ｯ蟇ｾ雎｡繝峨く繝･繝｡繝ｳ繝井ｸ榊惠縺縺ｨNOT_FOUND縺ｧ螟ｱ謨励＠縲・
+  萓句､悶・catch縺輔ｌ`false`縺瑚ｿ斐ｋ縺縺代〒繝ｦ繝ｼ繧ｶ繝ｼ縺ｫ縺ｯ菴輔・繧ｨ繝ｩ繝ｼ陦ｨ遉ｺ繧ゅ＆繧後※縺・↑縺九▲縺溘・
+  `set(..., SetOptions(merge: true))`縺ｫ螟画峩縺励√ラ繧ｭ繝･繝｡繝ｳ繝医′辟｡縺代ｌ縺ｰ菴懈・繝ｻ縺ゅｌ縺ｰ蠅怜・縺吶ｋ繧医≧菫ｮ豁｣
+  ・亥ｯｾ遲匁｡域兜逾ｨ`votePolicyOptionProvider`縺ｯ蜈・・％縺ｮ譖ｸ縺肴婿縺ｧ豁｣蟶ｸ縺縺｣縺滂ｼ・
+- **iPad蟇ｾ蠢懊ｒ荳蠎ｦiPhone蟆ら畑縺ｫ螟画峩竊偵Θ繝ｼ繧ｶ繝ｼ蛻､譁ｭ縺ｧ蠕ｩ蜈・*: 13繧､繝ｳ繝（Pad繧ｹ繧ｯ繝ｪ繝ｼ繝ｳ繧ｷ繝ｧ繝・ヨ隕∽ｻｶ繧・
+  荳譎ょ屓驕ｿ縺吶ｋ縺溘ａ`TARGETED_DEVICE_FAMILY`繧蛋"1"`・・Phone蟆ら畑・峨↓縺励◆縺後（Pad蟇ｾ蠢懊ｒ邯ｭ謖√＠縺溘＞縺ｨ縺ｮ
+  蛻､譁ｭ縺ｫ繧医ｊ`"1,2"`縺ｫ蠕ｩ蜈・ゅΞ繧､繧｢繧ｦ繝医・繧ｹ繝槭・蜷代￠蜊倅ｸ繧ｫ繝ｩ繝縺ｮ縺ｾ縺ｾ・・Pad譛驕ｩ蛹悶・譛ｪ螳滓命繝ｻ蟆・擂隱ｲ鬘鯉ｼ・
+- **縲後％縺ｮ繧｢繝励Μ縺ｫ縺､縺・※縲咲判髱｢繧呈眠隕剰ｿｽ蜉**・・about_screen.dart`・・ 繧｢繝励Μ讎りｦ√・荳ｻ縺ｪ讖溯・荳隕ｧ繝ｻ
+  繝・・繧ｿ縺ｫ縺､縺・※縺ｮ豕ｨ險倥・繝励Λ繧､繝舌す繝ｼ繝昴Μ繧ｷ繝ｼ/繧ｵ繝昴・繝医・繝ｼ繧ｸ縺ｸ縺ｮ繝ｪ繝ｳ繧ｯ繧呈軸霈峨ゅ・繧､繝壹・繧ｸ譛荳矩Κ縺九ｉ驕ｷ遘ｻ
+- **逵∝ｺ√・遯灘哨縺ｸ縺ｮ蝠上＞蜷医ｏ縺幄ｨ倬鹸讖溯・繧呈眠隕剰ｿｽ蜉**: `AgencyContact`繧ｨ繝ｳ繝・ぅ繝・ぅ・・
+  `LoadAgencyContacts`繝ｦ繝ｼ繧ｹ繧ｱ繝ｼ繧ｹ繧偵∵里蟄倥・`DietBill`/`IssueAdvocate`縺ｨ蜷後§
+  縲碁幕逋ｺ閠・′Dart繝輔ぃ繧､繝ｫ縺ｫ謇句虚縺ｧ險倬鹸繧定ｿｽ險倥☆繧九阪ヱ繧ｿ繝ｼ繝ｳ縺ｧ譁ｰ險ｭ縲・
+  隱ｲ鬘御ｸ隕ｧ繧ｫ繝ｼ繝峨・菫ｯ迸ｰ繝槭ャ繝励↓笨会ｸ上ヰ繝・ず縲∬ｪｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢縺ｫ蟆ら畑繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ繧定ｿｽ蜉・郁ｩｲ蠖楢ｪｲ鬘後′縺ゅｋ蝣ｴ蜷医・縺ｿ陦ｨ遉ｺ・峨・
+  **螳滄圀縺ｫ蝠上＞蜷医ｏ縺帙ｒ陦後▲縺溯ｨ倬鹸縺ｮ縺ｿ繧呈軸霈峨☆繧区婿驥・*縺ｮ縺溘ａ縲∝・譛溘ョ繝ｼ繧ｿ縺ｯ遨ｺ
+- App Store謠仙・逕ｨ縺ｮ閾ｪ蜍輔せ繧ｯ繝ｪ繝ｼ繝ｳ繧ｷ繝ｧ繝・ヨ逕滓・・・l_chart繧ｦ繧｣繧ｸ繧ｧ繝・ヨ繝・Μ繝ｼ縺九ｉ縺ｮ繝ｬ繝ｳ繝繝ｪ繝ｳ繧ｰ・峨ｒ
+  隧ｦ縺ｿ縺溘′縲～google_fonts`縺ｮ繝阪ャ繝医Ρ繝ｼ繧ｯ蜿門ｾ励′繝・せ繝医・繝輔ぉ繧､繧ｯ髱槫酔譛溘だ繝ｼ繝ｳ縺ｧ螟ｱ謨励＠縲・
+  `runAsync`邨檎罰縺ｫ逶ｴ縺励※繧・0蛻・ｻ･荳翫ワ繝ｳ繧ｰ縺励◆縺溘ａ謦､蝗槭ょｮ滓ｩ滂ｼ・estFlight・峨〒縺ｮ謇句虚謦ｮ蠖ｱ縺ｫ蛻・ｊ譖ｿ縺・
+- TestFlight繝薙Ν繝臥分蜿ｷ繧・1竊・・域眠讖溯・霑ｽ蜉・俄・3・域兜逾ｨ菫ｮ豁｣・俄・4・医い繝励Μ縺ｫ縺､縺・※・句撫縺・粋繧上○讖溯・・峨・鬆・〒
+  4蝗槭い繝・・繝ｭ繝ｼ繝峨ゅ☆縺ｹ縺ｦ`zka32103-coder/nihon_future_map`縺ｮCI邨檎罰縺ｧ謌仙粥
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃・・flutter test`縲∵ｩ溯・霑ｽ蜉縺ｮ縺溘・縺ｫ螳溯｡鯉ｼ・
+- 笨・Android release APK繝薙Ν繝画・蜉淌・・・6.1MB・・
+- 笨・iOS鄂ｲ蜷堺ｻ倥″繝薙Ν繝会ｼ亀estFlight繧｢繝・・繝ｭ繝ｼ繝画・蜉淌・・医ン繝ｫ繝臥分蜿ｷ3繝ｻ4・・
+- 統 `AgencyContact`縺ｮ繝・・繧ｿ縺ｯ遨ｺ縲ょｮ滄圀縺ｫ逵∝ｺ√・遯灘哨縺ｸ蝠上＞蜷医ｏ縺帙◆髫帙・縲∝撫縺・粋繧上○蜈医・譁ｹ豕輔・
+  繧ｹ繝・・繧ｿ繧ｹ繝ｻ蜀・ｮｹ隕∫ｴ・・・医≠繧後・・牙屓遲碑ｦ∫ｴ・・譎らせ繧蛋load_agency_contacts.dart`縺ｫ霑ｽ險倥☆繧・
+
+## 73. 繝｢繝・け繝・・繧ｿ縺ｮ蛻晄悄謚慕･ｨ謨ｰ繝ｪ繧ｻ繝・ヨ・・026-07-25・・
+- `firebase_service.dart`縺ｮ`getMockChallenges()`蜀・∝・隱ｲ鬘鯉ｼ・1莉ｶ・峨・`voteCount`繝ｻ`agreeCount`繧・
+  繝上・繝峨さ繝ｼ繝峨＆繧後※縺・◆蛻晄悄蛟､縺九ｉ`0`縺ｫ繝ｪ繧ｻ繝・ヨ
+- `load_policy_options.dart`縺ｮ蜈ｨ蟇ｾ遲匁｡茨ｼ・53莉ｶ縲～_o()`蜻ｼ縺ｳ蜃ｺ縺励・譛ｫ蟆ｾ蠑墓焚・峨・`voteCount`繧ょ酔讒倥↓`0`縺ｫ繝ｪ繧ｻ繝・ヨ
+- 繝ｦ繝ｼ繧ｶ繝ｼ驕ｸ謚槭↓繧医ｊ縲∝ｯｾ雎｡縺ｯ**繧｢繝励Μ蜀・Δ繝・け繝・・繧ｿ縺ｮ蛻晄悄逾ｨ謨ｰ・医さ繝ｼ繝牙・・峨・縺ｿ**縲・irestore譛ｬ逡ｪ繝・・繧ｿ繧・
+  遶ｯ譛ｫ繝ｭ繝ｼ繧ｫ繝ｫ縺ｮ縲梧兜逾ｨ貂医∩縲咲憾諷具ｼ・votedChallengeIdsProvider`遲峨∫樟迥ｶ繧｢繝励Μ蜀崎ｵｷ蜍輔〒豸医∴繧九Γ繝｢繝ｪ蜀・tate・峨・蟇ｾ雎｡螟・
+- 蜑ｯ菴懃畑縺ｨ縺励※縲∵ｳｨ逶ｮ蠎ｦ繝槭ャ繝暦ｼ・_AttentionMap`縲ー[project_nihon_future_map]]縺ｮ72逡ｪ縺ｧ霑ｽ蜉・峨′
+  `voteCount > 0`縺ｮ縺ｿ繧貞ｯｾ雎｡縺ｫ縺励※縺・◆縺溘ａ縲√Μ繧ｻ繝・ヨ逶ｴ蠕後・遨ｺ陦ｨ遉ｺ縺ｫ縺ｪ繧倶ｸ榊・蜷医ｒ逋ｺ隕九・菫ｮ豁｣縲・
+  蜈ｨ隱ｲ鬘後ｒ蟇ｾ雎｡縺ｫ縺励～voteCount == 0`縺ｮ隱ｲ鬘後・雉帛酔邇・%・・=0・峨→縺励※繝励Ο繝・ヨ縺吶ｋ繧医≧螟画峩縲・
+  縺ｾ縺歔maxY`縺・縺縺ｨ謨｣蟶・峙縺梧ｽｰ繧後ｋ蝠城｡後ｂ`maxVotes == 0 ? 10 : maxVotes * 1.15`縺ｧ繧ｬ繝ｼ繝・
+- 笨・`dart format`繝ｻ蜈ｨ35繝・せ繝・ASS
+
+## 72. 雋｡蜍咏怐縺ｮ諠・ｱ邨ｱ蛻ｶ隲紋ｺ峨・豕ｨ逶ｮ蠎ｦ・・ｺ育ｮ励・繝・・繝ｻ謾ｿ蜈壼倶ｺｺ縺ｮ荳ｻ蠑ｵ讖溯・繧定ｿｽ蜉・・026-07-25・・
+- **譁ｰ隕剰ｪｲ鬘後瑚ｲ｡蜍咏怐縺ｮ諠・ｱ逋ｺ菫｡蜉帙→縲弱じ繧､繝逵溽炊謨吶剰ｫ紋ｺ峨・*繧定ｿｽ蜉・・d: `finance_ministry_narrative_control`,
+  category: `structural`・峨りｲ｡蜍咏怐縺檎ｷ顔ｸｮ雋｡謾ｿ繝ｻ蠅礼ｨ手ｷｯ邱壹ｒ謾ｿ豐ｻ螳ｶ繝ｻ繝｡繝・ぅ繧｢繝ｻ蝗ｽ豌代↓豬ｸ騾上＆縺帙※縺・ｋ縺ｨ縺ｮ
+  謇ｹ蛻､・磯夂ｧｰ縲後じ繧､繝逵溽炊謨吶阪∵｣ｮ豌ｸ蜊馴ヮ豌上弱じ繧､繝逵溽炊謨吶・023蟷ｴ縺瑚ｵｷ轤ｹ・峨→縲∬ｲ｡謾ｿ隕丞ｾ九・蠢・ｦ∵ｧ繧定ｨｴ縺医ｋ
+  蜿崎ｫ厄ｼ亥ｲｸ蜊壼ｹｸ豌上・謇ｹ蛻､險倅ｺ狗ｭ会ｼ峨ｒ荳｡隲紋ｽｵ險倥よ里蟄倥・`bureaucracy_influence`・亥ｮ伜・讖滓ｧ九・蠖ｱ髻ｿ蜉幢ｼ峨→縺ｯ
+  蛻・ｊ蜿｣繧貞・縺代∵ュ蝣ｱ逋ｺ菫｡繝ｻ荳冶ｫ門ｽ｢謌舌→縺・≧隗貞ｺｦ縺ｫ邨槭▲縺溘ょｯｾ遲匁｡・莉ｶ繝ｻChallengeDetail・・acro/detail/outlook・峨ｂ霑ｽ蜉
+- **`Challenge`縺ｫ`budgetTrillionYen`・井ｺ育ｮ苓ｦ乗ｨ｡繝ｻ蜈・・縲］ullable・峨ｒ霑ｽ蜉**縲ょ・蜈ｸ繝ｻ譎らせ縺檎｢ｺ隱阪〒縺阪◆
+  9隱ｲ鬘後・縺ｿ險ｭ螳夲ｼ亥嵜蛯ｵ雋ｻ31.3蜈・・竊蛋national_debt`縲・亟陦幃未菫りｲｻ8.8蜈・・竊蛋defense_budget_funding`縲・
+  蝨ｰ譁ｹ莠､莉倡ｨ惹ｺ､莉倬≡遲・0.9蜈・・竊蛋local_fiscal_dependency`縲∵枚謨咏ｧ大ｭｦ謖ｯ闊郁ｲｻ6.0蜈・・竊蛋education_gap`縲・
+  蜈ｬ蜈ｱ莠区･ｭ髢｢菫りｲｻ6.1蜈・・竊蛋disaster_recovery_cost`縲∫音蛻･莨夊ｨ域ｭｳ蜃ｺ邱城｡・00蜈・・竊蛋special_account_opacity`縲・
+  莉玖ｭｷ邨ｦ莉倩ｲｻ3.7蜈・・竊蛋caregiver_shortage`縲∝ｰ大ｭ仙喧蟇ｾ遲冶ｲｻ3.5蜈・・竊蛋childcare_waitlist`縲∽ｸ闊ｬ莨夊ｨ育ｷ城｡・
+  122.3蜈・・竊呈眠隕剰ｪｲ鬘後ゅ☆縺ｹ縺ｦ雋｡蜍咏怐繝ｻ蜴壼感逵√・莠育ｮ苓ｳ・侭繧淡ebSearch縺ｧ遒ｺ隱阪＠縺滉ｻ､蜥・-8蟷ｴ蠎ｦ縺ｮ螳滓焚・・
+- **謾ｿ蜈壹・蛟倶ｺｺ縺ｮ荳ｻ蠑ｵ繧定ｪｲ鬘後↓髢｢騾｣莉倥￠繧区眠讖溯・**: `IssueAdvocate`繧ｨ繝ｳ繝・ぅ繝・ぅ・義LoadIssueAdvocates`
+  繝ｦ繝ｼ繧ｹ繧ｱ繝ｼ繧ｹ繧呈眠險ｭ縲ゆｸ谺｡雉・侭・域帆蜈壼・蠑上し繧､繝医・謾ｿ蠎懆ｳ・侭繝ｻ蝣ｱ驕難ｼ峨〒陬丞叙繧翫〒縺阪◆6隱ｲ鬘後・16莉ｶ縺ｮ縺ｿ謗ｲ霈・
+  ・・money_in_politics`・昜ｼ∵･ｭ蝗｣菴鍋鍵驥代∈縺ｮ閾ｪ豌代・遶区・繝ｻ蜈ｱ逕｣縺ｮ遶句ｴ縲～hereditary_politicians`・昜ｸ冶･ｲ蛻ｶ髯・
+  縺ｸ縺ｮ邯ｭ譁ｰ繝ｻ遶区・繝ｻ閾ｪ豌代・遶句ｴ縲～women_in_politics`・昴け繧ｪ繝ｼ繧ｿ蛻ｶ縺ｸ縺ｮ遶区・繝ｻ蜈ｱ逕｣繝ｻ謾ｿ蠎懃岼讓吶・
+  `defense_budget_funding`・晁ｲ｡貅先婿驥昴∈縺ｮ謾ｿ蠎應ｸ主・繝ｻ蝗ｽ豌第ｰ台ｸｻ縺ｮ遶句ｴ縲～income_stagnation`・・
+  縲悟ｹｴ蜿弱・螢√阪∈縺ｮ蝗ｽ豌第ｰ台ｸｻ縺ｮ遶句ｴ縲∵眠隕剰ｪｲ鬘形finance_ministry_narrative_control`・晄｣ｮ豌ｸ蜊馴ヮ豌上・蟯ｸ蜊壼ｹｸ豌上・
+  荳｡隲厄ｼ峨ＡChallengeDetailScreen`縺ｫ縲梧帆蜈壹・蛟倶ｺｺ縺梧嫌縺偵※縺・ｋ荳ｻ蠑ｵ縲阪そ繧ｯ繧ｷ繝ｧ繝ｳ繧蛋_DietBillSection`縺ｨ
+  蜷梧ｧ倥・繝代ち繝ｼ繝ｳ縺ｧ霑ｽ蜉・郁ｩｲ蠖楢ｪｲ鬘後′縺ゅｋ蝣ｴ蜷医・縺ｿ繧ｸ繝｣繝ｳ繝励ヰ繝ｼ縺ｫ陦ｨ遉ｺ・・
+- **縲碁ｱ蛻・繝ｩ繝ｳ繧ｭ繝ｳ繧ｰ縲咲判髱｢縺ｫ繝槭ャ繝励ち繝悶ｒ霑ｽ蜉**・・繧ｿ繝問・3繧ｿ繝厄ｼ峨Ａ_ChallengeMapTab`縺ｧ
+  `SegmentedButton`縺ｫ繧医ｊ2遞ｮ鬘槭・fl_chart `ScatterChart`繧貞・譖ｿ陦ｨ遉ｺ:
+  - 豕ｨ逶ｮ蠎ｦ繝槭ャ繝・ 讓ｪ霆ｸ・晁ｳ帛酔邇・ｼ・greeCount/voteCount・峨∫ｸｦ霆ｸ・晄兜逾ｨ謨ｰ縲ょ承荳翫⊇縺ｩ縲悟､壹￥縺ｮ莠ｺ縺梧ｳｨ逶ｮ縺・
+    蠑ｷ縺剰ｳ帛酔縺励※縺・ｋ縲崎ｪｲ鬘後∝ｷｦ荳九・縲後∪縺遏･繧峨ｌ縺ｦ縺・↑縺・′遏･繧峨ｌ繧後・謾ｯ謖√＆繧後ｋ縺九ｂ縺励ｌ縺ｪ縺・崎ｪｲ鬘・
+  - 莠育ｮ励・繝・・: 蜀・・螟ｧ縺阪＆・晞未騾｣縺吶ｋ蝗ｽ縺ｮ莠育ｮ怜玄蛻・・隕乗ｨ｡・亥・蜀・ｼ峨∫ｸｦ霆ｸ・晄兜逾ｨ謨ｰ縲ＣudgetTrillionYen縺・
+    險ｭ螳壹＆繧後◆9隱ｲ鬘後・縺ｿ蟇ｾ雎｡縲ょ句挨隱ｲ鬘後∈縺ｮ莠育ｮ鈴・蛻・〒縺ｯ縺ｪ縺丞盾閠・､縺ｧ縺ゅｋ譌ｨ繧旦I荳翫↓譏手ｨ・
+  - 縺・★繧後ｂ繝励Ο繝・ヨ繧ｿ繝・・縺ｧ隧ｲ蠖伝ChallengeDetailScreen`縺ｫ驕ｷ遘ｻ
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・`dart format`螳溯｡鯉ｼ・繝輔ぃ繧､繝ｫ謨ｴ蠖｢・・
+- 笨・蜈ｨ35繝・せ繝磯夐℃・・flutter test`・・
+- 笞・・繝ｭ繝ｼ繧ｫ繝ｫ`flutter analyze`縺ｯ譌｢遏･縺ｮ譌･譛ｬ隱槭ヱ繧ｹLSP繧ｯ繝ｩ繝・す繝･・・[reference_flutter_ios_github_actions_ci]]蜿ら・・峨〒
+  螳溯｡御ｸ榊庄縺ｮ縺溘ａ譛ｪ讀懆ｨｼ縲・I・・inux・牙・縺ｮ`analyze-and-test`繧ｸ繝ｧ繝悶〒縺ｮ遒ｺ隱阪′蠢・ｦ・
+- 肌 Android release APK繝薙Ν繝峨・`build-flutter-apk`繧ｹ繧ｭ繝ｫ縺ｧ螳溯｡御ｸｭ
+- 統 謾ｿ蜈壹・蛟倶ｺｺ縺ｮ荳ｻ蠑ｵ繝・・繧ｿ縺ｯ6隱ｲ鬘後・16莉ｶ縺ｮ縺ｿ・亥・51隱ｲ鬘御ｸｭ・峨よ帆豐ｻ逧・ｩ溷ｾｮ縺輔ｒ閠・・縺励・
+  荳谺｡雉・侭縺ｧ陬丞叙繧翫〒縺阪◆繧ゅ・縺ｫ髯仙ｮ壹らｯ・峇諡｡螟ｧ縺ｯ莉雁ｾ後・隱ｲ鬘・
+
+## 71. iOS鄂ｲ蜷堺ｻ倥″繝薙Ν繝峨・TestFlight繧｢繝・・繝ｭ繝ｼ繝・繝代う繝励Λ繧､繝ｳ螳悟・謌仙粥・・026-07-24・・
+- `zka32103-coder/nihon_future_map`・・縺､逶ｮ縺ｮ繝ｪ繝昴ず繝医Μ縲∬ｫ区ｱゅヶ繝ｭ繝・け縺ｮ縺ｪ縺九▲縺溘い繧ｫ繧ｦ繝ｳ繝茨ｼ峨〒
+  `build-ios-signed`繧ｸ繝ｧ繝悶・蜀榊ｮ溯｡鯉ｼ亥､ｱ謨励ず繝ｧ繝悶・縺ｿ蜀榊ｮ溯｡後～gh run rerun --failed`縺ｧ繧ｳ繧ｹ繝亥炎貂幢ｼ峨′
+  **蜈ｨ繧ｸ繝ｧ繝鳳ASS**縺ｧ螳御ｺ・ＪOS縺ｮ險ｼ譏取嶌繧､繝ｳ繝昴・繝遺・鄂ｲ蜷坂・繧｢繝ｼ繧ｫ繧､繝問・IPA逕滓・竊探estFlight繧｢繝・・繝ｭ繝ｼ繝峨・
+  荳騾｣縺ｮ繝代う繝励Λ繧､繝ｳ縺後；itHub Actions荳翫〒螳悟・縺ｫ閾ｪ蜍募喧縺輔ｌ縺溽憾諷九〒蜍穂ｽ懊☆繧九％縺ｨ繧貞ｮ溯ｨｼ縺励◆
+  ・・un: https://github.com/zka32103-coder/nihon_future_map/actions/runs/30087506632・・
+- 縺薙ｌ縺ｾ縺ｧ縺ｮ荳騾｣縺ｮ菴懈･ｭ縺ｧ隗｣豎ｺ縺励◆蝠城｡鯉ｼ医☆縺ｹ縺ｦ隗｣豸域ｸ医∩・・
+  1. p12險ｼ譏取嶌繝代せ繝ｯ繝ｼ繝峨・譛ｫ蟆ｾ謾ｹ陦梧ｷｷ蜈･・・echo`縺ｧ縺ｯ縺ｪ縺汁printf`縺ｧ逋ｻ骭ｲ・・
+  2. OpenSSL 3.x縺ｮ繝・ヵ繧ｩ繝ｫ繝域囓蜿ｷ蛹匁婿蠑上→macOS `security`繧ｳ繝槭Φ繝峨・髱樔ｺ呈鋤・・-legacy`繝輔Λ繧ｰ縺ｧ蜀咲函謌撰ｼ・
+  3. Xcode繝励Ο繧ｸ繧ｧ繧ｯ繝医・鄂ｲ蜷肴婿蠑上′`Automatic`縺ｮ縺ｾ縺ｾ縺縺｣縺溷撫鬘鯉ｼ・CODE_SIGN_STYLE=Manual`繝ｻ
+     `DEVELOPMENT_TEAM`繝ｻ`PROVISIONING_PROFILE_SPECIFIER`繧呈・遉ｺ險ｭ螳夲ｼ・
+  4. Firebase繝励Λ繧ｰ繧､繝ｳ縺ｮ髱槭Δ繧ｸ繝･繝ｩ繝ｼ繝倥ャ繝繝ｼ蝠城｡鯉ｼ医Γ繧ｸ繝｣繝ｼ繝舌・繧ｸ繝ｧ繝ｳ繧｢繝・・縺ｧ隗｣豎ｺ縲・
+     Podfile繝ｬ繝吶Ν縺ｮ蝗樣∩遲悶〒縺ｯ逶ｴ縺帙↑縺九▲縺滂ｼ・
+  5. Firebase繧｢繝・・繧ｰ繝ｬ繝ｼ繝峨↓莨ｴ縺・wift Package Manager閾ｪ蜍墓､懷・縺ｨ縺ｮ陦晉ｪ・
+     ・・pubspec.yaml`縺ｧ譏守､ｺ逧・↓辟｡蜉ｹ蛹厄ｼ・
+  6. 逶ｴ蜑阪・TestFlight繧｢繝・・繝ｭ繝ｼ繝牙､ｱ謨励・Apple蛛ｴ縺ｮ荳譎ら噪縺ｪ500繧ｨ繝ｩ繝ｼ縺ｧ縲∝・螳溯｡後・縺ｿ縺ｧ隗｣豎ｺ
+- 騾比ｸｭ縲；itHub Actions縺ｮ隲区ｱゅヶ繝ｭ繝・け縺ｫ**3縺､縺ｮ繧｢繧ｫ繧ｦ繝ｳ繝・*・・funvestment1-svg`繝ｻ
+  `petitworksappsdev-hash`繝ｻ`zka32101`・峨′谺｡縲・→蛻ｰ驕斐＠縲∵怙邨ら噪縺ｫ4縺､逶ｮ縺ｮ繧｢繧ｫ繧ｦ繝ｳ繝・
+  ・・zka32103-coder`・峨〒讀懆ｨｼ繧貞ｮ御ｺ・＠縺・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・Android debug APK繝薙Ν繝画・蜉・
+- 笨・**iOS鄂ｲ蜷堺ｻ倥″IPA繝薙Ν繝会ｼ亀estFlight繧｢繝・・繝ｭ繝ｼ繝画・蜉・*・医％縺ｮ繧｢繝励Μ縺ｧ蛻昴・iOS螳滄・蟶・黄・・
+- 統 谺｡縺ｮ繧ｹ繝・ャ繝・ App Store Connect縺ｧTestFlight縺ｮ繝薙Ν繝牙・逅・ｮ御ｺ・ｒ蠕・■縲∝・驛ｨ繝・せ繧ｿ繝ｼ縺ｸ縺ｮ
+  驟堺ｿ｡繝ｻ螳滓ｩ溘〒縺ｮ蜍穂ｽ懃｢ｺ隱阪↓騾ｲ繧
+
+## 70. Swift Package Manager閾ｪ蜍墓､懷・縺ｮ辟｡蜉ｹ蛹厄ｼ・026-07-24・・
+- Firebase繝代ャ繧ｱ繝ｼ繧ｸ縺ｮ繧｢繝・・繧ｰ繝ｬ繝ｼ繝会ｼ・69・峨↓繧医ｊ縲∽ｻ･蜑阪・`Include of non-modular header`
+  繧ｨ繝ｩ繝ｼ縺ｯ隗｣豸医＠縺溘′縲∵眠縺励＞Firebase繝励Λ繧ｰ繧､繝ｳ縺郡wift Package Manager (SPM)蟇ｾ蠢懊↓縺ｪ縺｣縺溘◆繧√・
+  Flutter 3.44縺景OS繝薙Ν繝画凾縺ｫ縲悟・繝励Λ繧ｰ繧､繝ｳ縺郡wift Package縲阪→閾ｪ蜍墓､懷・縺励∵里蟄倥・Podfile繝吶・繧ｹ
+  讒区・縺ｨ豺ｷ蝨ｨ縺輔○繧医≧縺ｨ縺励※`Error (Xcode): The sandbox is not in sync with the Podfile.lock`
+  縺ｨ縺・≧繧ｨ繝ｩ繝ｼ縺ｫ縺ｪ縺｣縺・
+- 繧ｵ繝悶お繝ｼ繧ｸ繧ｧ繝ｳ繝医〒隱ｿ譟ｻ縺励◆邨先棡縲√％繧後・繧ｭ繝｣繝・す繝･縺ｮ蝠城｡後〒縺ｯ縺ｪ縺上：lutter 3.44縺九ｉ
+  SPM縺後ョ繝輔か繝ｫ繝医〒譛牙柑縺ｫ縺ｪ縺｣縺溘％縺ｨ縺ｫ繧医ｋ譌｢遏･縺ｮ謖吝虚・・flutter/flutter#151504](https://github.com/flutter/flutter/issues/151504)縲・
+  [蜈ｬ蠑上ラ繧ｭ繝･繝｡繝ｳ繝・(https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers)・・
+  縺ｨ蛻､譏弱・oringSSL-GRPC繝ｻgRPC-Core縺ｸ縺ｮ繧ｽ繝ｼ繧ｹ繝代ャ繝√↑縺ｩ縲∵里蟄倥・Podfile讒区・繧偵◎縺ｮ縺ｾ縺ｾ邯ｭ謖√＠縺溘＞
+  縺溘ａ縲ヾPM縺ｸ縺ｮ遘ｻ陦後〒縺ｯ縺ｪ縺冗┌蜉ｹ蛹悶ｒ驕ｸ謚・
+- `pubspec.yaml`縺ｫ`flutter.config.enable-swift-package-manager: false`繧定ｿｽ蜉縺励・
+  CocoaPods縺ｮ縺ｿ繧剃ｽｿ縺・ｧ区・縺ｫ蝗ｺ螳・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 竢ｳ `build-ios-signed`繧ｸ繝ｧ繝悶・蜀榊ｮ溯｡檎ｵ先棡縺ｯ谺｡鬆・↓霑ｽ險倅ｺ亥ｮ・
+
+## 69. Firebase繝代ャ繧ｱ繝ｼ繧ｸ縺ｮ繝｡繧ｸ繝｣繝ｼ繝舌・繧ｸ繝ｧ繝ｳ繧｢繝・・・・026-07-24・・
+- `build-ios-signed`繧ｸ繝ｧ繝悶′`Include of non-modular header inside framework module
+  'firebase_messaging.FLTFirebaseMessagingPlugin'`縺ｧ3蝗樣｣邯壼､ｱ謨暦ｼ・use_modular_headers!`繝ｻ
+  `CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES`縺ｮ荳｡Podfile菫ｮ豁｣繧定ｩｦ縺吶ｂ隗｣豸医○縺夲ｼ・
+- 繧ｵ繝悶お繝ｼ繧ｸ繧ｧ繝ｳ繝医〒譬ｹ譛ｬ蜴溷屏繧定ｪｿ譟ｻ縺励◆邨先棡縲・*Podfile縺ｧ縺ｯ逶ｴ縺帙↑縺・：lutterFire繝励Λ繧ｰ繧､繝ｳ
+  閾ｪ菴薙・譌｢遏･縺ｮ荳榊・蜷・*縺ｨ蛻､譏弱よ立繝舌・繧ｸ繝ｧ繝ｳ縺ｮFirebase繝励Λ繧ｰ繧､繝ｳ縺悟商縺Я#import <Firebase/Firebase.h>`
+  ・・mbrella header・峨ｒ菴ｿ縺｣縺ｦ縺翫ｊ縲々code 16縺ｮ蜴ｳ譬ｼ縺ｪ繝｢繧ｸ繝･繝ｩ繝ｼ繝倥ャ繝繝ｼ繝√ぉ繝・け縺ｫ謚ｵ隗ｦ縺励※縺・◆縲・
+  繝｡繝ｳ繝・リ繝ｼ縺・024蟷ｴ9譛医・繝ｪ繝ｪ繝ｼ繧ｹ・・flutterfire#13400](https://github.com/firebase/flutterfire/pull/13400)・峨〒
+  蜷・・繝ｩ繧ｰ繧､繝ｳ縺ｮ繧ｽ繝ｼ繧ｹ繧ｳ繝ｼ繝牙・繧貞句挨繝｢繧ｸ繝･繝ｩ繝ｼimport縺ｫ菫ｮ豁｣貂医∩
+- 繝ｦ繝ｼ繧ｶ繝ｼ遒ｺ隱阪・荳翫：irebase髢｢騾｣繝代ャ繧ｱ繝ｼ繧ｸ繧偵Γ繧ｸ繝｣繝ｼ繝舌・繧ｸ繝ｧ繝ｳ繧｢繝・・:
+  - `firebase_core`: ^2.28.0 竊・^3.6.0・郁ｧ｣豎ｺ: 3.15.2・・
+  - `cloud_firestore`: ^4.15.0 竊・^5.4.3・郁ｧ｣豎ｺ: 5.6.12・・
+  - `firebase_auth`: ^4.19.0 竊・^5.3.1・郁ｧ｣豎ｺ: 5.7.0・・
+  - `firebase_analytics`: ^10.8.0 竊・^11.3.3・郁ｧ｣豎ｺ: 11.6.0・・
+  - `firebase_messaging`: ^14.7.0 竊・^15.1.3・郁ｧ｣豎ｺ: 15.2.10・・
+- Dart繧ｳ繝ｼ繝牙・縺ｮAPI蛻ｩ逕ｨ縺ｯ迚ｹ縺ｫ螟画峩荳崎ｦ√□縺｣縺滂ｼ域里蟄倥・蜻ｼ縺ｳ蜃ｺ縺励ヱ繧ｿ繝ｼ繝ｳ縺梧眠繝舌・繧ｸ繝ｧ繝ｳ縺ｧ繧・
+  蠑輔″邯壹″譛牙柑・峨ょ・35繝・せ繝・ASS
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・5.9MB縲、ndroid蛛ｴ縺ｫFirebase SDK繧｢繝・・繧ｰ繝ｬ繝ｼ繝峨・蠖ｱ髻ｿ縺ｪ縺暦ｼ・
+- 竢ｳ `build-ios-signed`繧ｸ繝ｧ繝悶・蜀榊ｮ溯｡檎ｵ先棡縺ｯ谺｡鬆・↓霑ｽ險倅ｺ亥ｮ・
+
+## 68. iOS鄂ｲ蜷堺ｻ倥″繝薙Ν繝峨・TestFlight繧｢繝・・繝ｭ繝ｼ繝峨・閾ｪ蜍募喧・・026-07-24・・
+- 縲後い繝・・繝ｭ繝ｼ繝峨ン繝ｫ繝峨・縺ｩ縺・ｄ繧九阪→縺・≧隕∵悍繧貞女縺代；itHub Actions縺ｧ鄂ｲ蜷堺ｻ倥″IPA繧・
+  繝薙Ν繝峨＠TestFlight縺ｸ閾ｪ蜍輔い繝・・繝ｭ繝ｼ繝峨☆繧義build-ios-signed`繧ｸ繝ｧ繝悶ｒ霑ｽ蜉
+- **GitHub繧｢繧ｫ繧ｦ繝ｳ繝医・遘ｻ陦・*: `funvestment1-svg`繝ｻ`petitworksappsdev-hash`縺ｮ荳｡繧｢繧ｫ繧ｦ繝ｳ繝医′
+  Actions隲区ｱゅヶ繝ｭ繝・け荳ｭ縺縺｣縺溘◆繧√∵眠縺溘↓`zka32101`繧｢繧ｫ繧ｦ繝ｳ繝茨ｼ・ersonal Access Token隱崎ｨｼ・峨↓
+  繝ｪ繝昴ず繝医Μ繧堤ｧｻ陦後Ａgit remote`縺ｯ`origin-funvestment1`繝ｻ`origin-petitworksappsdev`縺ｨ縺励※
+  譌ｧ繝ｪ繝｢繝ｼ繝医ｒ菫晄戟縲・I豁｣蟶ｸ蜍穂ｽ懊ｒ遒ｺ隱肴ｸ医∩・・est/build-android PASS・・
+- **險ｼ譏取嶌荳蠑上ｒopenssl縺ｧWindows荳翫〒逕滓・**・・ac荳崎ｦ・ｼ・ CSR逕滓・竊但pple Developer縺ｧ
+  Distribution險ｼ譏取嶌逋ｺ陦娯・`.p12`螟画鋤縺ｾ縺ｧ繧蛋ios-signing/`繝輔か繝ｫ繝・・itignore蟇ｾ雎｡・峨〒螳滓命縲・
+  1蝗樒岼縺ｮ繧｢繝・・繝ｭ繝ｼ繝峨・險ｼ譏取嶌縺ｨCSR縺ｮ荳堺ｸ閾ｴ縺ｧ繧ｨ繝ｩ繝ｼ縺ｫ縺ｪ繧翫∝酔縺呂SR繝輔ぃ繧､繝ｫ縺ｧ蜀咲匱陦後＠縺ｦ隗｣豎ｺ
+- **Provisioning Profile**・・JapanFutureMap App Store`・峨ｒApple Developer縺ｧ菴懈・縲・
+  Bundle ID `com..japanfuturemap`繝ｻTeam ID `6UWJGP52W5`縺ｨ豁｣縺励￥邏蝉ｻ倥￥縺薙→繧堤｢ｺ隱・
+- **App Store Connect API Key**: 蠖灘・縲∝挨繧｢繝励Μ・・otion Kitchen・峨〒逋ｺ陦梧ｸ医∩縺ｮ繧ｭ繝ｼ繧・
+  蜀榊茜逕ｨ縺励ｈ縺・→縺励◆縺後；itHub Secrets縺ｮ蛟､縺ｯ隱ｭ縺ｿ蜃ｺ縺嶺ｸ榊庄縺ｮ縺溘ａ縲∥rtifact縺ｫ譖ｸ縺榊・縺吝ｽ｢縺ｧ縺ｮ
+  遘ｻ陦後ｒ隧ｦ縺ｿ繧九ｂ荳｡繧｢繧ｫ繧ｦ繝ｳ繝医・隲区ｱゅヶ繝ｭ繝・け縺ｧ譁ｭ蠢ｵ縲よ怙邨ら噪縺ｫ繝ｦ繝ｼ繧ｶ繝ｼ縺形H:\繝槭う繝峨Λ繧､繝暴key\`縺ｫ
+  菫晏ｭ倥＠縺ｦ縺・◆蜷後く繝ｼ・・ey ID: 32U89S87F4縲ゝeam 6UWJGP52W5驟堺ｸ九〒蜈ｱ騾壼茜逕ｨ蜿ｯ閭ｽ・峨ｒ逋ｺ隕九・菴ｿ逕ｨ
+  ・井ｿ晏ｭ伜ｴ謇縺ｯ[[reference_apple_appstore_connect_credentials]]縺ｨ縺励※繝｡繝｢繝ｪ縺ｫ險倬鹸・・
+- `ios/ExportOptions.plist`繧呈眠隕丈ｽ懈・・・ethod: app-store-connect縲∵焔蜍慕ｽｲ蜷阪・
+  Bundle ID竊単rovisioning Profile蜷阪・繝槭ャ繝斐Φ繧ｰ・・
+- 7縺､縺ｮGitHub Secrets繧蛋zka32101/nihon_future_map`縺ｫ逋ｻ骭ｲ・郁ｨｼ譏取嶌繝ｻ繝代せ繝ｯ繝ｼ繝峨・
+  繝励Ο繝薙ず繝ｧ繝九Φ繧ｰ繝励Ο繝輔ぃ繧､繝ｫ繝ｻAPI Key繝ｻKey ID繝ｻIssuer ID繝ｻTeam ID縲√☆縺ｹ縺ｦBase64/蟷ｳ譁・〒・・
+- `build-ios-signed`繧ｸ繝ｧ繝悶・莉悶・2繧ｸ繝ｧ繝悶→蜷梧ｧ倥～workflow_dispatch`・域焔蜍募ｮ溯｡鯉ｼ峨〒縺ｮ縺ｿ襍ｷ蜍輔☆繧・
+  繧医≧譛蛻昴°繧峨ご繝ｼ繝茨ｼ・[feedback_ios_cicd_cost_optimization]]縺ｮ3谿ｵ髫弱ご繝ｼ繝域婿驥昴↓貅匁侠・・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃・・AML/plist霑ｽ蜉縺ｮ縺ｿ縲．art繧ｳ繝ｼ繝峨∈縺ｮ蠖ｱ髻ｿ縺ｪ縺暦ｼ・
+- 竢ｸ `build-ios-signed`繧ｸ繝ｧ繝悶・螳滄圀縺ｮ螳溯｡檎ｵ先棡縺ｯ譛ｪ遒ｺ隱搾ｼ域ｬ｡蝗檜orkflow_dispatch縺ｧ謇句虚螳溯｡後＠縺ｦ遒ｺ隱崎ｦ・ｼ・
+- 笞・・`ios-signing/`繝輔か繝ｫ繝・育ｧ伜ｯ・嵯繝ｻ險ｼ譏取嶌蜴滓悽・峨・`.gitignore`縺ｫ霑ｽ蜉縺励さ繝溘ャ繝亥ｯｾ雎｡螟悶↓
+
+## 67. 繧ｹ繝医い謗ｲ霈臥畑繝・く繧ｹ繝医・繝励Λ繧､繝舌す繝ｼ繝昴Μ繧ｷ繝ｼ縺ｮ菴懈・・・026-07-13・・
+- 縲後い繝励Μ諠・ｱ縺ｪ縺ｩ縺ｮ譛牙鴨蜀・ｮｹ縲阪→縺・≧隕∵悍繧貞女縺代、pp Store Connect / Google Play Console 縺ｫ
+  縺昴・縺ｾ縺ｾ雋ｼ繧贋ｻ倥￠繧峨ｌ繧句ｽ｢縺ｧ[STORE_LISTING.md](STORE_LISTING.md)繧呈眠隕丈ｽ懈・
+  - 繧｢繝励Μ蜷阪・繧ｵ繝悶ち繧､繝医Ν繝ｻ繝励Ο繝｢繝ｼ繧ｷ繝ｧ繝ｳ繝・く繧ｹ繝医・隧ｳ縺励＞隱ｬ譏取枚・亥ｮ溯｣・ｸ医∩讖溯・繧堤ｶｲ鄒・ｼ峨・
+    繧ｭ繝ｼ繝ｯ繝ｼ繝峨・謗ｨ螂ｨ繧ｫ繝・ざ繝ｪ繝ｻ蟷ｴ鮨｢蛻ｶ髯撰ｼ医さ繝ｳ繝・Φ繝・Ξ繝ｼ繝・ぅ繝ｳ繧ｰ・峨・逶ｮ螳峨・
+    繧ｹ繧ｯ繝ｪ繝ｼ繝ｳ繧ｷ繝ｧ繝・ヨ縺ｮ繧ｭ繝｣繝励す繝ｧ繝ｳ譯・
+- App蜀・ｪｲ驥代・繝励ャ繧ｷ繝･騾夂衍繝ｻFirebase Analytics/Firestore繧貞茜逕ｨ縺励※縺・ｋ縺溘ａ荳｡繧ｹ繝医い縺ｧ蠢・医→縺ｪ繧・
+  [PRIVACY_POLICY.md](PRIVACY_POLICY.md)繧よ眠隕丈ｽ懈・縲ょｮ滄圀縺ｫ繧ｳ繝ｼ繝峨′蜿朱寔縺励※縺・ｋ諠・ｱ縺ｮ縺ｿ繧定ｨ倩ｼ・
+  ・亥諺蜷崎ｪ崎ｨｼID繝ｻAnalytics繝ｻ謚慕ｨｿ繧ｳ繝｡繝ｳ繝・謠先｡医・騾夂衍繝医・繧ｯ繝ｳ繝ｻ雉ｼ蜈･螳御ｺ・ヵ繝ｩ繧ｰ繝ｻ遶ｯ譛ｫ蜀・Ο繝ｼ繧ｫ繝ｫ
+  繝・・繧ｿ・峨＠縲∝倶ｺｺ繧堤音螳壹〒縺阪ｋ諠・ｱ縺ｯ蜿朱寔縺励※縺・↑縺・葎繧呈・險・
+- **竢ｸ 繝ｦ繝ｼ繧ｶ繝ｼ蟇ｾ蠢懊′蠢・ｦ√↑鬆・岼**・井ｸ｡繝峨く繝･繝｡繝ｳ繝医↓繝励Ξ繝ｼ繧ｹ繝帙Ν繝繝ｼ縺ｨ縺励※谿九▲縺ｦ縺・ｋ・・
+  - 繝励Λ繧､繝舌す繝ｼ繝昴Μ繧ｷ繝ｼ縺ｮ螳滄圀縺ｮ繝帙せ繝・ぅ繝ｳ繧ｰ・・itHub Pages遲峨〒URL繧堤匱陦後＠縲∽ｸ｡繧ｹ繝医い縺ｮ
+    謗ｲ霈画ュ蝣ｱ縺ｫ逋ｻ骭ｲ縺吶ｋ蠢・ｦ√′縺ゅｋ・・
+  - 縺雁撫縺・粋繧上○蜈茨ｼ医Γ繝ｼ繝ｫ繧｢繝峨Ξ繧ｹ遲会ｼ峨・險伜・
+  - 繧ｵ繝昴・繝・RL縺ｮ遒ｺ螳夲ｼ・itHub繝ｪ繝昴ず繝医Μ繧単ublic縺ｫ縺吶ｋ縺九∝挨騾泌撫縺・粋繧上○謇区ｮｵ繧堤畑諢擾ｼ・
+
+**遒ｺ隱堺ｺ矩・*:
+- 繝峨く繝･繝｡繝ｳ繝医・縺ｿ縺ｮ霑ｽ蜉縺ｮ縺溘ａ繝・せ繝医・繝薙Ν繝峨∈縺ｮ蠖ｱ髻ｿ縺ｪ縺・
+
+## 66. 繧｢繝励Μ繧｢繧､繧ｳ繝ｳ繧偵き繧ｹ繧ｿ繝繝・じ繧､繝ｳ縺ｫ螟画峩・・026-07-13・・
+- 縲後い繧､繧ｳ繝ｳ繝ｻ繧ｹ繧ｯ繝ｪ繝ｼ繝ｳ繧ｷ繝ｧ繝・ヨ縺ｮ貅門ｙ縲阪・荳迺ｰ縺ｨ縺励※縲：lutter繝・ヵ繧ｩ繝ｫ繝医・縺ｾ縺ｾ縺縺｣縺・
+  繧｢繝励Μ繧｢繧､繧ｳ繝ｳ繧偵き繧ｹ繧ｿ繝繝・じ繧､繝ｳ縺ｫ螟画峩
+- 逕ｻ蜒冗函謌植I繝・・繝ｫ縺ｯ譛ｪ謗･邯夲ｼ・[reference_game_asset_generator_limitation]]・峨□縺｣縺溘◆繧√・
+  Python・・illow・峨〒逶ｴ謗･1024ﾃ・024縺ｮ繧｢繧､繧ｳ繝ｳ繧偵・繝ｭ繧ｰ繝ｩ繝逧・↓謠冗判: 繧｢繝励Μ縺ｮ繝悶Λ繝ｳ繝峨き繝ｩ繝ｼ
+  ・・AppColors.primary` #2563EB・峨ｒ閭梧勹縺ｫ縲∫區縺・ｸ頑・繝医Ξ繝ｳ繝峨・遏｢蜊ｰ・域釜繧檎ｷ壹げ繝ｩ繝包ｼ狗泙蜊ｰ繝倥ャ繝会ｼ・
+  縺ｨ縺・≧繧ｷ繝ｳ繝励Ν縺ｪ蟷ｾ菴募ｭｦ逧・ョ繧ｶ繧､繝ｳ縲ょｰ上し繧､繧ｺ・・0px遲会ｼ峨〒繧りｦ冶ｪ阪〒縺阪ｋ繧医≧縲∫ｵ仙粋轤ｹ縺ｮ荳ｸ繧√・
+  菴咏區繧定ｪｿ謨ｴ縺励※2蝗槭Μ繝・じ繧､繝ｳ
+- `assets/icon/icon.png`繧偵た繝ｼ繧ｹ縺ｨ縺励※`flutter_launcher_icons`繝代ャ繧ｱ繝ｼ繧ｸ・域眠隕重ev_dependency・・
+  繧貞ｰ主・縺励、ndroid蜈ｨ隗｣蜒丞ｺｦ・・ipmap-*・峨・iOS蜈ｨ繧ｵ繧､繧ｺ・・ppIcon.appiconset縲・024ﾃ・024蜷ｫ繧・峨↓
+  閾ｪ蜍募ｱ暮幕縲ＪOS蜷代￠縺ｯ`remove_alpha_ios: true`縺ｧApp Store隕∽ｻｶ・医い繝ｫ繝輔ぃ繝√Ε繝ｳ繝阪Ν荳榊庄・峨↓蟇ｾ蠢・
+- Xcode縺ｧ縺ｮ繝励Ο繧ｸ繧ｧ繧ｯ繝郁ｨｭ螳壹・flutter_launcher_icons蛛ｴ縺ｧ霆ｽ蠕ｮ縺ｪ隱ｿ謨ｴ縺ｮ縺ｿ
+  ・・ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS`・峨∫峩蜑阪↓霑ｽ蜉縺励◆
+  `CODE_SIGN_ENTITLEMENTS`繝ｻ`GoogleService-Info.plist`縺ｮ蜿ら・縺ｫ縺ｯ蠖ｱ髻ｿ縺ｪ縺・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・5.6MB縲∵眠繧｢繧､繧ｳ繝ｳ蜿肴丐貂医∩・・
+- 竢ｸ iOS螳滓ｩ溘・繧ｷ繝溘Η繝ｬ繝ｼ繧ｿ縺ｧ縺ｮ隕九◆逶ｮ遒ｺ隱阪・譛ｪ螳滓命・・ac迺ｰ蠅・′蠢・ｦ・ｼ・
+
+## 65. iOS迚・irebase險ｭ螳壼ｮ御ｺ・ｼ・oogleService-Info.plist驟咲ｽｮ・会ｼ・026-07-13・・
+- 繝ｦ繝ｼ繧ｶ繝ｼ縺熊irebase Console縺ｧiOS繧｢繝励Μ繧定ｿｽ蜉縺怜叙蠕励＠縺歔GoogleService-Info.plist`繧・
+  `ios/Runner/`縺ｫ驟咲ｽｮ縺励～lib/firebase_options.dart`縺ｮ`ios`繝悶Ο繝・け縺ｫ螳滄圀縺ｮ蛟､繧定ｨｭ螳壹・
+  `currentPlatform`縺ｮswitch譁・ｂiOS縺ｧ`UnsupportedError`繧呈兜縺偵ｋ迥ｶ諷九°繧荏return ios;`縺ｫ螟画峩
+- **笞・・驥崎ｦ√↑莉墓ｧ倅ｸ翫・豕ｨ諢擾ｼ医Θ繝ｼ繧ｶ繝ｼ遒ｺ隱肴ｸ医∩繝ｻ謇ｿ遏･縺ｮ荳翫〒謗｡逕ｨ・・*: iOS迚医′謗･邯壹☆繧祈irebase
+  繝励Ο繧ｸ繧ｧ繧ｯ繝医・`apps2-752cb`縺ｧ縲、ndroid迚医′菴ｿ縺・petit-works-apps-9029a`縺ｨ縺ｯ**蛻･繝励Ο繧ｸ繧ｧ繧ｯ繝・*縲・
+  繝ｦ繝ｼ繧ｶ繝ｼ縺ｫ遒ｺ隱阪＠縺溘→縺薙ｍ縲径pps2-752cb縺ｮ縺ｾ縺ｾ騾ｲ繧√ｋ縲阪→縺・≧譏守､ｺ逧・↑驕ｸ謚槭′縺ゅ▲縺溘◆繧√・
+  縺薙・讒区・縺ｮ縺ｾ縺ｾ螳溯｣・・*縺薙・邨先棡縲（OS迚医→Android迚医〒Firestore繝・・繧ｿ・郁ｪｲ鬘後∈縺ｮ謚慕･ｨ繝ｻ
+  繧ｳ繝｡繝ｳ繝医・縺ｿ繧薙↑縺ｮ謠先｡医↑縺ｩ・峨・蜈ｱ譛峨＆繧後↑縺・*・・S縺斐→縺ｫ蛻･縲・・繝・・繧ｿ繝吶・繧ｹ縺ｫ譖ｸ縺崎ｾｼ縺ｾ繧後ｋ・峨・
+  蟆・擂逧・↓繝・・繧ｿ邨ｱ蜷医′蠢・ｦ√↓縺ｪ縺｣縺溷ｴ蜷医・縲（OS蛛ｴ繧蛋petit-works-apps-9029a`縺ｫ逋ｻ骭ｲ縺礼峩縺・
+  蟇ｾ蠢懊′蠢・ｦ√↓縺ｪ繧・
+- `ios/Runner.xcodeproj/project.pbxproj`縺ｫ`GoogleService-Info.plist`縺ｮPBXFileReference繝ｻ
+  PBXBuildFile繝ｻResources繝薙Ν繝峨ヵ繧ｧ繝ｼ繧ｺ縺ｸ縺ｮ蜿ら・繧定ｿｽ蜉縺励々code繝薙Ν繝画凾縺ｫ繧｢繝励Μ繝舌Φ繝峨Ν縺ｸ
+  豁｣縺励￥蜷ｫ縺ｾ繧後ｋ繧医≧驟咲ｷ夲ｼ医ヵ繧｡繧､繝ｫ繧蛋ios/Runner/`縺ｫ鄂ｮ縺上□縺代〒縺ｯ荳榊香蛻・↑縺溘ａ・・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 竢ｸ Xcode螳滓ｩ溘ン繝ｫ繝峨〒縺ｮ蜍穂ｽ懃｢ｺ隱阪・譛ｪ螳滓命・・ac迺ｰ蠅・′蠢・ｦ・ｼ・
+
+## 64. Apple Developer逋ｻ骭ｲ謇矩・・繝峨く繝･繝｡繝ｳ繝亥喧・・026-07-13・・
+- 縲窟PPLE縺ｮAPP逋ｻ骭ｲ譁ｹ豕輔阪→縺・≧雉ｪ蝠上ｒ蜿励￠縲ゞSER_PROCEDURE.md縺ｫ譁ｰ繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ
+  縲・.1. Apple縺ｸ縺ｮ繧｢繝励Μ逋ｻ骭ｲ謇矩・阪ｒ霑ｽ蜉・医☆縺ｹ縺ｦ繝悶Λ繧ｦ繧ｶ縺九ｉ陦後∴繧区焔鬆・｀ac荳崎ｦ・ｼ・
+  - Step 1: Apple Developer Program逋ｻ骭ｲ・亥ｹｴ髢・99・・
+  - Step 2: App ID菴懈・・・undle ID: `com..japanfuturemap`縲￣ush Notifications譛牙柑蛹厄ｼ・
+  - Step 3: App Store Connect縺ｧ譁ｰ隕上い繝励Μ逋ｻ骭ｲ・亥錐蜑阪・險隱槭・Bundle ID繝ｻSKU・・
+  - Step 4: 繝励ャ繧ｷ繝･騾夂衍逕ｨAPNs隱崎ｨｼ繧ｭ繝ｼ逋ｺ陦・竊・Firebase Console縺ｸ縺ｮ逋ｻ骭ｲ謇矩・
+  - Step 5: 蟇・ｻ俶ｩ溯・縺ｮ蝠・刀逋ｻ骭ｲ・域里蟄倥・3.7繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ繧貞盾辣ｧ・・
+  - Step 6: 遞主漁繝ｻ驫陦後・騾｣邨｡蜈域ュ蝣ｱ縺ｮ蜈･蜉幢ｼ・pp蜀・ｪｲ驥代↓蠢・茨ｼ・
+  - Step 7: 繧｢繧､繧ｳ繝ｳ繝ｻ繧ｹ繧ｯ繝ｪ繝ｼ繝ｳ繧ｷ繝ｧ繝・ヨ遲峨・繧ｹ繝医い謗ｲ霈画ュ蝣ｱ
+  - Step 8: Mac迺ｰ蠅・〒縺ｮ繝薙Ν繝峨・謠仙・・域里蟄倥・縲・.縲阪そ繧ｯ繧ｷ繝ｧ繝ｳ縺ｸ謗･邯夲ｼ・
+- 縺ゅｏ縺帙※縲・.縲阪そ繧ｯ繧ｷ繝ｧ繝ｳ蜀・・蜿､縺・ｨ倩ｿｰ・医後Ο繝ｼ繧ｫ繝ｫ縺ｧ縺ｯgit蛻晄悄蛹悶＆繧後※縺・∪縺帙ｓ縲搾ｼ峨ｒ縲・
+  螳滄圀縺ｫpush貂医∩縺ｮ繝ｪ繝昴ず繝医Μ・・petitworksappsdev-hash/nihon_future_map`・峨ｒ雕上∪縺医※譖ｴ譁ｰ
+- 繧ｳ繝ｼ繝牙､画峩縺ｪ縺暦ｼ医ラ繧ｭ繝･繝｡繝ｳ繝医・縺ｿ・峨・縺溘ａ縲√ユ繧ｹ繝医・繝薙Ν繝峨・螳滓命縺励※縺・↑縺・
+
+## 63. iOS Bundle ID螟画峩繝ｻPush騾夂衍Entitlements霑ｽ蜉・・026-07-13・・
+- 繝ｦ繝ｼ繧ｶ繝ｼ謖・ｮ壹↓繧医ｊiOS Bundle ID繧蛋com.petitworks.nihonFutureMap`・亥ｮ滄圀縺ｫ縺ｯRunnerTests蛛ｴ縺ｮ縺ｿ
+  譛ｪ邨ｱ荳縺縺｣縺滓立蛟､・俄・ **`com..japanfuturemap`** 縺ｫ螟画峩・・project.pbxproj`縺ｮRunner/
+  RunnerTests荳｡繧ｿ繝ｼ繧ｲ繝・ヨ縲～firebase_options.dart`縺ｮ繧ｳ繝｡繝ｳ繝医・縺ｲ縺ｪ蠖｢縲ゞSER_PROCEDURE.md縺ｮ
+  Firebase Console謇矩・ｒ譖ｴ譁ｰ・峨・ndroid迚医・`applicationId`・・com.petitworksapps.japanfuturemap`・・
+  縺ｨ縺ｯ蛻･縺ｮBundle ID縺ｨ縺励※驕狗畑縺吶ｋ譁ｹ驥昴↓螟画峩
+- 縲靴apabilities縺ｯ菴輔↓縺吶ｋ・溘阪→縺・≧雉ｪ蝠上↓蟇ｾ縺励∝ｮ滄圀縺ｮ菴ｿ逕ｨ讖溯・縺九ｉ蛻､螳壹＠縺ｦ蝗樒ｭ・
+  - **蠢・ｦ・*: Push Notifications・・firebase_messaging`菴ｿ逕ｨ・峨。ackground Modes 竊・Remote
+    notifications・・nfo.plist縺ｫ險ｭ螳壽ｸ医∩・・
+  - **荳崎ｦ・*: Sign in with Apple・秀oogle Sign-In・亥諺蜷崎ｪ崎ｨｼ縺ｮ縺ｿ・峨、ssociated Domains
+    ・・niversal Links荳堺ｽｿ逕ｨ・峨！n-App Purchase譏守､ｺ險ｭ螳夲ｼ域ｶ郁怜梛IAP縺ｯApp ID縺ｫ繝・ヵ繧ｩ繝ｫ繝医〒
+    譛牙柑縺ｪ縺溘ａ縲々code Capability霑ｽ蜉縺ｯ蠢・医〒縺ｯ縺ｪ縺・ｼ・
+- `ios/Runner/Runner.entitlements`繧呈眠隕剰ｿｽ蜉・・aps-environment: development`・峨＠縲・
+  `project.pbxproj`縺ｮRunner繧ｿ繝ｼ繧ｲ繝・ヨ3讒区・・・ebug/Profile/Release・峨↓
+  `CODE_SIGN_ENTITLEMENTS`繧帝・邱壹１ush Notifications讖溯・縺ｫ蠢・医・險ｭ螳・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 竢ｸ 螳滄圀縺ｮXcode縺ｧ縺ｮ鄂ｲ蜷阪・Capabilities逕ｻ髱｢陦ｨ遉ｺ遒ｺ隱阪・譛ｪ螳滓命・・ac迺ｰ蠅・′蠢・ｦ・ｼ・
+- 竢ｸ App Store Connect蛛ｴ縺ｮBundle ID逋ｻ骭ｲ・・com..japanfuturemap`縲、pple Developer
+  Program縺ｧ縺ｮ譁ｰ隕就pp ID菴懈・・峨・繝ｦ繝ｼ繧ｶ繝ｼ蛛ｴ縺ｮ菴懈･ｭ縺ｨ縺励※谿九▲縺ｦ縺・ｋ
+
+## 62. iOS繝薙Ν繝韻I縺ｮ繧ｳ繧ｹ繝域怙驕ｩ蛹悶・gRPC-Core繝代ャ繝∽ｿｮ豁｣・・026-07-13・・
+- GitHub Actions縺ｧ`build-ios`・・acOS繝ｩ繝ｳ繝翫・・峨ｒ隧ｦ陦碁険隱､縺励※縺・◆縺ｨ縺薙ｍ縲・
+  縲罫ecent account payments have failed or your spending limit needs to be increased縲・
+  縺ｨ縺・≧繧ｨ繝ｩ繝ｼ縺ｧActions縺瑚ｵｷ蜍穂ｸ崎・縺ｫ縺ｪ縺｣縺溘ょ次蝗縺ｯmacOS繝ｩ繝ｳ繝翫・縺鍬inux縺ｮ10蛟阪・
+  Actions蛻・焚繧呈ｶ郁ｲｻ縺吶ｋ縺溘ａ縲￣odfile菫ｮ豁｣縺ｮ縺溘・縺ｫpush縺励※蜀阪ン繝ｫ繝峨ｒ郢ｰ繧願ｿ斐＠縺溘％縺ｨ縺ｧ
+  繧｢繧ｫ繧ｦ繝ｳ繝医・謾ｯ蜃ｺ荳企剞縺ｫ驕斐＠縺溘％縺ｨ・亥酔譌･縲￣otion Kitchen縺ｧ繧ょ酔縺伜撫鬘後′逋ｺ逕溘＠縺溯ｨ倬鹸縺ゅｊ・・
+- **`build-ios`繧ｸ繝ｧ繝悶ｒ`pull_request`縺ｾ縺溘・`workflow_dispatch`・域焔蜍募ｮ溯｡鯉ｼ峨〒縺ｮ縺ｿ
+  襍ｷ蜍輔☆繧九ｈ縺・ご繝ｼ繝・*縲る壼ｸｸ縺ｮ`push`縺ｧ縺ｯ襍ｰ繧峨↑縺上↑繧翫∫┌譁呎棧縺ｮtest/build-android
+  ・・buntu-latest・峨・縺ｿ縺悟ｮ溯｡後＆繧後ｋ讒区・縺ｫ螟画峩
+- 縺ゅｏ縺帙※`basic_seq.h`繝代ャ繝√・蟇ｾ雎｡貍上ｌ繧ゆｿｮ豁｣: 縺薙・繝倥ャ繝繝ｼ繝輔ぃ繧､繝ｫ縺ｯ`gRPC-Core`縺ｨ
+  `gRPC-C++`縺ｮ2縺､縺ｮPod縺ｫ縺昴ｌ縺槭ｌ蜷御ｸ蜀・ｮｹ縺後さ繝斐・縺輔ｌ縺ｦ蟄伜惠縺励※縺翫ｊ縲∽ｿｮ豁｣蟇ｾ雎｡繧・
+  `Pods/`驟堺ｸ九・蜀榊ｸｰ讀懃ｴ｢・・Dir.glob`・峨↓螟画峩縺励∽ｸ｡譁ｹ縺ｫ遒ｺ螳溘↓繝代ャ繝√′蠖薙◆繧九ｈ縺・↓縺励◆
+- **竢ｸ 繝ｦ繝ｼ繧ｶ繝ｼ蠕・■**: GitHub・・funvestment1-svg`繧｢繧ｫ繧ｦ繝ｳ繝茨ｼ峨・Billing & plans縺ｧ
+  謾ｯ謇輔＞譁ｹ豕輔・謾ｯ蜃ｺ荳企剞繧堤｢ｺ隱阪・蟇ｾ蠢懊＠縺ｦ縺九ｉ縲、ctions繧ｿ繝悶〒`build-ios`繧・
+  謇句虚螳溯｡鯉ｼ・orkflow_dispatch・峨＠縺ｦ蜍穂ｽ懃｢ｺ隱阪＠縺ｦ縺上□縺輔＞
+
+## 61. iOS蟇・ｻ倩ｪｲ驥托ｼ・pp蜀・ｪｲ驥托ｼ牙ｯｾ蠢懶ｼ・026-07-13・・
+- 縲栗OS縺ｮ蟇・ｻ倩ｪｲ驥代ｒ霑ｽ蜉縺励◆縺・阪→縺・≧隕∵悍繧貞女縺大ｯｾ蠢懊Ａin_app_purchase`繝代ャ繧ｱ繝ｼ繧ｸ縺ｯ
+  Android・・oogle Play隱ｲ驥托ｼ峨・iOS・・pp Store/StoreKit・峨・荳｡蟇ｾ蠢彷ederated plugin縺ｮ縺溘ａ縲・
+  `DonationService`繝ｻ`DonationScreen`縺ｮDart繧ｳ繝ｼ繝峨・繝励Λ繝・ヨ繝輔か繝ｼ繝蛻・ｲ舌↑縺励〒荳｡OS縺ｫ蟇ｾ蠢懈ｸ医∩
+  ・郁ｿｽ蜉縺ｮ繧ｳ繝ｼ繝牙ｮ溯｣・・荳崎ｦ√→蛻､譏趣ｼ・
+- 繧ｳ繝｡繝ｳ繝医ｒGoogle Play蟆ら畑縺ｮ險倩ｿｰ縺九ｉ荳｡繧ｹ繝医い蟇ｾ蠢懊・險倩ｿｰ縺ｫ譖ｴ譁ｰ
+  ・・donation_service.dart`繝ｻ`donation_tier.dart`・・
+- `ios/Runner/Configuration.storekit`繧呈眠隕剰ｿｽ蜉縲・pp Store Connect縺ｧ縺ｮ蝠・刀逋ｻ骭ｲ蜑阪〒繧ゅ・
+  Xcode繧ｷ繝溘Η繝ｬ繝ｼ繧ｿ縺ｧdonation_small/medium/large縺ｮ3蝠・刀・域ｶ郁怜梛・峨・雉ｼ蜈･繝輔Ο繝ｼ繧偵ユ繧ｹ繝医〒縺阪ｋ
+- USER_PROCEDURE.md縺ｫ縲・.7. 蟇・ｻ俶ｩ溯・・・pp Store隱ｲ驥托ｼ峨・蝠・刀逋ｻ骭ｲ・・OS・峨阪ｒ譁ｰ險ｭ縺励・
+  Google Play Console蜷代￠謇矩・ｼ・.6・峨→蟇ｾ縺ｫ縺ｪ繧句ｽ｢縺ｧApp Store Connect蛛ｴ縺ｮ謇矩・ｒ險倩ｼ・
+  ・亥膚蜩！D繝ｻ萓｡譬ｼ萓九・StoreKit Configuration縺ｮ菴ｿ縺・婿繝ｻSandbox繝・せ繝域焔鬆・ｼ・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 竢ｸ 螳滄圀縺ｮiOS縺ｧ縺ｮ雉ｼ蜈･蜍穂ｽ懃｢ｺ隱阪・譛ｪ螳滓命・・pp Store Connect蝠・刀逋ｻ骭ｲ繝ｻMac迺ｰ蠅・′蠢・ｦ・ｼ・
+
+## 60. iOS繝薙Ν繝峨い繝ｼ繝・ぅ繝輔ぃ繧ｯ繝医・繧｢繝・・繝ｭ繝ｼ繝芽ｿｽ蜉・・026-07-13・・
+- 縲訓osionKichen縺ｧIOS繝薙Ν繝峨＠縺ｦ縺・ｋ縺ｮ縺ｧ蜷梧ｧ倥↓縲阪→縺・≧隕∵悍繧貞女縺代～potion_kitchen`繧｢繝励Μ縺ｮ
+  `.github/workflows/build.yml`縺ｮ`build-ios`繧ｸ繝ｧ繝悶ｒ蜿ら・縺励∝酔縺俶ｧ区・縺ｫ謠・∴縺・
+- `flutter build ios --release --no-codesign`縺ｮ蠕後↓`actions/upload-artifact`縺ｧ
+  `build/ios/iphoneos/Runner.app`繧偵い繝ｼ繝・ぅ繝輔ぃ繧ｯ繝医→縺励※繧｢繝・・繝ｭ繝ｼ繝峨☆繧九せ繝・ャ繝励ｒ霑ｽ蜉
+  ・・otion Kitchen縺ｯ`actions/upload-artifact@v3`縺縺後」3縺ｯGitHub蛛ｴ縺ｧ2025蟷ｴ縺ｫ蟒・ｭ｢貂医∩縺ｮ縺溘ａ縲・
+  譛ｬ繝励Ο繧ｸ繧ｧ繧ｯ繝医・莉悶せ繝・ャ繝励→蜷医ｏ縺帙※`@v4`繧呈治逕ｨ・・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・YAML縺ｮ縺ｿ縺ｮ螟画峩縺ｮ縺溘ａDart繧ｳ繝ｼ繝峨∈縺ｮ蠖ｱ髻ｿ縺ｪ縺暦ｼ域里蟄倥・蜈ｨ35繝・せ繝医↓螟画峩縺ｪ縺暦ｼ・
+- 竢ｸ 螳滄圀縺ｮGitHub Actions螳溯｡檎ｵ先棡縺ｯ譛ｪ遒ｺ隱搾ｼ医Μ繝昴ず繝医Μ縺ｸ縺ｮpush蠕後↓繝ｦ繝ｼ繧ｶ繝ｼ蛛ｴ縺ｧ遒ｺ隱阪′蠢・ｦ・ｼ・
+
+## 59. iOS蜷代￠GitHub Actions繝薙Ν繝峨ず繝ｧ繝冶ｿｽ蜉・・026-07-13・・
+- 縲携ithub action縺ｧ螳溯｡御ｺ亥ｮ壹阪→縺・≧隕∵悍繧貞女縺代∵里蟄倥・`.github/workflows/flutter_ci.yml`
+  ・・est / build-android 縺ｮ2繧ｸ繝ｧ繝匁ｧ区・・峨↓`build-ios`繧ｸ繝ｧ繝悶ｒ霑ｽ蜉
+- `runs-on: macos-latest`縺ｧ`flutter build ios --release --no-codesign`繧貞ｮ溯｡後＠縲√さ繝ｳ繝代う繝ｫ縺・
+  騾壹ｋ縺九ｒ遒ｺ隱阪☆繧句・螳ｹ・・pple Developer Program繝ｻ險ｼ譏取嶌縺梧悴逋ｻ骭ｲ縺ｮ縺溘ａ縲√∪縺壹・鄂ｲ蜷阪↑縺励ン繝ｫ繝峨↓髯仙ｮ夲ｼ・
+- GoogleService-Info.plist縺ｯ譛ｪ蜿門ｾ励・縺溘ａ縺薙・繧ｸ繝ｧ繝悶↓縺ｯ蜷ｫ繧√※縺翫ｉ縺壹∝叙蠕怜ｾ後↓Actions Secrets縺ｸ
+  Base64逋ｻ骭ｲ縺励※蠕ｩ蜿ｷ驟咲ｽｮ縺吶ｋ繧ｹ繝・ャ繝嶺ｾ九ｒ繧ｳ繝｡繝ｳ繝医〒逕ｨ諢・
+- 螳滓ｩ溘う繝ｳ繧ｹ繝医・繝ｫ繝ｻApp Store驟堺ｿ｡・・flutter build ipa`・鞠astlane遲峨〒縺ｮ繧｢繝・・繝ｭ繝ｼ繝会ｼ峨・縲・
+  險ｼ譏取嶌繝ｻ繝励Ο繝薙ず繝ｧ繝九Φ繧ｰ繝励Ο繝輔ぃ繧､繝ｫ縺ｮ逋ｻ骭ｲ縺梧ｸ医ｓ縺ｧ縺九ｉ蛻･騾碑ｿｽ蜉縺悟ｿ・ｦ√〒縺ゅｋ譌ｨ繧偵さ繝｡繝ｳ繝医〒譏手ｨ・
+- 豕ｨ諢・ 縺薙・繝励Ο繧ｸ繧ｧ繧ｯ繝医・繝ｭ繝ｼ繧ｫ繝ｫ縺ｧ縺ｯgit繝ｪ繝昴ず繝医Μ縺ｨ縺励※蛻晄悄蛹悶＆繧後※縺・↑縺・ｼ・git status`縺ｧ遒ｺ隱搾ｼ峨・
+  GitHub Actions繧貞ｮ滄圀縺ｫ蜍輔°縺吶↓縺ｯ縲√Θ繝ｼ繧ｶ繝ｼ蛛ｴ縺ｧ繝ｪ繝昴ず繝医Μ菴懈・繝ｻpush縺悟ｿ・ｦ・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃・・AML霑ｽ蜉縺ｮ縺ｿ縲．art繧ｳ繝ｼ繝峨∈縺ｮ蠖ｱ髻ｿ縺ｪ縺暦ｼ・
+- 竢ｸ 螳滄圀縺ｮGitHub Actions螳溯｡檎ｵ先棡縺ｯ譛ｪ遒ｺ隱搾ｼ医Μ繝昴ず繝医Μ縺ｸ縺ｮpush蠕後↓繝ｦ繝ｼ繧ｶ繝ｼ蛛ｴ縺ｧ遒ｺ隱阪′蠢・ｦ・ｼ・
+
+## 58. iOS蜷代￠繧ｳ繝ｼ繝牙ｯｾ蠢懶ｼ・026-07-13・・
+- 縲景OS迚医ｂ縺ｳ繧九←縲阪→縺・≧隕∵悍繧貞女縺代◆縺後∵悽繝励Ο繧ｸ繧ｧ繧ｯ繝医・Windows迺ｰ蠅・ｼ・H:\繝槭う繝峨Λ繧､繝暴apps\`・峨〒
+  菴懈･ｭ縺励※縺翫ｊ縲（OS繝薙Ν繝峨↓縺ｯmacOS・宜code縺悟ｿ・医・縺溘ａ縺薙・蝣ｴ縺ｧ縺ｯ繝薙Ν繝我ｸ榊庄縲・
+  繝ｦ繝ｼ繧ｶ繝ｼ縺ｨ縺ｮ遒ｺ隱阪・邨先棡縲√景OS蜷代￠縺ｮ繧ｳ繝ｼ繝牙ｯｾ蠢懊□縺大・縺ｫ騾ｲ繧√ｋ縲阪ｒ驕ｸ謚槭＠縲∽ｻ･荳九ｒ螳滓命
+- **Bundle ID邨ｱ荳**: iOS蛛ｴ縺ｮ`PRODUCT_BUNDLE_IDENTIFIER`繧蛋com.petitworks.nihonFutureMap`縺九ｉ縲・
+  Android迚医・`applicationId`・・com.petitworksapps.japanfuturemap`・峨↓蜷医ｏ縺帙※螟画峩
+  ・・ios/Runner.xcodeproj/project.pbxproj`・・
+- **Info.plist謨ｴ蛯・*: 陦ｨ遉ｺ蜷阪ｒ縲梧律譛ｬ縺ｮ譛ｪ譚･繝槭ャ繝励阪↓螟画峩縲～CFBundleLocalizations`縺ｫ`ja`繧定ｿｽ蜉縲・
+  `firebase_messaging`縺ｮ繝励ャ繧ｷ繝･騾夂衍縺ｫ蠢・ｦ√↑`UIBackgroundModes: remote-notification`繧定ｿｽ蜉
+- **firebase_options.dart**: iOS蜷代￠縺ｮ蛻・ｲ舌ｒ霑ｽ蜉縲・oogleService-Info.plist縺梧悴蜿門ｾ励・縺溘ａ縲・
+  螳溯｡梧凾縺ｫ縲熊irebase Console縺ｧ iOS 繧｢繝励Μ繧定ｿｽ蜉縺励※縺上□縺輔＞縲阪→縺・≧蜈ｷ菴鍋噪縺ｪ譯亥・繧貞・縺・
+  `UnsupportedError`繧呈兜縺偵ｋ繧医≧縺ｫ縺励∝､繧貞沂繧√ｋ髫帙・縺ｲ縺ｪ蠖｢繧ｳ繝｡繝ｳ繝医ｂ霑ｽ蜉
+- **竢ｸ 繝ｦ繝ｼ繧ｶ繝ｼ蠕・■・・onsole謫堺ｽ懊・macOS迺ｰ蠅・ｼ・*:
+  1. Firebase Console・医・繝ｭ繧ｸ繧ｧ繧ｯ繝・ petit-works-apps-9029a・峨↓ iOS 繧｢繝励Μ繧定ｿｽ蜉
+     ・・undle ID: `com.petitworksapps.japanfuturemap`・俄・ GoogleService-Info.plist繧貞叙蠕励＠
+     `ios/Runner/`縺ｫ驟咲ｽｮ縲～firebase_options.dart`縺ｮios繝悶Ο繝・け繧貞沂繧√ｋ
+  2. Apple Developer Program逋ｻ骭ｲ・亥ｹｴ髢・99・峨→App Store Connect縺ｧ縺ｮ繧｢繝励Μ逋ｻ骭ｲ
+  3. macOS・宜code迺ｰ蠅・ｼ亥ｮ滓ｩ・or 繧ｯ繝ｩ繧ｦ繝峨ン繝ｫ繝峨し繝ｼ繝薙せ・峨〒縺ｮ`flutter build ios`螳溯｡・
+  4. 繝励ャ繧ｷ繝･騾夂衍繧剃ｽｿ縺・↑繧陰PNs隱崎ｨｼ繧ｭ繝ｼ繧巽irebase Console縺ｫ逋ｻ骭ｲ
+  5. 繧｢繝励Μ繧｢繧､繧ｳ繝ｳ繝ｻ襍ｷ蜍慕判髱｢・・aunchScreen・峨・iOS蜷代￠蟾ｮ縺玲崛縺茨ｼ育樟迥ｶFlutter繝・ヵ繧ｩ繝ｫ繝医・縺ｾ縺ｾ・・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃・・art繧ｳ繝ｼ繝峨∈縺ｮ蠖ｱ髻ｿ縺ｪ縺励（OS險ｭ螳壹ヵ繧｡繧､繝ｫ縺ｮ縺ｿ縺ｮ螟画峩・・
+- 竢ｸ 螳滄圀縺ｮiOS繝薙Ν繝峨・譛ｪ螳滓命・・acOS迺ｰ蠅・′蠢・ｦ・ｼ・
+
+## 57. 蟇ｾ遲匁｡医′譛ｪ險ｭ螳壹・隱ｲ鬘後∈縺ｮ霑ｽ險假ｼ・026-07-13・・
+- 縲悟ｯｾ遲匁｡医′譖ｸ縺・※縺・↑縺・・縺後≠繧九・縺ｧ霑ｽ險倥阪→縺・≧蝣ｱ蜻翫ｒ蜿励￠蟇ｾ蠢懊ＡLoadPolicyOptions`繧堤｢ｺ隱阪＠縺溘→縺薙ｍ縲・
+  逶ｴ霑・52縲・56縺ｧ霑ｽ蜉縺励◆謾ｿ豐ｻ讒矩繧ｫ繝・ざ繝ｪ15莉ｶ・句・繧ｫ繝・ざ繝ｪ諡｡蜈・0莉ｶ縲∬ｨ・5莉ｶ縺ｮ隱ｲ鬘後↓蟇ｾ遲匁｡茨ｼ・謚槭・
+  諠ｳ螳壹＆繧後ｋ蠖ｱ髻ｿ縺､縺搾ｼ峨′譛ｪ險ｭ螳壹□縺｣縺溘％縺ｨ縺悟愛譏・
+- 25莉ｶ縺吶∋縺ｦ縺ｫ蟇ｾ遲匁｡医ｒ3譯医★縺､霑ｽ蜉・域里蟄倥・`income_stagnation`遲峨→蜷後§蠖｢蠑・ title繝ｻdescription繝ｻ
+  expectedImpact繝ｻvoteCount・峨ゅそ繝ｳ繧ｷ繝・ぅ繝悶↑謾ｿ豐ｻ讒矩縺ｮ隱ｲ鬘鯉ｼ亥ｮ伜・讖滓ｧ九・蠖ｱ髻ｿ蜉帙・謾ｿ豐ｻ縺ｨ繧ｫ繝阪・
+  螳倬ず荳ｻ蟆弱→蠢門ｺｦ縺ｪ縺ｩ・峨↓縺､縺・※繧ゅ∬ｳ帛凄縺悟・縺九ｌ繧玖､・焚縺ｮ蟇ｾ遲悶ｒ荳ｭ遶狗噪縺ｫ菴ｵ險・
+- `my_pension_balance`・亥ｹｴ驥題ｨｺ譁ｭ繝・・繝ｫ・峨・蟇ｾ遲匁｡医ｒ蠢・ｦ√→縺励↑縺・音谿翫さ繝ｳ繝・Φ繝・・縺溘ａ縲・
+  蠕捺擂騾壹ｊ蟇ｾ雎｡螟悶・縺ｾ縺ｾ
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 56. 蜈ｨ繧ｫ繝・ざ繝ｪ縺ｫ隱ｲ鬘後ｒ諡｡蜈・ｼ・026-07-13・・
+- 縲悟・菴鍋噪縺ｫ隱ｲ鬘瑚ｿｽ蜉縲阪→縺・≧隕∵悍繧貞女縺代√％繧後∪縺ｧ謾ｿ豐ｻ讒矩繧ｫ繝・ざ繝ｪ縺ｫ蛛上▲縺ｦ縺・◆霑ｽ蜉繧偵・
+  邨梧ｸ医・遖冗･峨・莠ｺ蜿｣繝ｻ謾ｿ豐ｻ繝ｻ雋｡謾ｿ縺ｮ譌｢蟄・繧ｫ繝・ざ繝ｪ縺ｫ繝舌Λ繝ｳ繧ｹ繧医￥諡｡蜈・ｼ亥推繧ｫ繝・ざ繝ｪ2莉ｶ縲∬ｨ・0莉ｶ縲８ebSearch縺ｧ螳溘ョ繝ｼ繧ｿ隱ｿ譟ｻ・・
+  - economy: `non_regular_employment`・磯撼豁｣隕城寐逕ｨ縺ｮ蠎・′繧翫る撼豁｣隕城寐逕ｨ閠・焚縺ｮ謗ｨ遘ｻ繧ｰ繝ｩ繝穂ｻ倥″・峨・
+    `low_startup_rate`・磯幕讌ｭ邇・・菴弱＆繝ｻ逕｣讌ｭ縺ｮ譁ｰ髯ｳ莉｣隰昜ｸ崎ｶｳ縲よ律譛ｬ4縲・% vs 迢ｬ7%繝ｻ闍ｱ14%雜・ｼ・
+  - welfare: `caregiver_shortage`・井ｻ玖ｭｷ莠ｺ譚舌・荳崎ｶｳ縲よ怏蜉ｹ豎ゆｺｺ蛟咲紫4蛟崎ｶ・ｼ峨・
+    `single_parent_poverty`・医・縺ｨ繧願ｦｪ螳ｶ蠎ｭ縺ｮ雋ｧ蝗ｰ縲ょｰｱ讌ｭ邇⑯ECD譛鬮俶ｰｴ貅悶↑縺ｮ縺ｫ雋ｧ蝗ｰ邇・4.5%・・
+  - demographic: `tokyo_concentration`・域擲莠ｬ荳讌ｵ髮・ｸｭ縲りｻ｢蜈･雜・℃謨ｰ縺ｮ謗ｨ遘ｻ繧ｰ繝ｩ繝穂ｻ倥″・峨・
+    `foreign_worker_coexistence`・亥､門嵜莠ｺ縺ｨ縺ｮ蜈ｱ逕溘・隱ｲ鬘後ょ惠逡吝､門嵜莠ｺ謨ｰ縺ｮ謗ｨ遘ｻ繧ｰ繝ｩ繝穂ｻ倥″・・
+  - politics: `local_assembly_shortage`・亥慍譁ｹ隴ｰ莨壹・縺ｪ繧頑焔荳崎ｶｳ縲ら┌謚慕･ｨ蠖馴∈56%/30.3%/25%・峨・
+    `candidacy_deposit_barrier`・磯∈謖吩ｾ幄ｨ鈴≡縺ｮ鬮倥＆縲よ律譛ｬ300荳・・縺ｯ荳也阜譛鬮俶ｰｴ貅厄ｼ・
+  - debt: `defense_budget_funding`・磯亟陦幄ｲｻ蠅鈴｡阪・雋｡貅仙撫鬘後・DP豈・%繝ｻ邏・蜈・・縺ｸ縺ｮ蠑輔″荳翫￡譁ｹ驥晢ｼ峨・
+    `special_account_opacity`・育音蛻･莨夊ｨ医・荳埼乗・縺輔ゆｺ育ｮ苓ｦ乗ｨ｡縺ｯ荳闊ｬ莨夊ｨ医・邏・蛟搾ｼ・
+- 螳溘ョ繝ｼ繧ｿ縺ｮ陬丈ｻ倥￠縺悟ｼｱ縺・・岼・磯幕讌ｭ邇・・蟷ｴ谺｡謗ｨ遘ｻ繝ｻ辟｡謚慕･ｨ蠖馴∈縺ｮ蜀・ｨｳ繧ｰ繝ｩ繝包ｼ峨・縲∵ｹ諡縺ｮ縺ｪ縺・焚蛟､繧・
+  繝√Ε繝ｼ繝亥喧縺励↑縺・ｈ縺・∵悽譁・・螳壽ｧ隱ｬ譏弱・縺ｿ縺ｫ逡吶ａ繧ｰ繝ｩ繝輔・霑ｽ蜉縺励↑縺九▲縺・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 55. 謾ｿ豐ｻ讒矩繧ｫ繝・ざ繝ｪ縺ｫ螟ｧ縺阪↑隱ｲ鬘後ｒ霑ｽ蜉・・026-07-13・・
+- 縲後♀縺翫″縺ｪ縺九□縺・°繧峨←繧薙←繧楢ｿｽ蜉縲阪→縺・≧隕∵悍繧貞女縺代∝ｽｱ髻ｿ遽・峇縺ｮ螟ｧ縺阪＞謾ｿ豐ｻ讒矩縺ｮ隱ｲ鬘後ｒ4莉ｶ霑ｽ蜉
+  ・・ebSearch縺ｧ螳溘ョ繝ｼ繧ｿ繧定ｪｿ譟ｻ・・
+  - `vote_value_disparity`・井ｸ逾ｨ縺ｮ譬ｼ蟾ｮ・・ 2024蟷ｴ陦・劼驕ｸ縺ｧ譛螟ｧ2.06蛟阪・譬ｼ蟾ｮ縲・0驕ｸ謖吝玄縺ｧ2蛟崎ｶ・・
+    譛鬮倩｣√・3蝗樣｣邯壹〒蜷域・蛻､譁ｭ縲る∈謖吝玄髢薙・譛螟ｧ譬ｼ蟾ｮ縺ｮ謗ｨ遘ｻ・・017/2021/2024蟷ｴ・峨げ繝ｩ繝穂ｻ倥″
+  - `hereditary_politicians`・井ｸ冶･ｲ謾ｿ豐ｻ・・ 2024蟷ｴ陦・劼驕ｸ縺ｧ荳冶･ｲ蛟呵｣・30莠ｺ・・.7%・峨・
+    閾ｪ豌大・縺ｮ荳冶･ｲ豈皮紫27.2%・育ｱｳ蝗ｽ荳矩劼繝ｻ荳企劼縺ｮ荳冶･ｲ邇・%遞句ｺｦ縺ｨ蟇ｾ豈費ｼ・
+  - `ministry_silos`・育ｸｦ蜑ｲ繧願｡梧帆・・ 隍・焚逵∝ｺ√↓縺ｾ縺溘′繧玖ｪｲ鬘後∈縺ｮ蟇ｾ蠢懊・驕・ｌ縲ゅ％縺ｩ繧ょｮｶ蠎ｭ蠎√・繝・ず繧ｿ繝ｫ蠎√↑縺ｩ
+    讓ｪ譁ｭ邨・ｹ斐・險ｭ鄂ｮ縺ｨ縺昴・螳溷柑諤ｧ縺ｮ隲也せ
+  - `kantei_led_politics`・亥ｮ倬ず荳ｻ蟆弱→縲悟ｿ門ｺｦ縲阪・讒矩・・ 2014蟷ｴ縺ｮ蜀・魅莠ｺ莠句ｱ險ｭ鄂ｮ縺ｫ繧医ｋ蟷ｹ驛ｨ莠ｺ莠倶ｸ蜈・喧縺ｨ縲・
+    縺昴ｌ縺ｫ莨ｴ縺・ｮ伜・縺ｮ縲悟ｿ門ｺｦ縲阪∈縺ｮ諛ｸ蠢ｵ繧剃ｸ｡隲紋ｽｵ險・
+- 縺薙ｌ縺ｧ謾ｿ豐ｻ讒矩繧ｫ繝・ざ繝ｪ縺ｯ險・5莉ｶ
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 54. 繧ｫ繝・ざ繝ｪ蜷榊､画峩・域悽雉ｪ竊呈帆豐ｻ讒矩・会ｼ玖ｪｲ鬘瑚ｿｽ蜉・・026-07-13・・
+- 縲後き繝・ざ繝ｪ縺ｯ譛ｬ雉ｪ縺ｧ縺ｯ縺ｪ縺上∵帆豐ｻ讒矩縺ｫ螟画峩縲√＆繧峨↓霑ｽ蜉縲阪→縺・≧隕∵悍繧貞女縺代・
+  `structural`繧ｫ繝・ざ繝ｪ縺ｮ繝ｩ繝吶Ν繧偵梧悽雉ｪ縲坂・縲・*謾ｿ豐ｻ讒矩**縲阪↓螟画峩・・AppColors.categoryLabel`・・
+- 謾ｿ豐ｻ讒矩縺ｫ髢｢縺吶ｋ隱ｲ鬘後ｒ4莉ｶ霑ｽ蜉・・ebSearch縺ｧ螳溘ョ繝ｼ繧ｿ繧定ｪｿ譟ｻ・・
+  - `electoral_wasted_votes`・亥ｰ城∈謖吝玄蛻ｶ縺ｨ豁ｻ逾ｨ縺ｮ螟壹＆・・ 蟆城∈謖吝玄縺ｮ豁ｻ逾ｨ邇・・2021蟷ｴ46.5%竊・024蟷ｴ52%竊・
+    2026蟷ｴ48%縺ｧ謗ｨ遘ｻ縲ょｱ驕灘推遉ｾ縺ｮ驕ｸ謖咏ｵ先棡髮・ｨ医↓蝓ｺ縺･縺上げ繝ｩ繝穂ｻ倥″
+  - `amakudari_structure`・亥､ｩ荳九ｊ縺ｮ讒矩・・ 騾閨ｷ螳伜・縺ｮ讌ｭ逡悟・蟆ｱ閨ｷ縺ｫ繧医ｋ蛻ｩ逶顔嶌蜿阪・諛ｸ蠢ｵ縲・
+    蝗ｽ螳ｶ蜈ｬ蜍吝藤豕輔・蜀榊ｰｱ閨ｷ遲芽ｦ丞宛繝ｻ蜀・魅莠ｺ莠句ｱ縺ｮ蜈ｬ陦ｨ蛻ｶ蠎ｦ縺ｫ縺､縺・※繧りｨ蜿・
+  - `local_fiscal_dependency`・井ｸｭ螟ｮ髮・ｨｩ縺ｨ蝨ｰ譁ｹ縺ｮ雋｡貅蝉ｸ崎ｶｳ・井ｸ牙牡閾ｪ豐ｻ・・ 蝗ｽ遞弱・蝨ｰ譁ｹ遞弱・55:45縺縺・
+    豁ｳ蜃ｺ縺ｯ42:58縺ｨ騾・ｻ｢縺励∝慍譁ｹ縺御ｺ､莉倡ｨ守ｭ峨↓萓晏ｭ倥☆繧区ｧ矩繧定ｧ｣隱ｬ
+  - `policy_evaluation_weakness`・域帆遲冶ｩ穂ｾ｡繝ｻ讀懆ｨｼ縺ｮ逕倥＆・・ 謾ｿ遲冶ｩ穂ｾ｡縺瑚・蟾ｱ隧穂ｾ｡縺ｫ縺ｨ縺ｩ縺ｾ繧咳DCA縺・
+    蜒阪″縺ｫ縺上＞蝠城｡後・BPM・医ョ繝ｼ繧ｿ縺ｫ蝓ｺ縺･縺乗帆遲也ｫ区｡茨ｼ峨↓繧りｨ蜿・
+- 縺薙ｌ縺ｧ謾ｿ豐ｻ讒矩繧ｫ繝・ざ繝ｪ縺ｯ險・1莉ｶ
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 53. 譛ｬ雉ｪ逧・↑隱ｲ鬘後・霑ｽ蜉・域ｨｩ蜉帙・縺企≡縺ｮ讒矩・会ｼ・026-07-13・・
+- 縲梧悽雉ｪ逧・↑隱ｲ鬘瑚ｿｽ蜉縲∬ｲ｡蜍咏怐縺ｮ髣・↑縺ｩ繧ょ性繧√阪→縺・≧隕∵悍繧貞女縺代～structural`繧ｫ繝・ざ繝ｪ縺ｫ
+  讓ｩ蜉帙・縺企≡縺ｮ讒矩縺ｫ髢｢縺吶ｋ譛ｬ雉ｪ逧・↑隱ｲ鬘後ｒ3莉ｶ霑ｽ蜉
+- **驥崎ｦ√↑謇ｱ縺・婿驥・*: 縲瑚ｲ｡蜍咏怐縺ｮ髣・阪・髯ｰ隰隲也噪縺ｪ譁ｭ螳壹〒縺ｯ縺ｪ縺上∵律譛ｬ縺ｧ蠎・￥隴ｰ隲悶＆繧後※縺・ｋ
+  縲悟ｮ伜・讖滓ｧ具ｼ育音縺ｫ雋｡蜍咏怐・峨・莠育ｮ礼ｷｨ謌先ｨｩ縺ｫ逕ｱ譚･縺吶ｋ蠖ｱ髻ｿ蜉帙・螟ｧ縺阪＆縲阪∈縺ｮ**謖・遭繝ｻ謇ｹ蛻､**縺ｨ縺励※縲・
+  雉帛凄荳｡隲厄ｼ育ｷ顔ｸｮ繝舌う繧｢繧ｹ謇ｹ蛻､ vs 雋｡謾ｿ隕丞ｾ九ｒ螳医ｋ蠖ｹ蜑ｲ縺ｨ縺・≧謫∬ｭｷ・峨ｒ菴ｵ險倥＠縺滉ｸｭ遶九・莠句ｮ溘・繝ｼ繧ｹ縺ｧ險倩ｿｰ
+- 霑ｽ蜉縺励◆隱ｲ鬘・
+  - `bureaucracy_influence`・亥ｮ伜・讖滓ｧ九・蠖ｱ髻ｿ蜉幢ｼ郁ｲ｡蜍咏怐縺ｪ縺ｩ・会ｼ・ 驕ｸ謖吶〒驕ｸ縺ｰ繧後↑縺・ｮ伜・縺ｮ謾ｿ遲門ｽｱ髻ｿ蜉帙・
+    邱顔ｸｮ繝舌う繧｢繧ｹ縺ｸ縺ｮ謖・遭縺ｨ蜿崎ｫ悶ｒ菴ｵ險倥ょ嵜豌題ｲ諡・紫縺ｮ謗ｨ遘ｻ・郁ｲ｡蜍咏怐繝・・繧ｿ・峨げ繝ｩ繝穂ｻ倥″
+  - `money_in_politics`・域帆豐ｻ縺ｨ繧ｫ繝阪・讒矩・・ 莨∵･ｭ繝ｻ蝗｣菴鍋鍵驥代ｄ邨・ｹ皮･ｨ縺ｫ繧医ｋ謾ｿ遲悶・繧・′縺ｿ縲ょｮ壽ｧ逧・ｪｬ譏惹ｸｭ蠢・
+  - `press_independence`・亥ｱ驕薙→讓ｩ蜉帙・霍晞屬・・ 險倩・け繝ｩ繝門宛蠎ｦ縺ｨ蝣ｱ驕薙・逶｣隕匁ｩ溯・縺ｸ縺ｮ謖・遭縲・
+    荳也阜蝣ｱ驕楢・逕ｱ蠎ｦ繝ｩ繝ｳ繧ｭ繝ｳ繧ｰ・亥嵜蠅・↑縺崎ｨ倩・屮・峨・謗ｨ遘ｻ繧ｰ繝ｩ繝穂ｻ倥″
+- 縺・★繧後ｂ縲悟倶ｺｺ縺ｮ荳肴ｭ｣縲阪〒縺ｯ縺ｪ縺上後◎縺・↑繧翫ｄ縺吶＞莉慕ｵ・∩縲阪↓豕ｨ逶ｮ縺吶ｋ隕也せ縲√♀繧医・
+  譛画ｨｩ閠・・霄ｫ縺檎屮隕悶☆繧九％縺ｨ縺ｮ驥崎ｦ∵ｧ繧呈悽譁・〒譏守､ｺ
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 52. 譛ｬ雉ｪ逧・↑隱ｲ鬘鯉ｼ域ｧ矩逧・↑譬ｹ譛ｬ蜴溷屏・峨・霑ｽ蜉・・026-07-13・・
+- 縲後⊇繧薙＠縺､縺ｦ縺阪↑隱ｲ鬘瑚ｿｽ蜉縲阪→縺・≧隕∵悍繧貞女縺代∵里蟄倥・隱ｲ鬘後・螟壹￥縺後檎裸迥ｶ縲阪Ξ繝吶Ν縺縺｣縺溘・縺ｫ蟇ｾ縺励・
+  縺昴ｌ繧峨・譬ｹ縺｣縺薙↓縺ゅｋ讒矩逧・↑譬ｹ譛ｬ蜴溷屏繧偵梧悽雉ｪ逧・↑隱ｲ鬘後阪→縺励※譁ｰ繧ｫ繝・ざ繝ｪ縺ｧ霑ｽ蜉
+- 譁ｰ繧ｫ繝・ざ繝ｪ`structural`・医Λ繝吶Ν縲梧悽雉ｪ縲阪∬牡: 繝・ぅ繝ｼ繝ｫ `0xFF0D9488`縲√い繧､繧ｳ繝ｳ: `Icons.hub_outlined`・峨ｒ
+  `AppColors`縺ｫ霑ｽ蜉縲りｪｲ鬘御ｸ隕ｧ繝ｻ菫ｯ迸ｰ繝槭ャ繝励・繧ｫ繝・ざ繝ｪ荳隕ｧ縺ｮ**蜈磯ｭ**縺ｫ驟咲ｽｮ縺励※蜆ｪ蜈育噪縺ｫ隕九○繧・
+- 譛ｬ雉ｪ逧・↑隱ｲ鬘後ｒ4莉ｶ霑ｽ蜉・・FirebaseService.getMockChallenges`・・
+  - `silver_democracy`・医す繝ｫ繝舌・豌台ｸｻ荳ｻ鄒ｩ・・ 譛画ｨｩ閠・・螟壽焚繧帝ｫ倬ｽ｢閠・′蜊繧∵帆遲悶′蛛上ｊ雋諡・′蜈磯√ｊ縺輔ｌ繧区ｧ矩縲・
+    譛画ｨｩ閠・↓蜊繧√ｋ60豁ｳ莉･荳翫・蜑ｲ蜷医・謗ｨ遘ｻ繧ｰ繝ｩ繝穂ｻ倥″
+  - `low_labor_productivity`・亥感蜒咲函逕｣諤ｧ縺ｮ菴弱＆・・ 譎る俣縺ゅ◆繧顔函逕｣諤ｧ縺隈7譛荳倶ｽ阪りｳ・≡蛛懈ｻ槭・譬ｹ譛ｬ蜴溷屏縲・
+    譎る俣縺ゅ◆繧雁感蜒咲函逕｣諤ｧ縺ｮ謗ｨ遘ｻ繧ｰ繝ｩ繝穂ｻ倥″
+  - `unmarried_structure`・域悴蟀壼喧繝ｻ譎ｩ蟀壼喧縺ｮ騾ｲ陦鯉ｼ・ 蟆大ｭ仙喧縺ｮ荳ｻ蝗縲ら函豸ｯ譛ｪ蟀夂紫・育塙螂ｳ・峨・謗ｨ遘ｻ繧ｰ繝ｩ繝穂ｻ倥″
+  - `reform_deferral`・域隼髱ｩ縺ｮ蜈磯√ｊ菴楢ｳｪ・・ 逞帙∩繧剃ｼｴ縺・栢譛ｬ謾ｹ髱ｩ繧貞・騾√ｊ縺吶ｋ謾ｿ豐ｻ繝ｻ陦梧帆縺ｮ讒矩縲ょｮ壽ｧ逧・ｪｬ譏惹ｸｭ蠢・
+- 蜷・ｪｲ鬘後↓`LoadChallengeDetail`縺ｮ隧ｳ邏ｰ・・acroConnection繝ｻdetailedDescription繝ｻ20蟷ｴ蠕・50蟷ｴ蠕後・隕矩壹＠繝ｻ
+  蜃ｺ蜈ｸ莉倥″繝・・繧ｿ邉ｻ蛻暦ｼ峨ｒ霑ｽ蜉縲ゆｻ悶・隱ｲ鬘後→縺ｮ縲悟・騾壹・譬ｹ縺｣縺薙阪〒縺ゅｋ縺薙→繧呈悽譁・〒譏守､ｺ
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 51. 繝輔か繝ｳ繝井ｿｮ豁｣繝ｻ蜈ｨ菴謎ｿｯ迸ｰ繝槭ャ繝礼判髱｢縺ｮ蜀肴ｧ区・・・026-07-13・・
+- 縲梧ｼ｢蟄励′荳驛ｨ縺翫°縺励＞縺ｮ縺後≠繧九°繧峨√ヵ繧ｩ繝ｳ繝亥､画峩縲阪→縺・≧蝣ｱ蜻翫ｒ蜿励￠蟇ｾ蠢懊・
+  遶ｯ譛ｫ縺ｮ讓呎ｺ悶ヵ繧ｩ繝ｳ繝医□縺ｨ荳驛ｨ縺ｮ貍｢蟄励′荳ｭ蝗ｽ隱橸ｼ育ｰ｡菴灘ｭ怜ｯ・ｊ・峨・蟄怜ｽ｢縺ｫ繝輔か繝ｼ繝ｫ繝舌ャ繧ｯ縺励※
+  陦ｨ遉ｺ縺輔ｌ繧九％縺ｨ縺後≠繧句撫鬘後・縺溘ａ縲～google_fonts`繝代ャ繧ｱ繝ｼ繧ｸ繧貞ｰ主・縺励・
+  繧｢繝励Μ蜈ｨ菴薙・繝・く繧ｹ繝医ユ繝ｼ繝槭・AppBar繧ｿ繧､繝医Ν縺ｫ譌･譛ｬ隱槫ｭ怜ｽ｢縺ｮ縲君oto Sans JP縲阪ｒ譏守､ｺ逧・↓驕ｩ逕ｨ
+- 縲檎判髱｢讒区・繧偵ｏ縺九ｊ繧・☆縺丞・讒区・縲阪→縺・≧隕∵悍繧貞女縺代∝燕鬆・ｼ・50・峨〒菴懊▲縺溷・菴謎ｿｯ迸ｰ繝槭ャ繝礼判髱｢
+  ・・OverviewMapScreen`・峨ｒ蜀肴ｧ区・縲ゅΘ繝ｼ繧ｶ繝ｼ縺ｨ縺ｮ遒ｺ隱阪・邨先棡縲∝ｯｾ雎｡縺ｯ菫ｯ迸ｰ繝槭ャ繝礼判髱｢蜀・・繝ｬ繧､繧｢繧ｦ繝医→遒ｺ螳・
+  - 螟画峩蜑・ 繧ｫ繝・ざ繝ｪ繝√ャ繝励〒縲・縺､驕ｸ縺ｶ縺ｨ莉悶′髫繧後ｋ縲阪ヵ繧｣繝ｫ繧ｿ繝ｼ蠑上・蜊倅ｸ繧ｰ繝ｪ繝・ラ
+  - 螟画峩蠕・ 邨梧ｸ茨ｼ冗ｦ冗･会ｼ丈ｺｺ蜿｣・乗帆豐ｻ・剰ｲ｡謾ｿ縺ｮ5繧ｫ繝・ざ繝ｪ・九瑚憶縺上↑縺｣縺ｦ縺・ｋ縺薙→縲阪ｒ
+    繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ隕句・縺嶺ｻ倥″縺ｧ**縺吶∋縺ｦ蟶ｸ譎り｡ｨ遉ｺ**縺吶ｋ讒区・縺ｫ螟画峩縲ゆｽ輔ｂ髫縺輔★蜈ｨ菴薙ｒ隕区ｸ｡縺帙ｋ縺薙→繧貞━蜈・
+  - 荳企Κ縺ｫ繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ繧ｸ繝｣繝ｳ繝礼畑縺ｮ繝√ャ繝暦ｼ郁ｪｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢縺ｮ`_SectionJumpBar`縺ｨ蜷後§險ｭ險茨ｼ峨ｒ霑ｽ蜉縺励・
+    繧ｿ繝・・縺ｧ隧ｲ蠖薙そ繧ｯ繧ｷ繝ｧ繝ｳ縺ｾ縺ｧ繧ｹ繝繝ｼ繧ｺ繧ｹ繧ｯ繝ｭ繝ｼ繝ｫ縺ｧ縺阪ｋ繧医≧縺ｫ縺励◆
+  - 繧ｵ繝槭Μ繝ｼ繧ｫ繝ｼ繝峨・4鬆・岼繧呈ｨｪ荳ｦ縺ｳ縺ｮ`Row`縺ｫ繝ｬ繧､繧｢繧ｦ繝医＠逶ｴ縺励∬ｦ冶ｪ肴ｧ繧貞髄荳・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命・育音縺ｫNoto Sans JP驕ｩ逕ｨ蠕後・貍｢蟄苓｡ｨ遉ｺ縺梧ｭ｣縺励￥縺ｪ縺｣縺ｦ縺・ｋ縺九・螳滓ｩ溽｢ｺ隱阪′蠢・ｦ・ｼ・
+
+## 50. 蜈ｨ菴謎ｿｯ迸ｰ繝槭ャ繝礼判髱｢縺ｮ霑ｽ蜉・・026-07-13・・
+- 縲悟ｱ謇逧・↓縺ｪ繧峨↑縺・ｈ縺・↓縲∝・菴捺─縺九ｉ菫ｯ迸ｰ縺励※縺ｿ繧後ｋ繧医≧縺ｪ蟾･螟ｫ縲阪→縺・≧隕∵悍繧貞女縺代・
+  隱ｲ鬘御ｸ隕ｧ繝ｻ隱ｲ鬘瑚ｩｳ邏ｰ繝ｻ濶ｯ縺上↑縺｣縺ｦ縺・ｋ縺薙→縺悟句挨逕ｻ髱｢縺ｫ蛻・°繧後※縺・※蜈ｨ菴灘ワ縺梧雫縺ｿ縺･繧峨＞蝠城｡後↓蟇ｾ蠢・
+- 譁ｰ隕汁OverviewMapScreen`繧定ｿｽ蜉: 24莉ｶ縺ｮ隱ｲ鬘鯉ｼ玖憶縺上↑縺｣縺ｦ縺・ｋ縺薙→繧・逕ｻ髱｢縺ｮ繧ｰ繝ｪ繝・ラ繝槭ャ繝励→縺励※陦ｨ遉ｺ
+  - 荳企Κ縺ｫ縲瑚ｪｲ鬘鯉ｼ剰憶縺上↑縺｣縺ｦ縺・ｋ縺薙→・丞嵜莨夊ｭｰ譯医≠繧奇ｼ丈ｸ也阜豈碑ｼ・≠繧翫阪・莉ｶ謨ｰ繧ｵ繝槭Μ繝ｼ繧定｡ｨ遉ｺ
+  - 繧ｫ繝・ざ繝ｪ・育ｵ梧ｸ茨ｼ冗ｦ冗･会ｼ丈ｺｺ蜿｣・乗帆豐ｻ・剰ｲ｡謾ｿ・峨〒邨槭ｊ霎ｼ繧√ｋ繝√ャ繝励ヵ繧｣繝ｫ繧ｿ繝ｼ繧呈政霈・
+  - 蜷・ち繧､繝ｫ縺ｫ縺ｯ繧ｫ繝・ざ繝ｪ繧｢繧､繧ｳ繝ｳ繝ｻ繧ｿ繧､繝医Ν繝ｻ謚慕･ｨ謨ｰ縺ｫ蜉縺医∝嵜莨夊ｭｰ譯茨ｼ芋沛幢ｼ峨・荳也阜豈碑ｼ・ｼ芋沍撰ｼ峨ョ繝ｼ繧ｿ縺ｮ
+    譛臥┌繧堤､ｺ縺吝ｰ上い繧､繧ｳ繝ｳ繧定｡ｨ遉ｺ縺励√ち繝・・縺ｧ隧ｲ蠖薙・隧ｳ邏ｰ逕ｻ髱｢縺ｸ驕ｷ遘ｻ
+  - 縲瑚憶縺上↑縺｣縺ｦ縺・ｋ縺薙→縲阪・邱代・繧ｿ繧､繝ｫ縺ｧ蛹ｺ蛻･縺励√ち繝・・縺ｧ荳隕ｧ逕ｻ髱｢縺ｸ驕ｷ遘ｻ
+- 隱ｲ鬘御ｸ隕ｧ逕ｻ髱｢・・ChallengeListScreen`・峨・AppBar縺ｫ縲悟・菴薙ｒ菫ｯ迸ｰ縺吶ｋ縲阪い繧､繧ｳ繝ｳ繧定ｿｽ蜉縺励※繧ｨ繝ｳ繝医Μ繝ｼ繝昴う繝ｳ繝医→縺励◆
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 49. 隱ｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢縺ｮ繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ謾ｹ蝟・ｼ・026-07-13・・
+- 縲梧桃菴懈ｧ謾ｹ蝟・阪→縺・≧隕∵悍繧貞女縺代√さ繝ｳ繝・Φ繝・′蠅励∴邵ｦ縺ｫ髟ｷ縺上↑縺｣縺溯ｪｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢
+  ・・ChallengeDetailScreen`・峨↓繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ繧ｸ繝｣繝ｳ繝励Γ繝九Η繝ｼ縺ｨ縲後ヨ繝・・縺ｫ謌ｻ繧九阪・繧ｿ繝ｳ繧定ｿｽ蜉
+- `ConsumerWidget` 竊・`ConsumerStatefulWidget` 縺ｫ螟画峩縺励～ScrollController`縺ｨ
+  蜷・そ繧ｯ繧ｷ繝ｧ繝ｳ縺ｮ`GlobalKey`・医ョ繝ｼ繧ｿ・丞ｰ・擂莠域ｸｬ・剰ｳ帛酔蠎ｦ・丞嵜莨夲ｼ丈ｸ也阜縺ｨ縺ｮ豈碑ｼ・ｼ丞ｯｾ遲匁｡茨ｼ上∩繧薙↑縺ｮ螢ｰ・峨ｒ菫晄戟
+- AppBar荳九↓讓ｪ繧ｹ繧ｯ繝ｭ繝ｼ繝ｫ縺ｮ繝√ャ繝怜梛繧ｸ繝｣繝ｳ繝励Γ繝九Η繝ｼ・・_SectionJumpBar`・峨ｒ霑ｽ蜉縲・
+  繧ｿ繝・・縺吶ｋ縺ｨ隧ｲ蠖薙そ繧ｯ繧ｷ繝ｧ繝ｳ縺ｸ繧ｹ繝繝ｼ繧ｺ縺ｫ繧ｹ繧ｯ繝ｭ繝ｼ繝ｫ・・Scrollable.ensureVisible`・・
+  - 縲悟嵜莨壹阪御ｸ也阜縲阪メ繝・・縺ｯ縲∬ｩｲ蠖薙☆繧玖ｪｲ鬘後↓縺昴・繝・・繧ｿ縺悟ｭ伜惠縺吶ｋ蝣ｴ蜷医・縺ｿ陦ｨ遉ｺ
+- 400px莉･荳翫せ繧ｯ繝ｭ繝ｼ繝ｫ縺吶ｋ縺ｨ蜿ｳ荳九↓縲後ヨ繝・・縺ｫ謌ｻ繧九阪・`FloatingActionButton`縺悟・迴ｾ
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命・医ず繝｣繝ｳ繝励Γ繝九Η繝ｼ縺ｮ繧ｿ繝・・蜍穂ｽ懊・繧ｹ繧ｯ繝ｭ繝ｼ繝ｫ菴咲ｽｮ縺ｮ隕九◆逶ｮ繧堤｢ｺ隱崎ｦ・ｼ・
+
+## 48. 蝗ｽ莨夊ｭｰ譯医・荳也阜縺ｨ縺ｮ豈碑ｼ・・蜈ｨ菴鍋噪縺ｪ諡｡蜈・ｼ・026-07-09・・
+- 縲梧眠隕剰ｿｽ蜉縺励◆鬆・岼繧貞・菴鍋噪縺ｫ蜿肴丐縲阪→縺・≧隕∵悍繧貞女縺代∝燕鬆・ｼ・47・峨〒荳驛ｨ縺ｮ隱ｲ鬘後・縺ｿ縺縺｣縺・
+  縲悟嵜莨夊ｭｰ譯医阪御ｸ也阜縺ｨ縺ｮ豈碑ｼ・阪・繧ｫ繝舌・遽・峇繧貞､ｧ蟷・↓諡｡螟ｧ
+- **荳也阜縺ｨ縺ｮ豈碑ｼ・ｒ7莉ｶ霑ｽ蜉**・郁ｨ・3莉ｶ縲・4隱ｲ鬘・4濶ｯ縺上↑縺｣縺ｦ縺・ｋ縺薙→荳ｭ・・ 蜷郁ｨ育音谿雁・逕溽紫・・opulation_decline・峨・
+  逶ｸ蟇ｾ逧・ｲｧ蝗ｰ邇・ｼ・hild_poverty・峨∝現逋りｲｻ蟇ｾGDP豈費ｼ・ealthcare_cost・峨・ｫ倡ｭ画蕗閧ｲ騾ｲ蟄ｦ邇・ｼ・ducation_gap・峨・
+  螂ｳ諤ｧ隴ｰ蜩｡豈皮紫・・omen_in_politics・峨∝ｯｾ蜀・峩謗･謚戊ｳ・ｼ・oreign_direct_investment・峨・
+  螳溯ｳｪ雉・≡縺ｮ莨ｸ縺ｳ邇・ｼ・ncome_stagnation縲；7蜀・〒繧､繧ｿ繝ｪ繧｢縺ｨ荳ｦ縺ｳ譛菴取ｰｴ貅厄ｼ・
+- **蝗ｽ莨夊ｭｰ譯医ｒ4莉ｶ霑ｽ蜉**・郁ｨ・隱ｲ鬘鯉ｼ・ 蟄､迢ｬ繝ｻ蟄､遶句ｯｾ遲匁耳騾ｲ豕包ｼ・solated_elderly縲・024蟷ｴ4譛域命陦鯉ｼ峨・
+  蟄舌←繧ゅ・闍･閠・ご謌先髪謠ｴ謗ｨ騾ｲ豕慕ｭ画隼豁｣・・oung_carers縲√Ζ繝ｳ繧ｰ繧ｱ繧｢繝ｩ繝ｼ繧呈ｳ募ｾ倶ｸ雁・繧√※螳夂ｾｩ・峨・
+  GX謗ｨ騾ｲ豕包ｼ・limate_change_response縲・026蟷ｴ4譛医°繧峨き繝ｼ繝懊Φ繝励Λ繧､繧ｷ繝ｳ繧ｰ鄒ｩ蜍吝喧・峨・
+  謾ｹ豁｣蛹ｻ逋よｳ包ｼ・egional_healthcare_gap縲∝現蟶ｫ蛛丞惠譏ｯ豁｣縲・025蟷ｴ12譛域・遶具ｼ・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・13.2遘偵・4.2MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 47. 荳也阜縺ｨ縺ｮ豈碑ｼ・ｒ霑ｽ蜉・・026-07-09・・
+- 縲瑚ｪｲ鬘後ｄ濶ｯ縺上↑縺｣縺ｦ縺・ｋ縺薙→縺ｯ縲∵帆蠎懈帆遲悶→縺ｮ髢｢騾｣莉倥￠縲∽ｸ也阜縺ｨ縺ｮ豈碑ｼ・ｒ陦ｨ縺吶阪→縺・≧隕∵悍縺ｮ縺・■縲・
+  謾ｿ蠎懈帆遲悶→縺ｮ髢｢騾｣莉倥￠・亥嵜莨夊ｭｰ譯茨ｼ峨・蜑阪・・ｼ・39・峨〒螳溯｣・ｸ医∩縺ｮ縺溘ａ縲∽ｻ雁屓縺ｯ縲御ｸ也阜縺ｨ縺ｮ豈碑ｼ・阪ｒ譁ｰ險ｭ
+- WebSearch縺ｧ6繝・・繝槭・蝗ｽ髫帶ｯ碑ｼ・ョ繝ｼ繧ｿ繧定ｪｿ譟ｻ縺励∝ｮ溯｣・
+  - 蝗ｽ蛯ｵ谿矩ｫ伜ｯｾGDP豈費ｼ域律譛ｬ214.5%縲；7縺ｧ譛謔ｪ縲ゅラ繧､繝・2.2%遲峨→豈碑ｼ・ｼ・
+  - 逕ｷ螂ｳ縺ｮ雉・≡譬ｼ蟾ｮ・域律譛ｬ21.3%縲＾ECD蟷ｳ蝮・1.0%縺ｮ邏・蛟阪∝刈逶・6繧ｫ蝗ｽ荳ｭ35菴搾ｼ・
+  - 繧ｨ繝阪Ν繧ｮ繝ｼ閾ｪ邨ｦ邇・ｼ域律譛ｬ13.3%縲＾ECD38繧ｫ蝗ｽ荳ｭ37菴阪・沒蝗ｽ18.0%繧医ｊ菴弱＞・・
+  - 謚慕･ｨ邇・・菴惹ｸ具ｼ域律譛ｬ55.93%縲∽ｸ也阜200縺ｮ蝗ｽ繝ｻ蝨ｰ蝓滉ｸｭ158菴搾ｼ・
+  - 縲瑚憶縺上↑縺｣縺ｦ縺・ｋ縺薙→縲阪・蜀咲函蜿ｯ閭ｽ繧ｨ繝阪Ν繧ｮ繝ｼ豈皮紫・域律譛ｬ26.7% vs 闍ｱ迢ｬ36縲・8%・・
+  - 縲瑚憶縺上↑縺｣縺ｦ縺・ｋ縺薙→縲阪・螂ｳ諤ｧ蟆ｱ讌ｭ邇・ｼ域律譛ｬ74.1% vs 繝峨う繝・3.7%縲∝､ｧ縺阪￥謾ｹ蝟・＠縺溘′蛹玲ｬｧ縺ｫ縺ｯ縺ｾ縺蜿翫・縺夲ｼ・
+- `InternationalComparison`繧ｨ繝ｳ繝・ぅ繝・ぅ繝ｻ`LoadInternationalComparisons`繝ｻ蜈ｱ騾壹え繧｣繧ｸ繧ｧ繝・ヨ
+  `InternationalComparisonSection`・域ｨｪ譽偵げ繝ｩ繝輔∵律譛ｬ繧定ｵ､縺ｧ蠑ｷ隱ｿ陦ｨ遉ｺ・峨ｒ譁ｰ險ｭ縲・
+  隱ｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢繝ｻ縲瑚憶縺上↑縺｣縺ｦ縺・ｋ縺薙→縲咲判髱｢縺ｮ荳｡譁ｹ縺ｧ蜷後§繧ｦ繧｣繧ｸ繧ｧ繝・ヨ繧貞・蛻ｩ逕ｨ
+- 繝・・繧ｿ縺悟ｭ伜惠縺吶ｋ蝣ｴ蜷医・縺ｿ縲御ｸ也阜縺ｨ縺ｮ豈碑ｼ・阪そ繧ｯ繧ｷ繝ｧ繝ｳ縺瑚｡ｨ遉ｺ縺輔ｌ繧玖ｨｭ險茨ｼ郁ｩｲ蠖薙ョ繝ｼ繧ｿ縺後↑縺・ｪｲ鬘後〒縺ｯ髱櫁｡ｨ遉ｺ・・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・35.8遘偵・4.2MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 46. 縲瑚憶縺上↑縺｣縺ｦ縺・ｋ縺薙→縲阪さ繝ｳ繝・Φ繝・ｿｽ蜉・・026-07-09・・
+- 縲瑚ｪｲ鬘後□縺代〒縺ｯ縺ｪ縺上∬憶縺上↑縺｣縺ｦ縺・ｋ莠区｡医ｂ霑ｽ蜉縺吶ｋ縲阪→縺・≧隕∵悍繧貞女縺代∫､ｾ莨夊ｪｲ鬘鯉ｼ域が縺上↑縺｣縺ｦ縺・ｋ縺薙→・峨→
+  蟇ｾ縺ｫ縺ｪ繧九∝ｮ滄圀縺ｫ謾ｹ蝟・＠縺ｦ縺・ｋ遉ｾ莨壹・蜍輔″繧剃ｼ昴∴繧九さ繝ｳ繝・Φ繝・ｒ譁ｰ險ｭ
+- WebSearch縺ｧ螳溘ョ繝ｼ繧ｿ繧定ｪｿ譟ｻ縺励・莉ｶ繧貞宍驕ｸ・医☆縺ｹ縺ｦ蜃ｺ蜈ｸ繝ｻ荳谺｡諠・ｱ貅舌Μ繝ｳ繧ｯ莉倥″・・
+  - 蠕・ｩ溷・遶･謨ｰ縺ｮ8蟷ｴ騾｣邯壽ｸ帛ｰ托ｼ・017蟷ｴ26,081莠ｺ竊・025蟷ｴ2,254莠ｺ縲ゅ◆縺縺励碁國繧悟ｾ・ｩ溷・遶･縲咲ｴ・荳・ｺｺ縺ｮ谿句ｭ倥ｂ譏手ｨ假ｼ・
+  - 蜀咲函蜿ｯ閭ｽ繧ｨ繝阪Ν繧ｮ繝ｼ豈皮紫縺ｮ諡｡螟ｧ・・013蟷ｴ蠎ｦ10.9%竊・024蟷ｴ26.7%・・
+  - 螂ｳ諤ｧ縺ｮ蟆ｱ讌ｭ邇・ｸ頑・繝ｻM蟄励き繝ｼ繝冶ｧ｣豸茨ｼ・986蟷ｴ53.1%竊・024蟷ｴ74.1%・・
+  - 蛻第ｳ慕官隱咲衍莉ｶ謨ｰ縺ｮ髟ｷ譛滓ｸ帛ｰ托ｼ・002蟷ｴ285荳・ｻｶ竊・020蟷ｴ61荳・ｻｶ・峨→菴捺─豐ｻ螳峨→縺ｮ繧ｮ繝｣繝・・・・022蟷ｴ莉･髯阪・3蟷ｴ騾｣邯壼｢暦ｼ・
+    窶・蜊倡ｴ斐↑縲瑚憶縺・ｩｱ縲阪□縺代〒縺ｪ縺上・聞譛滓隼蝟・→譛霑代・騾・｡後・菴捺─縺ｨ縺ｮ繧ｮ繝｣繝・・繧る國縺輔★險倩ｼ峨＠縲∵里蟄倥・
+    縲悟・蠑上ョ繝ｼ繧ｿvs豌鷹俣蛻・梵縲咲噪縺ｪ隱螳溘＆縺ｮ繝医・繝ｳ繧定ｸ剰･ｲ
+- `GoodNewsItem`繧ｨ繝ｳ繝・ぅ繝・ぅ繝ｻ`LoadGoodNews`繝ｻ`GoodNewsScreen`・医ヨ繝ｬ繝ｳ繝峨げ繝ｩ繝穂ｻ倥″繧ｫ繝ｼ繝牙ｽ｢蠑擾ｼ峨ｒ譁ｰ險ｭ
+- 隱ｲ鬘御ｸ隕ｧ逕ｻ髱｢縺ｮ讀懃ｴ｢繝舌・荳九↓縲瑚ｪｲ鬘後□縺代§繧・↑縺・ｼ剰憶縺上↑縺｣縺ｦ縺・ｋ縺薙→繧りｦ九※縺ｿ繧医≧縲阪→縺・≧蟶ｸ險ｭ繝舌リ繝ｼ繧定ｿｽ蜉縺励・
+  隱ｲ鬘後ｒ隕九※縺・ｋ縺ｾ縺輔↓縺昴・蝣ｴ縺ｧ豌励▼縺代ｋ繧医≧縺ｫ縺励◆
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・7.6遘偵・4.2MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 45. 螳溽ｸｾ繝舌ャ繧ｸ迯ｲ蠕玲ｼ泌・・・026-07-09・・
+- 縲瑚憶縺・ｵ√ｌ繧定ｿｽ蜉縺吶ｋ縲阪→縺・≧隕∵悍繧貞女縺代∝ｮ溽ｸｾ繝舌ャ繧ｸ繧・*縺昴・蝣ｴ縺ｧ**・医・繧､繝壹・繧ｸ繧帝幕縺・※蛻昴ａ縺ｦ豌励▼縺上・縺ｧ縺ｯ縺ｪ縺擾ｼ・
+  迯ｲ蠕励＠縺溽椪髢薙↓縺顔･昴＞繝昴ャ繝励い繝・・繧定｡ｨ遉ｺ縺吶ｋ繧医≧縺ｫ縺励◆
+- `CheckNewAchievements`繝ｦ繝ｼ繧ｹ繧ｱ繝ｼ繧ｹ繧呈眠險ｭ: `ActivityStore`縺ｸ縺ｮ險倬鹸蜑榊ｾ後〒`ActivityStats`繧呈ｯ碑ｼ・＠縲・
+  譁ｰ縺励￥隗｣髯､縺輔ｌ縺溷ｮ溽ｸｾ縺縺代ｒ讀懷・縺吶ｋ・・ActivityStore.currentStats()`繧貞燕鬆・・繝槭う繝壹・繧ｸ縺ｨ蜈ｱ逕ｨ・・
+- `showAchievementUnlockDialogs`: 蠑ｾ繧繧医≧縺ｪ繧ｹ繧ｱ繝ｼ繝ｫ繧､繝ｳ繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ・・Curves.elasticOut`・・
+  隗ｦ隕壹ヵ繧｣繝ｼ繝峨ヰ繝・け・・HapticFeedback.mediumImpact()`・我ｻ倥″縺ｮ縺顔･昴＞繝繧､繧｢繝ｭ繧ｰ縲り､・焚蜷梧凾隗｣髯､縺ｫ繧ょｯｾ蠢懊＠縲・・分縺ｫ陦ｨ遉ｺ
+- 譌｢蟄倥・蜈ｨ縺ｦ縺ｮ豢ｻ蜍戊ｨ倬鹸繝昴う繝ｳ繝茨ｼ郁ｪｲ鬘梧兜逾ｨ繝ｻ蟇ｾ遲匁｡域兜逾ｨ繝ｻ繧ｳ繝｡繝ｳ繝域兜遞ｿ繝ｻ謠先｡域兜遞ｿ繝ｻ謠先｡医∈縺ｮ謚慕･ｨ繝ｻ
+  繧ｯ繧､繧ｺ螳御ｺ・・蟷ｴ驥題ｨｺ譁ｭ繝ｻ蟇・ｻ假ｼ峨↓邨・∩霎ｼ縺ｿ縲ら判髱｢驕ｷ遘ｻ繧ТnackBar陦ｨ遉ｺ縺ｮ蜑阪↓繝繧､繧｢繝ｭ繧ｰ繧呈検繧繧医≧隱ｿ謨ｴ
+  ・井ｾ・ 謠先｡域兜遞ｿ蠕後・縲梧兜遞ｿ縺励∪縺励◆縲阪・SnackBar竊偵♀逾昴＞繝繧､繧｢繝ｭ繧ｰ竊堤判髱｢繧帝哩縺倥ｋ縲√・鬆・ｼ・
+- 螳溯｣・ｸｭ縲～my_page_screen.dart`縺九ｉ`ActivityStats`縺ｮimport繧定ｪ､縺｣縺ｦ蜑企勁縺励※縺励∪縺・ン繝ｫ繝峨お繝ｩ繝ｼ縺ｫ縺ｪ繧・
+  荳榊・蜷医′縺ゅ▲縺溘◆繧√∽ｿｮ豁｣縺励※隗｣豸・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・44.6遘偵・4.2MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ貍泌・遒ｺ隱搾ｼ医ヰ繧､繝悶Ξ繝ｼ繧ｷ繝ｧ繝ｳ繝ｻ繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ縺ｮ螳滄圀縺ｮ隕九◆逶ｮ・峨・譛ｪ螳滓命
+
+## 44. 繝槭う繝壹・繧ｸ繝ｻ螳溽ｸｾ繝舌ャ繧ｸ讖溯・・・026-07-09・・
+- 縲碁ｭ・鴨繧帝ｫ倥ａ繧区ｩ溯・縲阪→縺励※縲∵淵繧峨・縺｣縺ｦ縺・◆閾ｪ蛻・・豢ｻ蜍包ｼ域兜逾ｨ繝ｻ繧ｳ繝｡繝ｳ繝医・蟇ｾ遲匁｡磯∈謚槭・謠先｡医・繧ｯ繧､繧ｺ繝ｻ蟇・ｻ假ｼ峨ｒ
+  荳邂・園縺ｧ謖ｯ繧願ｿ斐ｌ繧九後・繧､繝壹・繧ｸ縲阪ｒ譁ｰ險ｭ縺励∝盾蜉謨ｰ縺ｫ蠢懊§縺溷ｮ溽ｸｾ繝舌ャ繧ｸ縺ｧ繧ｲ繝ｼ繝諤ｧ繧呈戟縺溘○縺・
+- **遶ｯ譛ｫ繝ｭ繝ｼ繧ｫ繝ｫ菫晏ｭ倥↓`hive_flutter`繧貞・繧√※菴ｿ逕ｨ**: 莉･蜑阪°繧我ｾ晏ｭ倬未菫ゅ↓縺ｯ蜈･縺｣縺ｦ縺・◆縺梧悴菴ｿ逕ｨ縺縺｣縺溘ヱ繝・こ繝ｼ繧ｸ縲・
+  Firestore蛛ｴ縺ｮ`votes/{userId}`遲峨・繝峨く繝･繝｡繝ｳ繝亥ｭ伜惠繝√ぉ繝・け蟆ら畑縺ｧ隱ｭ縺ｿ蜿悶ｊ遖∵ｭ｢縺ｫ縺励※縺・ｋ縺溘ａ縲・
+  縲瑚・蛻・′菴輔↓謚慕･ｨ縺励◆縺九阪ｒ讓ｪ譁ｭ逧・↓荳隕ｧ縺吶ｋ縺ｫ縺ｯ遶ｯ譛ｫ蜀・ｿ晏ｭ倥′迴ｾ螳溽噪縺ｪ驕ｸ謚櫁い縺縺｣縺・
+  - `ActivityStore`: 謚慕･ｨ縺励◆隱ｲ鬘栗D繝ｻ謠先｡・D繝ｻ閾ｪ蛻・′謚慕ｨｿ縺励◆謠先｡・D繝ｻ蟇ｾ遲匁｡域兜逾ｨ縺励◆隱ｲ鬘栗D繝ｻ
+    繧ｳ繝｡繝ｳ繝域焚繝ｻ繧ｯ繧､繧ｺ螳御ｺ・焚繝ｻ蟇・ｻ伜屓謨ｰ繝ｻ蟷ｴ驥題ｨｺ譁ｭ貂医∩繝輔Λ繧ｰ繧剃ｿ晏ｭ・
+  - Firebase譛ｪ蛻晄悄蛹悶・繝・せ繝育腸蠅・〒繧ゆｾ句､悶ｒ襍ｷ縺薙＆縺ｪ縺・ｈ縺・～AnalyticsService`遲峨→蜷梧ｧ倥↓蜈ｨ謫堺ｽ懊ｒ髦ｲ蠕｡逧・↓螳溯｣・
+- `Achievement`/`Achievements`: 9遞ｮ鬘槭・螳溽ｸｾ繝舌ャ繧ｸ・医・縺倥ａ縺ｮ荳豁ｩ繝ｻ謚慕･ｨ繝槭せ繧ｿ繝ｼ繝ｻ螢ｰ繧貞ｱ翫￠縺溘・謾ｿ遲夜壹・
+  繧ｯ繧､繧ｺ繝槭せ繧ｿ繝ｼ繝ｻ謠先｡郁・ョ繝薙Η繝ｼ繝ｻ蠢懈抄蝗｣繝ｻ繧ｵ繝昴・繧ｿ繝ｼ遲会ｼ峨ｒ豢ｻ蜍慕ｵｱ險医°繧芽・蜍募愛螳・
+- `MyPageScreen`: 豢ｻ蜍穂ｻｶ謨ｰ縺ｮ繧ｰ繝ｪ繝・ラ縲∝ｮ溽ｸｾ繝舌ャ繧ｸ荳隕ｧ・域悴驕疲・縺ｯ繧ｰ繝ｬ繝ｼ繧｢繧ｦ繝茨ｼ峨∬・蛻・′謚慕･ｨ縺励◆隱ｲ鬘御ｸ隕ｧ縲・
+  閾ｪ蛻・′謠先｡医＠縺溯ｪｲ鬘御ｸ隕ｧ繧定｡ｨ遉ｺ縲ゅム繝・す繝･繝懊・繝陰ppBar縺ｮ莠ｺ迚ｩ繧｢繧､繧ｳ繝ｳ縺九ｉ驕ｷ遘ｻ
+- 譌｢蟄倥・謚慕･ｨ繝ｻ繧ｳ繝｡繝ｳ繝医・蟇ｾ遲匁｡域兜逾ｨ繝ｻ謠先｡域兜遞ｿ繝ｻ繧ｯ繧､繧ｺ螳御ｺ・・蟇・ｻ倥・蜷・・蜉溘ワ繝ｳ繝峨Λ縺ｫ`ActivityStore`縺ｸ縺ｮ
+  險倬鹸繧定ｿｽ蜉・・submitProposal`縺ｯ縲瑚・蛻・・謠先｡医阪ｒ迚ｹ螳壹☆繧九◆繧√∵綾繧雁､繧蛋bool`縺九ｉ譁ｰ隕上ラ繧ｭ繝･繝｡繝ｳ繝・D
+  ・・String?`・峨↓螟画峩・・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・47.3遘偵・4.2MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ蜍穂ｽ懃｢ｺ隱搾ｼ医い繝励Μ蜀崎ｵｷ蜍募ｾ後ｂ豢ｻ蜍募ｱ･豁ｴ縺御ｿ晄戟縺輔ｌ繧九°繧貞性繧・峨・譛ｪ螳滓命
+
+## 43. 蠎・相縺ｪ縺励・蟇・ｻ俶ｩ溯・・・026-07-09・・
+- 縲悟ｺ・相縺ｪ縺励〒驕句霧縺吶ｋ莉｣繧上ｊ縺ｫ蟇・ｻ俶ｩ溯・繧貞ｮ溯｣・☆繧九肴婿驥昴↓蝓ｺ縺･縺榊ｮ溯｣・ｼ医％縺ｮ繧｢繝励Μ縺ｯ繧ゅ→繧ゅ→蠎・相SDK繧・
+  蟆主・縺励※縺・↑縺・◆繧√√悟ｺ・相縺ｪ縺励阪・譌｢縺ｫ莠句ｮ溘ゆｻ雁屓縺ｯ縺昴・萓｡蛟､繧偵Θ繝ｼ繧ｶ繝ｼ縺ｫ譏守､ｺ縺励▽縺､縲∝ｯ・ｻ伜ｰ守ｷ壹ｒ譁ｰ險ｭ・・
+- `in_app_purchase`繝代ャ繧ｱ繝ｼ繧ｸ繧定ｿｽ蜉縺励；oogle Play隱ｲ驥托ｼ域ｶ郁ｲｻ蝙九い繧､繝・Β・峨↓繧医ｋ蟇・ｻ倥ｒ螳溯｣・
+  - `DonationTier`: 繧ｳ繝ｼ繝偵・1譚ｯ蛻・ｼ・donation_small`・・繝ｩ繝ｳ繝・鬟溷・・・donation_medium`・・縺後▲縺､繧雁ｿ懈抄・・donation_large`・峨・3谿ｵ髫・
+  - `DonationScreen`: 縲悟ｺ・相縺ｪ縺励〒驕句霧縺励※縺・∪縺吶阪→縺・≧隱ｬ譏趣ｼ句推繝・ぅ繧｢縺ｮ雉ｼ蜈･繝懊ち繝ｳ
+  - 繝繝・す繝･繝懊・繝峨・AppBar・医ワ繝ｼ繝医い繧､繧ｳ繝ｳ・峨→縲∫判髱｢荳矩Κ縺ｮ蟶ｸ險ｭ繝舌リ繝ｼ縺ｮ2邂・園縺九ｉ蟆守ｷ・
+  - 雉ｼ蜈･謌仙粥譎ゅ↓`content_shared`縺ｨ蜷梧ｧ倥・繝代ち繝ｼ繝ｳ縺ｧ`donation_purchased`繧､繝吶Φ繝医ｒ繧｢繝翫Μ繝・ぅ繧ｯ繧ｹ縺ｫ險倬鹸
+- **Google Play Console縺ｧ縺ｮ蝠・刀逋ｻ骭ｲ縺悟挨騾泌ｿ・ｦ・*・域悴逋ｻ骭ｲ縺ｮ髢薙・縲梧ｺ門ｙ荳ｭ縺ｧ縺吶阪→陦ｨ遉ｺ縺輔ｌ縲∝ｮ牙・縺ｫ蜍穂ｽ懊☆繧玖ｨｭ險茨ｼ峨・
+  `USER_PROCEDURE.md`縺ｫ蝠・刀ID繝ｻ逋ｻ骭ｲ謇矩・ｒ霑ｽ險假ｼ亥膚蜩！D縺ｯ繧ｳ繝ｼ繝牙・縺ｨ螳悟・荳閾ｴ縺輔○繧句ｿ・ｦ√′縺ゅｋ譌ｨ繧呈・險假ｼ・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・38.5遘偵・3.6MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ蜍穂ｽ懃｢ｺ隱阪・Google Play Console蛛ｴ縺ｮ蝠・刀逋ｻ骭ｲ縺ｯ譛ｪ螳滓命
+
+## 42. 繝励ャ繧ｷ繝･騾夂衍讖溯・・・026-07-09・・
+- `firebase_messaging`繧定ｿｽ蜉縺励～NotificationService`繧呈眠險ｭ
+- 繧｢繝励Μ襍ｷ蜍墓凾縺ｫ騾夂衍險ｱ蜿ｯ繧偵Μ繧ｯ繧ｨ繧ｹ繝医＠縲～weekly_updates`繝医ヴ繝・け繧定・蜍戊ｳｼ隱ｭ
+  ・磯∽ｿ｡縺ｯCloud Functions遲峨・閾ｪ蜍暮・菫｡蝓ｺ逶､縺梧悴謨ｴ蛯吶・縺溘ａ縲：irebase Console 竊・Engage 竊・Messaging 縺九ｉ
+  謇句虚縺ｧ繝医ヴ繝・け螳帙※縺ｫ驟堺ｿ｡縺吶ｋ驕狗畑縲ＡUSER_PROCEDURE.md`縺ｫ騾∽ｿ｡謇矩・ｒ霑ｽ險假ｼ・
+- 繝輔か繧｢繧ｰ繝ｩ繧ｦ繝ｳ繝牙女菫｡譎ゅ・繧｢繝励Μ蜀・↓繧ｹ繝翫ャ繧ｯ繝舌・縺ｧ陦ｨ遉ｺ・・ndroid縺ｮ讓呎ｺ紋ｻ墓ｧ倅ｸ翫√ヵ繧ｩ繧｢繧ｰ繝ｩ繧ｦ繝ｳ繝我ｸｭ縺ｯ
+  繧ｷ繧ｹ繝・Β騾夂衍繝医Ξ繧､縺ｫ蜃ｺ縺ｪ縺・◆繧・ｼ峨ゅヰ繝・け繧ｰ繝ｩ繧ｦ繝ｳ繝・邨ゆｺ・凾縺ｯ騾壼ｸｸ縺ｮ騾夂衍繝医Ξ繧､縺ｫ陦ｨ遉ｺ縺輔ｌ繧・
+- 騾夂衍繧ｿ繝・・譎ゅ・繝帙・繝・医ム繝・す繝･繝懊・繝会ｼ峨↓謌ｻ繧句虚菴懊ｒ螳溯｣・ｼ・message.data`繧剃ｽｿ縺｣縺溽判髱｢蜃ｺ縺怜・縺代・蟆・擂諡｡蠑ｵ蜿ｯ・・
+- Firebase譛ｪ蛻晄悄蛹悶・繝・せ繝育腸蠅・〒繧ゆｾ句､悶〒繧｢繝励Μ繧呈ｭ｢繧√↑縺・ｈ縺・～AnalyticsService`遲峨→蜷梧ｧ倥↓
+  `initialize()`蜈ｨ菴薙ｒ`try-catch`縺ｧ髦ｲ蠕｡縺励～flutter test`螳溯｡梧凾縺ｯ繧ｨ繝ｩ繝ｼ縺後Ο繧ｰ縺ｫ險倬鹸縺輔ｌ繧九・縺ｿ縺ｧ
+  繝・せ繝郁・菴薙・螟ｱ謨励＠縺ｪ縺・％縺ｨ繧堤｢ｺ隱・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃・・irebase譛ｪ蛻晄悄蛹悶・縺溘ａ騾夂衍蛻晄悄蛹悶・繧ｨ繝ｩ繝ｼ縺ｨ縺励※繝ｭ繧ｰ縺ｫ險倬鹸縺輔ｌ繧九′縲√ユ繧ｹ繝郁・菴薙・謌仙粥・・
+- 笨・`flutter build apk --release` 謌仙粥・・02.2遘偵・邏・0蛻・Ａfirebase_messaging`縺ｮ繝阪う繝・ぅ繝悶・繝ｩ繧ｰ繧､繝ｳ蛻晏屓逋ｻ骭ｲ蛻・〒
+  騾壼ｸｸ繧医ｊ螟ｧ蟷・↓譎る俣縺後°縺九▲縺溘・3.1MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ騾夂衍蜿嶺ｿ｡遒ｺ隱搾ｼ医ヵ繧ｩ繧｢繧ｰ繝ｩ繧ｦ繝ｳ繝・繝舌ャ繧ｯ繧ｰ繝ｩ繧ｦ繝ｳ繝我ｸ｡譁ｹ・峨・譛ｪ螳滓命
+
+## 41. 繝ｦ繝ｼ繧ｶ繝ｼ隱ｲ鬘梧署譯医・謚慕･ｨ繝ｻ謾ｿ蠎懈署蜃ｺ迥ｶ豕√・霑ｽ霍｡讖溯・・・026-07-09・・
+- **縲後∩繧薙↑縺ｮ謠先｡医肴ｩ溯・繧呈眠險ｭ**: 繝ｦ繝ｼ繧ｶ繝ｼ縺瑚・逕ｱ縺ｫ譁ｰ縺励＞遉ｾ莨夊ｪｲ鬘後ｒ謠先｡医〒縺阪ｋ繧医≧縺ｫ縺ｪ縺｣縺・
+  - `UserProposal`繧ｨ繝ｳ繝・ぅ繝・ぅ・・itle/description/category/voteCount/submissionStatus遲会ｼ峨ｒ譁ｰ險ｭ
+  - 謠先｡域兜遞ｿ逕ｻ髱｢・・SubmitProposalScreen`・・ 繧ｿ繧､繝医Ν繝ｻ隱ｬ譏弱・繧ｫ繝・ざ繝ｪ繧貞・蜉帙＠縺ｦ謚慕ｨｿ縲・G繝ｯ繝ｼ繝峨・URL繝ｻ
+    蜷御ｸ譁・ｭ励・騾｣邯壹↑縺ｩ繧蛋ValidateProposal`縺ｧ繝√ぉ繝・け・域里蟄倥・`ValidateComment`縺ｨ蜈ｱ騾壹・NG繝ｯ繝ｼ繝峨Μ繧ｹ繝医ｒ
+    `ng_words.dart`縺ｫ蛻・ｊ蜃ｺ縺励※蜈ｱ譛会ｼ・
+  - 謠先｡井ｸ隕ｧ逕ｻ髱｢・・ProposalListScreen`・・ 謚慕･ｨ蜿嶺ｻ倅ｸｭ縺ｮ謠先｡医ｒ蠕礼･ｨ謨ｰ鬆・↓陦ｨ遉ｺ縲∵兜逾ｨ繝懊ち繝ｳ縺ｧ1莠ｺ1逾ｨ
+  - **20逾ｨ繧定ｶ・∴繧九→縲梧ｭ｣蠑剰ｪｲ鬘悟呵｣懊阪→縺励※荳企Κ繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ縺ｫ閾ｪ蜍慕噪縺ｫ遘ｻ蜍・*・・UserProposal.isPromoted`縲・
+    繧ｵ繝ｼ繝舌・蛛ｴ縺ｮ謇ｿ隱榊・逅・↑縺励↓繧ｯ繝ｩ繧､繧｢繝ｳ繝亥・縺ｧ蛻､螳壹☆繧玖ｨｭ險茨ｼ・
+- **謾ｿ蠎懊∈縺ｮ謠仙・迥ｶ豕√・霑ｽ霍｡**: `submissionStatus`・域悴謠仙・/謠仙・貂医∩/蝗樒ｭ泌ｾ・■/謗｡謚槭＆繧後◆/隕矩√ｊ縺ｨ縺ｪ縺｣縺滂ｼ峨・
+  `submissionNote`・域署蜃ｺ蜈医・隱ｬ譏趣ｼ峨～submissionUrl`縲～submissionDate`繧偵き繝ｼ繝峨↓繝舌ャ繧ｸ陦ｨ遉ｺ
+  - 螳滄圀縺ｫ閾ｪ豐ｻ菴薙・逵∝ｺ∫ｭ峨∈謠仙・縺励◆髫帙・縲：irebase Console縺九ｉ隧ｲ蠖薙ラ繧ｭ繝･繝｡繝ｳ繝医・繝輔ぅ繝ｼ繝ｫ繝峨ｒ謇句虚譖ｴ譁ｰ縺吶ｋ驕狗畑
+    ・医い繝励Μ縺ｮFirestore繝ｫ繝ｼ繝ｫ縺ｯ`voteCount`縺ｮ繧､繝ｳ繧ｯ繝ｪ繝｡繝ｳ繝井ｻ･螟悶・譖ｸ縺崎ｾｼ縺ｿ繧堤ｦ∵ｭ｢縺励※縺翫ｊ縲・
+    繧ｹ繝・・繧ｿ繧ｹ邂｡逅・・髢狗匱閠・′Console邨檎罰縺ｧ縺ｮ縺ｿ陦後∴繧玖ｨｭ險茨ｼ・
+  - `USER_PROCEDURE.md`縺ｫ譖ｴ譁ｰ謇矩・ｒ霑ｽ險・
+- 荳隕ｧ逕ｻ髱｢縺ｮAppBar縺ｫ縲後∩繧薙↑縺ｮ謠先｡医阪∈縺ｮ蟆守ｷ夲ｼ医Γ繧ｬ繝帙Φ繧｢繧､繧ｳ繝ｳ・峨ｒ霑ｽ蜉
+- Firestore繝ｫ繝ｼ繝ｫ譯茨ｼ・userProposals`繧ｳ繝ｬ繧ｯ繧ｷ繝ｧ繝ｳ + `votes`繧ｵ繝悶さ繝ｬ繧ｯ繧ｷ繝ｧ繝ｳ・峨ｒ`USER_PROCEDURE.md`縺ｫ霑ｽ險・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・5.6遘偵・3.0MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・Firestore繝ｫ繝ｼ繝ｫ驕ｩ逕ｨ縺ｯ譛ｪ螳滓命
+
+## 40. 隴ｰ譯医ョ繝ｼ繧ｿ縺ｮ荳谺｡繧ｽ繝ｼ繧ｹ隱ｿ譟ｻ繝ｻ蜉ｹ譫懊・險倩ｼ芽ｿｽ蜉・・026-07-09・・
+- **荳谺｡繧ｽ繝ｼ繧ｹ縺九ｉ縺ｮ閾ｪ蜍募叙蠕励・WebSearch縺ｧ隱ｿ譟ｻ縺励◆邨先棡縲∫樟迥ｶ縺ｯ髱樒樟螳溽噪縺ｨ蛻､譁ｭ**・郁ｩｳ邏ｰ縺ｯ`IMPLEMENTATION_STATUS.md`譛ｬ鬆・盾辣ｧ・・
+  - 陦・ｭｰ髯｢繝ｻ蜿りｭｰ髯｢縺ｮ縲瑚ｭｰ譯域ュ蝣ｱ縲阪・繝ｼ繧ｸ・・hugiin.go.jp / sangiin.go.jp・峨・HTML縺ｮ縺ｿ縺ｧAPI謠蝉ｾ帙↑縺・
+  - 蝗ｽ遶句嵜莨壼峙譖ｸ鬢ｨ縺ｮ縲悟嵜莨壻ｼ夊ｭｰ骭ｲ讀懃ｴ｢繧ｷ繧ｹ繝・Β縲阪・蜈ｬ蠑就PI縺後≠繧九′縲∝ｯｾ雎｡縺ｯ莨夊ｭｰ骭ｲ・育匱險險倬鹸・峨・蜈ｨ譁・､懃ｴ｢縺ｧ縺ゅｊ縲・
+    縲瑚ｭｰ譯医′蟇ｩ隴ｰ荳ｭ/謌千ｫ九°縲阪ｒ讒矩蛹悶ョ繝ｼ繧ｿ縺ｨ縺励※霑斐☆讖溯・縺ｧ縺ｯ縺ｪ縺・
+  - 隨ｬ荳芽・ｼ・martNews 繝｡繝・ぅ繧｢遐皮ｩｶ謇・峨′蜿りｭｰ髯｢繝・・繧ｿ繧貞・縺ｫ縺励◆CSV/JSON繧貞・髢九＠縺ｦ縺・ｋ縺後∝盾隴ｰ髯｢縺ｮ縺ｿ繝ｻ莠梧ｬ｡繝・・繧ｿ縺ｧ縺ゅｊ縲・
+    邯咏ｶ夂噪縺ｪ譖ｴ譁ｰ菫晁ｨｼ繧ゅ↑縺・
+  - 竊・邨占ｫ悶→縺励※縲√い繝励Μ蜀・°繧我ｿ｡鬆ｼ縺ｧ縺阪ｋ繝ｩ繧､繝門叙蠕励・蝗ｰ髮｣縲・loud Functions遲峨〒繧ｹ繧ｯ繝ｬ繧､繝斐Φ繧ｰ蝓ｺ逶､繧呈眠險ｭ縺吶ｌ縺ｰ
+    謚陦鍋噪縺ｫ縺ｯ蜿ｯ閭ｽ縺縺後∝､ｧ隕乗ｨ｡縺ｪ髢狗匱縺悟ｿ・ｦ√ょｽ馴擇縺ｯ譌｢蟄倥・縲御ｸ谺｡繧ｽ繝ｼ繧ｹ縺ｸ縺ｮ螟夜Κ繝ｪ繝ｳ繧ｯ縲阪ｒ邯ｭ謖√＠縺､縺､縲・
+    螳壽悄逧・↑謇句虚譖ｴ譁ｰ縺ｧ繝・・繧ｿ縺ｮ魄ｮ蠎ｦ繧剃ｿ昴▽驕狗畑縺ｨ縺吶ｋ
+- `DietBill`縺ｫ`effect`・域Φ螳壹＆繧後ｋ蜉ｹ譫懊・蠖ｱ髻ｿ・峨ヵ繧｣繝ｼ繝ｫ繝峨ｒ霑ｽ蜉縺励∵里蟄・莉ｶ縺ｮ隴ｰ譯医ョ繝ｼ繧ｿ縺吶∋縺ｦ縺ｫ縲・
+  蟇ｾ遲匁｡医→蜷梧ｧ倥・繝｡繝ｪ繝・ヨ/諛ｸ蠢ｵ轤ｹ繧剃ｽｵ險倥☆繧九せ繧ｿ繧､繝ｫ縺ｧ險倩ｼ・
+- 隱ｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢縺ｮ隴ｰ譯医き繝ｼ繝峨↓縲∬ｦ∫ｴ・・荳九↓蜉ｹ譫懊・蠖ｱ髻ｿ縺ｮ繝上う繝ｩ繧､繝医・繝・け繧ｹ繧定ｿｽ蜉陦ｨ遉ｺ
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・1.1遘偵・2.6MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 39. 蝗ｽ莨壹・螳滄圀縺ｮ隴ｰ譯医→縺ｮ騾｣蜍包ｼ・026-07-09・・
+- `DietBill`繧ｨ繝ｳ繝・ぅ繝・ぅ縺ｨ`LoadDietBills`繧呈眠險ｭ縲８ebSearch縺ｧ螳滄圀縺ｮ蝗ｽ莨壼ｯｩ隴ｰ迥ｶ豕√ｒ隱ｿ譟ｻ縺励・
+  5隱ｲ鬘鯉ｼ亥ｹｴ驥大些讖溘・謾ｿ豐ｻ螳ｶ縺ｮ蠕・∞繝ｻ閾ｪ辟ｶ轣ｽ螳ｳ縺ｮ蠕ｩ譌ｧ雋ｻ逕ｨ繝ｻ菫晁ご蝨偵・蠕・ｩ溷・遶･繝ｻ陦梧帆縺ｮ繝・ず繧ｿ繝ｫ蛹悶・驕・ｌ・峨↓
+  螳溷惠縺吶ｋ蝗ｽ莨壹・豕墓｡医・隴ｰ譯医ｒ邏舌▼縺代◆
+  - 蟷ｴ驥大宛蠎ｦ謾ｹ豁｣豕包ｼ・026蟷ｴ6譛域・遶具ｼ峨∵帆豐ｻ雉・≡隕乗ｭ｣豕慕ｭ画隼豁｣・井ｸ驛ｨ譁ｽ陦梧ｸ医∩繝ｻ霑ｽ蜉謾ｹ豁｣譯亥ｯｩ隴ｰ荳ｭ・峨・
+    髦ｲ轣ｽ蠎∬ｨｭ鄂ｮ豕墓｡茨ｼ郁｡・劼騾夐℃繝ｻ蜿る劼蟇ｩ隴ｰ荳ｭ・峨∝ｭ舌←繧ゅ・蟄占ご縺ｦ謾ｯ謠ｴ豕慕ｭ画隼豁｣・・026蟷ｴ4譛域命陦梧ｸ医∩・峨・
+    繝槭う繝翫Φ繝舌・豕慕ｭ画隼豁｣譯茨ｼ亥盾髯｢迚ｹ蛻･蟋泌藤莨壹〒蜿ｯ豎ｺ・・
+- 隱ｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢縺ｫ縲悟嵜莨壹〒縺ｮ髢｢騾｣縺吶ｋ蜍輔″縲阪そ繧ｯ繧ｷ繝ｧ繝ｳ繧定ｿｽ蜉縲よｳ墓｡亥錐繝ｻ蟇ｩ隴ｰ迥ｶ豕・ｼ医せ繝・・繧ｿ繧ｹ繝舌ャ繧ｸ・峨・
+  蜀・ｮｹ縺ｮ隕∫ｴ・・蜃ｺ蜈ｸ・域ュ蝣ｱ譎らせ莉倥″・峨・荳谺｡諠・ｱ貅舌∈縺ｮ螟夜Κ繝ｪ繝ｳ繧ｯ・・url_launcher`・峨ｒ陦ｨ遉ｺ
+- 蝗ｽ莨壹・蟇ｩ隴ｰ迥ｶ豕√・譌･縲・､牙喧縺吶ｋ縺溘ａ縲∝推繝・・繧ｿ縺ｫ縲梧ュ蝣ｱ譎らせ縲搾ｼ・026蟷ｴ7譛域凾轤ｹ・峨ｒ譏手ｨ倥＠縲・
+  繧ｳ繝ｼ繝牙・縺ｫ繧ょｮ壽悄譖ｴ譁ｰ縺悟ｿ・ｦ√↑譌ｨ縺ｮ繧ｳ繝｡繝ｳ繝医ｒ谿九＠縺・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・45.8遘偵・2.5MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・螟夜Κ繝ｪ繝ｳ繧ｯ縺ｮ螳滄圀縺ｮ驕ｷ遘ｻ遒ｺ隱阪・譛ｪ螳滓命
+
+## 38. 繝ｩ繝ｳ繧ｭ繝ｳ繧ｰ逕ｻ髱｢縺ｫ蟇ｾ遲匁｡医ち繝冶ｿｽ蜉・・026-07-09・・
+- 縲碁ｱ蛻・隱ｲ鬘後Λ繝ｳ繧ｭ繝ｳ繧ｰ縲咲判髱｢繧偵碁ｱ蛻・繝ｩ繝ｳ繧ｭ繝ｳ繧ｰ縲阪↓繝ｪ繝九Η繝ｼ繧｢繝ｫ縺励～TabBar`縺ｧ縲瑚ｪｲ鬘後阪悟ｯｾ遲匁｡医阪・2繧ｿ繝匁ｧ区・縺ｫ螟画峩
+  ・域里蟄倥・隱ｲ鬘後Λ繝ｳ繧ｭ繝ｳ繧ｰ繧ｿ繝悶・繝ｭ繧ｸ繝・け繝ｻ隕九◆逶ｮ縺ｨ繧ょ､画峩縺ｪ縺暦ｼ・
+- 縲悟ｯｾ遲匁｡医阪ち繝・ 蜈ｨ24隱ｲ鬘後・蟇ｾ遲匁｡茨ｼ郁ｨ・2莉ｶ・峨ｒ讓ｪ譁ｭ縺励※蠕礼･ｨ謨ｰ鬆・↓荳ｦ縺ｹ縺溘Λ繝ｳ繧ｭ繝ｳ繧ｰ繧定｡ｨ遉ｺ縲・
+  蜷・｡後↓蟇ｾ遲匁｡医ち繧､繝医Ν繝ｻ蜈・・隱ｲ鬘悟錐・医き繝・ざ繝ｪ濶ｲ莉倥″・峨・蠕礼･ｨ謨ｰ繧定｡ｨ遉ｺ縺励√ち繝・・縺ｧ隧ｲ蠖楢ｪｲ鬘後・隧ｳ邏ｰ逕ｻ髱｢縺ｫ驕ｷ遘ｻ
+- `allPolicyOptionsProvider`・・FutureProvider`・峨ｒ譁ｰ險ｭ縲ＡLoadPolicyOptions.challengeIds`縺ｧ蟇ｾ遲匁｡医・縺ゅｋ
+  蜈ｨ隱ｲ鬘栗D繧貞叙蠕励＠縲∵里蟄倥・`policyOptionsProvider`・医・繝ｼ繧ｹ謚慕･ｨ謨ｰ+Firestore螳滓兜逾ｨ謨ｰ縺ｮ蜷育ｮ暦ｼ峨ｒ`Future.wait`縺ｧ
+  讓ｪ譁ｭ髮・ｨ医☆繧玖ｨｭ險医→縺励∝腰荳隱ｲ鬘悟髄縺代・繝ｭ繧ｸ繝・け繧偵◎縺ｮ縺ｾ縺ｾ蜀榊茜逕ｨ
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・00.1遘偵・2.4MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 37. 繧ｳ繝ｳ繝・Φ繝・ｬｬ4蠑ｾ諡｡蜈・ｼ・026-07-09・・
+- **遉ｾ莨夊ｪｲ鬘・*: 20莉ｶ竊・*24莉ｶ**縺ｫ諡｡螟ｧ・亥ｹｴ驥題ｨｺ譁ｭ繧貞性繧√ｋ縺ｨ25莉ｶ・・
+  - 霑ｽ蜉: 豌怜吝､牙虚蟇ｾ蠢懊・驕・ｌ・・ebt・峨・繝､繝ｳ繧ｰ繧ｱ繧｢繝ｩ繝ｼ縺ｮ雋諡・ｼ・elfare・峨・陦梧帆縺ｮ繝・ず繧ｿ繝ｫ蛹悶・驕・ｌ・・olitics・峨・
+    蜊倩ｺｫ鬮倬ｽ｢閠・・蟄､遶具ｼ・emographic・・
+  - 繧ｫ繝・ざ繝ｪ縺ｮ繝舌Λ繝ｳ繧ｹ繧定・・縺励∵ｯ碑ｼ・噪蟆代↑縺九▲縺歸ebt/politics/demographic繧剃ｸｭ蠢・↓霑ｽ蜉
+  - 4莉ｶ縺ｨ繧りｩｳ邏ｰ繝・・繧ｿ・郁レ譎ｯ隱ｬ譏弱・蜈ｬ蠑竣s豌鷹俣繝・・繧ｿ縺ｮ豈碑ｼ・げ繝ｩ繝輔・20蟷ｴ蠕・50蟷ｴ蠕後・逕滓ｴｻ蠖ｱ髻ｿ繝ｻ繧ｿ繧ｰ・峨ｒ謨ｴ蛯・
+- **蟇ｾ遲匁｡・*: 譁ｰ隕・隱ｲ鬘後◎繧後◇繧後↓3縺､縺壹▽蟇ｾ遲匁｡茨ｼ亥・螳ｹ・区Φ螳壹＆繧後ｋ蜉ｹ譫懊・蠖ｱ髻ｿ・峨ｒ霑ｽ蜉
+- **逕ｨ隱樣寔**: 譁ｰ隕上さ繝ｳ繝・Φ繝・↓逋ｻ蝣ｴ縺吶ｋ逕ｨ隱・隱橸ｼ医き繝ｼ繝懊Φ繝九Η繝ｼ繝医Λ繝ｫ繝ｻ蝗ｽ蠅・く邏遞弱・繝､繝ｳ繧ｰ繧ｱ繧｢繝ｩ繝ｼ繝ｻ
+  繝・ず繧ｿ繝ｫ繝・ヰ繧､繝峨・蟄､遶区ｭｻ繝ｻ豌醍函蟋泌藤・峨ｒ霑ｽ蜉・郁ｨ・6隱橸ｼ・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・59.3遘偵・2.1MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 36. 蟇ｾ遲匁｡域兜逾ｨ邨先棡縺ｮSNS繧ｷ繧ｧ繧｢・・026-07-09・・
+- 蟇ｾ遲匁｡医↓謚慕･ｨ縺励◆蠕後√梧兜逾ｨ邨先棡繧偵す繧ｧ繧｢縺吶ｋ縲阪・繧ｿ繝ｳ繧定｡ｨ遉ｺ縲ゅユ繧ｭ繧ｹ繝医・繝ｼ繧ｹ縺ｧ`Share.share()`繧剃ｽｿ縺・・
+  隱ｲ鬘悟錐繝ｻ閾ｪ蛻・′驕ｸ繧薙□蟇ｾ遲匁｡医・蜈ｨ蟇ｾ遲匁｡医・蠕礼･ｨ邇・ｼ遺怛縺ｧ閾ｪ蛻・・驕ｸ謚槭ｒ譏守､ｺ・峨ｒ縺ｾ縺ｨ繧√※蜈ｱ譛峨〒縺阪ｋ繧医≧縺ｫ縺励◆
+  ・亥ｹｴ驥代き繝ｼ繝・繧ｯ繧､繧ｺ邨先棡縺ｯ逕ｻ蜒擾ｼ九ユ繧ｭ繧ｹ繝医・繧ｷ繧ｧ繧｢縺縺後∝ｯｾ遲匁｡医・蜍慕噪縺ｪ髮・ｨ亥､縺ｮ縺溘ａ霆ｽ驥上↑繝・く繧ｹ繝医す繧ｧ繧｢繧呈治逕ｨ・・
+- 繧ｷ繧ｧ繧｢謌仙粥譎ゅ・`content_shared`・・content_type: 'policy_option_result'`・峨→縺励※繧｢繝翫Μ繝・ぅ繧ｯ繧ｹ縺ｫ繧りｨ倬鹸
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・75.7遘偵・2.0MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ繧ｷ繧ｧ繧｢繧ｷ繝ｼ繝郁｡ｨ遉ｺ遒ｺ隱阪・譛ｪ螳滓命
+
+## 35. 繧｢繝翫Μ繝・ぅ繧ｯ繧ｹ險域ｸｬ・・026-07-09・・
+- `firebase_analytics`縺ｯ萓晏ｭ倬未菫ゅ↓蜈･縺｣縺ｦ縺・◆縺梧悴菴ｿ逕ｨ縺縺｣縺滂ｼ郁ｨｭ險域嶌險倩ｼ峨・`loss_calculated`/`vote_submitted`/`content_shared`縺・
+  縲悟ｮ溯｣・ｺ亥ｮ壹阪・縺ｾ縺ｾ謾ｾ鄂ｮ縺輔ｌ縺ｦ縺・◆・峨◆繧√～AnalyticsService`繧呈眠險ｭ縺励※螳溯｣・
+- 險域ｸｬ繧､繝吶Φ繝・ `loss_calculated`・亥ｹｴ驥題ｨｺ譁ｭ・峨～vote_submitted`/`agree_submitted`・郁ｪｲ鬘梧兜逾ｨ繝ｻ雉帛酔・峨・
+  `content_shared`・亥ｹｴ驥代き繝ｼ繝峨・繧ｯ繧､繧ｺ邨先棡縺ｮ繧ｷ繧ｧ繧｢縲～content_type`縺ｧ蛹ｺ蛻･・峨～comment_posted`/`comment_liked`・医さ繝｡繝ｳ繝茨ｼ峨・
+  `policy_option_voted`・亥ｯｾ遲匁｡域兜逾ｨ・峨～quiz_completed`・郁ｨｺ譁ｭ繝ｬ繝吶Ν繝ｻ豁｣遲泌ｺｦ繝ｻ荳顔ｴ壹Δ繝ｼ繝峨°縺ｩ縺・°・・
+- Firebase譛ｪ蛻晄悄蛹也腸蠅・ｼ・flutter test`縺ｮ繧ｦ繧｣繧ｸ繧ｧ繝・ヨ繝・せ繝医↑縺ｩ・峨〒繧ゆｾ句､悶〒繧｢繝励Μ繧呈ｭ｢繧√↑縺・ｈ縺・・
+  `AnalyticsService`縺ｯ`FirebaseAnalytics.instance`蜿門ｾ励→騾∽ｿ｡縺ｮ荳｡譁ｹ繧蛋try-catch`縺ｧ髦ｲ蠕｡逧・↓螳溯｣・
+  ・域怙蛻昴・catch縺ｪ縺励〒螳溯｣・＠縺溘◆繧～age_input_screen_test`/`quiz_screen_test`縺・
+  `[core/no-app] No Firebase App`萓句､悶〒關ｽ縺｡繧倶ｸ榊・蜷医′縺ゅｊ縲∽ｿｮ豁｣縺励※隗｣豸茨ｼ・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・36.4遘偵・2.0MB・・
+- 竢ｸ Firebase Console縺ｮAnalytics繝繝・す繝･繝懊・繝峨〒縺ｮ螳溘う繝吶Φ繝育｢ｺ隱阪・譛ｪ螳滓命・亥ｮ滓ｩ滓桃菴懷ｾ後∝渚譏縺ｾ縺ｧ謨ｰ譎る俣縺九°繧句ｴ蜷医≠繧奇ｼ・
+
+## 34. 繧ｪ繝輔Λ繧､繝ｳ蟇ｾ蠢懶ｼ・026-07-09・・
+- Firestore縺ｮ繝ｭ繝ｼ繧ｫ繝ｫ繧ｭ繝｣繝・す繝･繝ｻ譖ｸ縺崎ｾｼ縺ｿ繧ｭ繝･繝ｼ繧呈・遉ｺ逧・↓譛牙柑蛹厄ｼ・Settings(persistenceEnabled: true, cacheSizeBytes: unlimited)`・峨・
+  縺薙ｌ縺ｫ繧医ｊ縲√が繝輔Λ繧､繝ｳ荳ｭ縺ｮ謚慕･ｨ繝ｻ繧ｳ繝｡繝ｳ繝医・蟇ｾ遲匁｡域兜逾ｨ繧ゅΟ繝ｼ繧ｫ繝ｫ縺ｫ菫晏ｭ倥＆繧後√が繝ｳ繝ｩ繧､繝ｳ蠕ｩ蟶ｰ譎ゅ↓閾ｪ蜍募酔譛溘＆繧後ｋ
+  ・郁ｪｲ鬘後ョ繝ｼ繧ｿ閾ｪ菴薙・繝｢繝・け荳ｭ蠢・・縺溘ａ縲√ム繝・す繝･繝懊・繝・荳隕ｧ/繧ｯ繧､繧ｺ/繧ｿ繧､繝繝槭す繝ｳ縺ｯ縺昴ｂ縺昴ｂ蟶ｸ縺ｫ繧ｪ繝輔Λ繧､繝ｳ縺ｧ螳檎ｵ舌☆繧具ｼ・
+- `connectivity_plus`繝代ャ繧ｱ繝ｼ繧ｸ繧定ｿｽ蜉縺励～connectivityProvider`縺ｧ繧ｪ繝ｳ繝ｩ繧､繝ｳ/繧ｪ繝輔Λ繧､繝ｳ迥ｶ諷九ｒ逶｣隕・
+- 繧ｪ繝輔Λ繧､繝ｳ譎ゅ・荳隕ｧ繝ｻ隧ｳ邏ｰ繝ｻ繝繝・す繝･繝懊・繝臥判髱｢荳企Κ縺ｫ縲後が繝輔Λ繧､繝ｳ縺ｧ縺吶ら峩霑代・繝・・繧ｿ繧定｡ｨ遉ｺ縺励※縺・∪縺吶よ兜逾ｨ繝ｻ繧ｳ繝｡繝ｳ繝医・
+  繝阪ャ繝医Ρ繝ｼ繧ｯ蠕ｩ蟶ｰ蠕後↓蜿肴丐縺輔ｌ縺ｾ縺吶阪→縺・≧繝舌リ繝ｼ繧定｡ｨ遉ｺ
+- 繧ｳ繝｡繝ｳ繝域ｬ・′遨ｺ縺ｮ蝣ｴ蜷医√が繝ｳ繝ｩ繧､繝ｳ譎ゅ・縲後∪縺繧ｳ繝｡繝ｳ繝医・縺ゅｊ縺ｾ縺帙ｓ縲阪√が繝輔Λ繧､繝ｳ譎ゅ・縲後が繝輔Λ繧､繝ｳ縺ｮ縺溘ａ譛譁ｰ縺ｮ繧ｳ繝｡繝ｳ繝医ｒ
+  蜿門ｾ励〒縺阪∪縺帙ｓ縲阪→縲∫憾豕√↓蠢懊§縺溘Γ繝・そ繝ｼ繧ｸ縺ｫ蛻・ｊ譖ｿ縺・
+- 螳溯｣・ｽ灘・縺ｯ`InternetAddress.lookup` + `Stream.periodic`縺ｫ繧医ｋ繝昴・繝ｪ繝ｳ繧ｰ繧呈､懆ｨ弱＠縺溘′縲～flutter test`縺ｧ
+  縲卦imer is still pending縲阪お繝ｩ繝ｼ縺檎匱逕溘＠縺溘◆繧√√・繝ｩ繝・ヨ繝輔か繝ｼ繝繧､繝吶Φ繝医・繝ｼ繧ｹ縺ｮ`connectivity_plus`縺ｫ蛻・ｊ譖ｿ縺医・
+  繝・せ繝医∈縺ｮ蜑ｯ菴懃畑縺ｪ縺丞ｮ溯｣・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・56.4遘偵・2.0MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱搾ｼ域ｩ溷・繝｢繝ｼ繝峨〒縺ｮ蜍穂ｽ懃｢ｺ隱榊性繧・峨・譛ｪ螳滓命
+
+## 33. 繧ｰ繝ｩ繝輔・Y霆ｸ繝ｩ繝吶Ν霑ｽ蜉・・026-07-09・・
+- 縲後せ繧ｱ繝ｼ繝ｫ縺後ｏ縺九ｊ縺･繧峨＞縲阪→縺・≧謖・遭繧貞女縺代∝・5邂・園縺ｮ謚倥ｌ邱壹げ繝ｩ繝輔↓邵ｦ霆ｸ・・霆ｸ・峨・謨ｰ蛟､繝ｩ繝吶Ν縺ｨ阮・＞讓ｪ繧ｰ繝ｪ繝・ラ邱壹ｒ霑ｽ蜉
+  - 繝槭け繝ｭ繝繝・す繝･繝懊・繝・ 莠ｺ蜿｣謗ｨ遘ｻ・上お繝阪Ν繧ｮ繝ｼ閾ｪ邨ｦ邇・ｼ丞現逋りｲｻ謗ｨ遘ｻ・・繧ｰ繝ｩ繝包ｼ・
+  - 隱ｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢: 蜈ｬ蠑上ョ繝ｼ繧ｿ vs 豌鷹俣蛻・梵縺ｮ豈碑ｼ・げ繝ｩ繝・
+  - 繧ｿ繧､繝繝槭す繝ｳ逕ｻ髱｢: 謾ｿ遲悶す繝溘Η繝ｬ繝ｼ繧ｷ繝ｧ繝ｳ繧ｰ繝ｩ繝・
+- 蜈ｱ騾壹Θ繝ｼ繝・ぅ繝ｪ繝・ぅ`niceAxisInterval()`・・lib/presentation/widgets/chart_axis.dart`・峨ｒ譁ｰ險ｭ縺励√ョ繝ｼ繧ｿ縺ｮ遽・峇縺九ｉ
+  縲後″繧翫・縺・＞縲咲岼逶帙ｊ髢馴囈・・繝ｻ2繝ｻ5繝ｻ10縺ｮ縺・★繧後°縺ｮ譯・ｼ峨ｒ閾ｪ蜍戊ｨ育ｮ励☆繧九ｈ縺・↓縺励◆
+- 蜊倅ｽ崎｡ｨ遉ｺ縺ｯ蜷・げ繝ｩ繝輔・`unit`繝輔ぅ繝ｼ繝ｫ繝峨ｒ菴ｿ縺・√・・域ｶ域ｻ・庄閭ｽ諤ｧ閾ｪ豐ｻ菴薙・蜑ｲ蜷茨ｼ峨阪・繧医≧縺ｪ髟ｷ縺・ｳｨ驥医・
+  諡ｬ蠑ｧ繧医ｊ蜑阪・遏ｭ縺・腰菴搾ｼ医・縲咲ｭ会ｼ峨□縺代ｒ霆ｸ繝ｩ繝吶Ν縺ｫ菴ｿ縺・ｈ縺・↓縺励※縲∫強縺・ｻｸ繧ｹ繝壹・繧ｹ縺ｧ繧ょ庶縺ｾ繧九ｈ縺・↓縺励◆
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・0.9遘偵・2.0MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 32. 蟇ｾ遲匁｡医∈縺ｮ謚慕･ｨ讖溯・霑ｽ蜉・・026-07-09・・
+- `PolicyOption`繧ｨ繝ｳ繝・ぅ繝・ぅ・・itle/description/expectedImpact/voteCount・峨→`LoadPolicyOptions`繧呈眠險ｭ縲・
+  20隱ｲ鬘鯉ｼ亥ｹｴ驥題ｨｺ譁ｭ繧帝勁縺丞・隱ｲ鬘鯉ｼ峨◎繧後◇繧後↓3縺､縺ｮ蟇ｾ遲匁｡医ｒ逕ｨ諢上＠縲∝推譯医・蜀・ｮｹ縺ｨ諠ｳ螳壹＆繧後ｋ蜉ｹ譫懊・蠖ｱ髻ｿ・医Γ繝ｪ繝・ヨ/繝・Γ繝ｪ繝・ヨ・峨ｒ譏手ｨ・
+- 隱ｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢縺ｫ縲後≠縺ｪ縺溘↑繧峨√←縺ｮ蟇ｾ遲匁｡医ｒ驕ｸ縺ｶ・溘阪そ繧ｯ繧ｷ繝ｧ繝ｳ繧定ｿｽ蜉縲・隱ｲ鬘後↓縺､縺・譯医・縺ｿ驕ｸ謚槫庄閭ｽ
+  - 謚慕･ｨ蜑阪・蜷・｡医′繧ｫ繝ｼ繝牙ｽ｢蠑上〒陦ｨ遉ｺ縺輔ｌ縲√後％縺ｮ譯医ｒ驕ｸ縺ｶ縲阪・繧ｿ繝ｳ縺ｧ驕ｸ謚・
+  - 謚慕･ｨ蠕後・蜈ｨ蜩｡縺ｮ謚慕･ｨ蜑ｲ蜷茨ｼ・繝ｻ莉ｶ謨ｰ・峨′譽偵げ繝ｩ繝輔〒陦ｨ遉ｺ縺輔ｌ縲∵怙螟壼ｾ礼･ｨ譯医↓縺ｯ醇繧｢繧､繧ｳ繝ｳ縲∬・蛻・′驕ｸ繧薙□譯医↓縺ｯ笨薙い繧､繧ｳ繝ｳ縺御ｻ倥￥
+    ・茨ｼ昴碁∈謚樊焚縺ｯ蜻ｨ繧翫′隕九ｌ繧九ｈ縺・↓縲阪→縺・≧隕∽ｻｶ繧偵∵兜逾ｨ蠕後↓蜈ｨ驕ｸ謚櫁い縺ｮ蠕礼･ｨ邇・ｒ蜈ｬ髢九☆繧句ｽ｢縺ｧ螳溽樟・・
+- Firestore: `challenges/{id}/policyOptions/{optionId}`・・voteCount`繧巽ieldValue.increment縺ｧ蜉邂暦ｼ峨・
+  `challenges/{id}/policyVotes/{userId}`・・繝ｦ繝ｼ繧ｶ繝ｼ1逾ｨ繧剃ｿ晁ｨｼ縲√ラ繧ｭ繝･繝｡繝ｳ繝・D繧置serId縺ｫ縺励※莠碁㍾謚慕･ｨ繧帝亟豁｢・峨ｒ譁ｰ險ｭ縲・
+  隱ｲ鬘後ョ繝ｼ繧ｿ縺後Ο繝ｼ繧ｫ繝ｫ繝｢繝・け荳ｭ蠢・・縺溘ａ縲～update()`縺ｧ縺ｯ縺ｪ縺汁set(merge:true)`繧剃ｽｿ縺・ｦｪ繝峨く繝･繝｡繝ｳ繝域悴菴懈・縺ｧ繧ゅお繝ｩ繝ｼ縺ｫ縺ｪ繧峨↑縺・ｈ縺・↓縺励◆
+- `USER_PROCEDURE.md`縺ｮFirestore繝ｫ繝ｼ繝ｫ譯医↓`policyOptions`/`policyVotes`縺ｮ繝ｫ繝ｼ繝ｫ繧定ｿｽ險・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・5.6遘偵・2.0MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・Firestore繝ｫ繝ｼ繝ｫ驕ｩ逕ｨ縺ｯ譛ｪ螳滓命
+
+## 31. 逋ｽ譁・ｭ励ヰ繧ｰ菫ｮ豁｣繝ｻ繧ｳ繝｡繝ｳ繝域ｩ溯・蠑ｷ蛹厄ｼ・026-07-09・・
+- **逋ｽ譁・ｭ励ヰ繧ｰ菫ｮ豁｣**: `GlossaryText`・亥燕鬆・〒霑ｽ蜉・峨′邏縺ｮ`RichText`繧剃ｽｿ縺｣縺ｦ縺翫ｊ縲～Text`繧ｦ繧｣繧ｸ繧ｧ繝・ヨ縺ｨ驕輔▲縺ｦ
+  繧｢繝ｳ繝薙お繝ｳ繝医・`DefaultTextStyle`・域枚蟄苓牡・峨ｒ邯呎価縺励※縺・↑縺九▲縺溘ＡDefaultTextStyle.of(context).style.merge(widget.style)`
+  縺ｧ譏守､ｺ逧・↓繝槭・繧ｸ縺吶ｋ繧医≧菫ｮ豁｣縺励√・0蟷ｴ蠕・50蟷ｴ蠕後・隕矩壹＠縲咲ｭ峨・譁・ｭ励′隕九∴縺ｪ縺上↑繧句撫鬘後ｒ隗｣豸・
+- **NG繝ｯ繝ｼ繝峨・繧ｹ繝代Β蟇ｾ遲・*: `ValidateComment`繝ｦ繝ｼ繧ｹ繧ｱ繝ｼ繧ｹ繧呈眠險ｭ縲よｭｻ縺ｭ遲峨・NG繝ｯ繝ｼ繝峨・URL繝ｻ蜷御ｸ譁・ｭ励・驕主臆縺ｪ騾｣邯壹ｒ
+  謚慕ｨｿ蜑阪↓繧ｯ繝ｩ繧､繧｢繝ｳ繝亥・縺ｧ繝悶Ο繝・け縺励∬ｩｲ蠖捺凾縺ｯ繧ｨ繝ｩ繝ｼ繝｡繝・そ繝ｼ繧ｸ繧定｡ｨ遉ｺ縺励※謚慕ｨｿ繧剃ｸｭ譁ｭ
+- **繧ｳ繝｡繝ｳ繝域兜遞ｿ螟ｱ謨励・菫ｮ豁｣**: `postCommentProvider`縺悟諺蜷崎ｪ崎ｨｼ縺ｮ螳御ｺ・ｒ蠕・◆縺壹↓Firestore縺ｸ譖ｸ縺崎ｾｼ繧薙〒縺・◆縺溘ａ縲・
+  隱崎ｨｼ蠢・医・繧ｻ繧ｭ繝･繝ｪ繝・ぅ繝ｫ繝ｼ繝ｫ荳九〒縺ｯ遒ｺ螳溘↓螟ｱ謨励☆繧倶ｸ榊・蜷医′縺ゅ▲縺溘Ｗote/agree縺ｨ蜷梧ｧ倥↓`userIdProvider.future`繧・
+  蠕・▲縺ｦ縺九ｉ謚慕ｨｿ縺吶ｋ繧医≧菫ｮ豁｣・・USER_PROCEDURE.md`縺ｮFirestore繝ｫ繝ｼ繝ｫ譛ｪ驕ｩ逕ｨ縺ｮ蝣ｴ蜷医・蠑輔″邯壹″螟ｱ謨励☆繧九◆繧√・
+  繝ｫ繝ｼ繝ｫ驕ｩ逕ｨ縺悟ｿ・ｦ√↑譌ｨ繧定ｿｽ險假ｼ・
+- **繧ｳ繝｡繝ｳ繝医・縲後＞縺・・縲肴ｩ溯・**: `Comment`縺ｫ`likeCount`繧定ｿｽ蜉縲～likes`繧ｵ繝悶さ繝ｬ繧ｯ繧ｷ繝ｧ繝ｳ・医Θ繝ｼ繧ｶ繝ｼID繧偵ラ繧ｭ繝･繝｡繝ｳ繝・D縺ｫ縺励※莠碁㍾縺・＞縺ｭ髦ｲ豁｢・・
+  縺ｧ邂｡逅・ゅ＞縺・・縺悟､壹＞鬆・・譁ｰ縺励＞鬆・↓繧ｽ繝ｼ繝医＠縲・莉ｶ莉･荳翫＞縺・・縺輔ｌ縺溘さ繝｡繝ｳ繝医・縲御ｺｺ豌励・繧ｳ繝｡繝ｳ繝医阪ヰ繝・ず莉倥″縺ｧ繝上う繝ｩ繧､繝郁｡ｨ遉ｺ
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・0.8遘偵・1.8MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・Firestore繝ｫ繝ｼ繝ｫ驕ｩ逕ｨ縺ｯ譛ｪ螳滓命
+
+## 30. 逕ｨ隱樣寔讖溯・霑ｽ蜉・・026-07-09・・
+- `GlossaryTerm`繧ｨ繝ｳ繝・ぅ繝・ぅ繝ｻ`LoadGlossaryTerms`・・0隱槭・逕ｨ隱槭ョ繝ｼ繧ｿ: 螳溯ｳｪ雉・≡繝ｻ雉ｦ隱ｲ譁ｹ蠑上・GDP豈斐・逶ｸ蟇ｾ逧・ｲｧ蝗ｰ繝ｻ蟆大ｭ宣ｫ倬ｽ｢蛹・遲会ｼ峨ｒ譁ｰ險ｭ
+- `GlossaryScreen`: 逕ｨ隱槭ｒ讀懃ｴ｢繝ｻ荳隕ｧ陦ｨ遉ｺ縺吶ｋ蟆ら畑繝壹・繧ｸ・郁ｪｭ縺ｿ莉ｮ蜷阪・螳夂ｾｩ莉倥″縲√く繝ｼ繝ｯ繝ｼ繝画､懃ｴ｢蟇ｾ蠢懶ｼ・
+- `GlossaryText`繧ｦ繧｣繧ｸ繧ｧ繝・ヨ: 騾壼ｸｸ縺ｮ隱ｬ譏取枚縺ｮ荳ｭ縺ｧ逋ｻ骭ｲ貂医∩逕ｨ隱槭ｒ閾ｪ蜍輔ワ繧､繝ｩ繧､繝医＠縲√ち繝・・縺吶ｋ縺ｨ繝懊ヨ繝繧ｷ繝ｼ繝医〒螳夂ｾｩ繧貞叉遒ｺ隱阪〒縺阪ｋ蜈ｱ騾壹さ繝ｳ繝昴・繝阪Φ繝・
+  - 隱ｲ鬘御ｸ隕ｧ繧ｫ繝ｼ繝峨・隱ｬ譏取枚縲∬ｪｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢・郁ｪｬ譏弱・隧ｳ邏ｰ閭梧勹繝ｻ逕滓ｴｻ縺ｨ縺ｮ縺､縺ｪ縺後ｊ繝ｻ20蟷ｴ蠕・50蟷ｴ蠕後・隕矩壹＠・峨↓驕ｩ逕ｨ
+- 荳隕ｧ逕ｻ髱｢繝ｻ隱ｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢繝ｻ繝槭け繝ｭ繝繝・す繝･繝懊・繝峨・繧ｿ繧､繝繝槭す繝ｳ逕ｻ髱｢縺ｮAppBar縺ｫ縲檎畑隱樣寔縲阪い繧､繧ｳ繝ｳ繧定ｿｽ蜉縺励√←縺ｮ繧ｳ繝ｳ繝・Φ繝・°繧峨ｂ逕ｨ隱樣寔繝壹・繧ｸ縺ｸ縺吶＄驕ｷ遘ｻ縺ｧ縺阪ｋ繧医≧縺ｫ
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・7.5遘偵・1.8MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 29. 讀懃ｴ｢繝ｻ繧ｿ繧ｰ讖溯・霑ｽ蜉・・026-07-09・・
+- `Challenge`繧ｨ繝ｳ繝・ぅ繝・ぅ縺ｫ`tags`繝輔ぅ繝ｼ繝ｫ繝峨→`matchesSearch()`・亥錐蜑阪・隱ｬ譏弱・繧ｿ繧ｰ縺ｮ驛ｨ蛻・ｸ閾ｴ蛻､螳夲ｼ峨ｒ霑ｽ蜉
+- `getMockChallenges()`縺ｮ蜈ｨ21莉ｶ・亥ｹｴ驥題ｨｺ譁ｭ蜷ｫ繧・峨↓讀懃ｴ｢逕ｨ繧ｿ繧ｰ繧剃ｻ倅ｸ趣ｼ井ｾ・ 蟷ｴ驥代・蟄占ご縺ｦ繝ｻ蝨ｰ譁ｹ繝ｻ繧ｸ繧ｧ繝ｳ繝繝ｼ繝ｻ雋｡謾ｿ 遲峨∬ｨ・9遞ｮ縺ｮ繧ｿ繧ｰ繝励・繝ｫ・・
+- `_challengeFromFirestore()`繧・irestore縺ｮ`tags`繝輔ぅ繝ｼ繝ｫ繝峨ｒ繝代・繧ｹ縺吶ｋ繧医≧蟇ｾ蠢懶ｼ域悽逡ｪ繝・・繧ｿ謚募・譎ゅｂ蜍穂ｽ懊☆繧九ｈ縺・↓・・
+- 荳隕ｧ逕ｻ髱｢・・ChallengeListScreen`・峨↓讀懃ｴ｢繝舌・繧定ｿｽ蜉・・searchQueryProvider`縺ｧ迥ｶ諷狗ｮ｡逅・ｼ・
+  - 繧ｭ繝ｼ繝ｯ繝ｼ繝画､懃ｴ｢縺ｧ繧ｫ繝・ざ繝ｪ繝輔ぅ繝ｫ繧ｿ繝ｼ縺ｨ菴ｵ逕ｨ蜿ｯ閭ｽ縲∬ｩｲ蠖薙↑縺玲凾縺ｯ遨ｺ繝｡繝・そ繝ｼ繧ｸ陦ｨ遉ｺ
+  - 蜷・ｪｲ鬘後き繝ｼ繝峨↓繧ｿ繧ｰ繝√ャ繝励ｒ陦ｨ遉ｺ縺励√ち繝・・縺吶ｋ縺ｨ縺昴・繧ｿ繧ｰ縺ｧ讀懃ｴ｢縺ｧ縺阪ｋ繧医≧縺ｫ
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・02.2遘偵・1.6MB・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 28. 襍ｷ蜍墓凾繧ｯ繝ｩ繝・す繝･菫ｮ豁｣・・026-07-08・・
+- 繝代ャ繧ｱ繝ｼ繧ｸ蜷榊､画峩・・com.petitworks.nihon_future_map` 竊・`com.petitworksapps.japanfuturemap`・牙ｾ後～am start`縺ｧ
+  `Error: Activity class ... does not exist` 縺ｫ繧医ｊ蜊ｳ繧ｯ繝ｩ繝・す繝･縺励※縺・◆荳榊・蜷医ｒ菫ｮ豁｣
+- 蜴溷屏: `build.gradle.kts`縺ｮ`applicationId`/`namespace`縺ｯ螟画峩縺励◆縺後～MainActivity.kt`縺ｮ螳溘ヵ繧｡繧､繝ｫ縺梧立繝代ャ繧ｱ繝ｼ繧ｸ縺ｮ繝・ぅ繝ｬ繧ｯ繝医Μ
+  ・・kotlin/com/petitworks/nihon_future_map/`・峨↓谿九▲縺溘∪縺ｾ縺縺｣縺滂ｼ・package`螳｣險繧よ立縺ｮ縺ｾ縺ｾ・・
+- 譁ｰ繝代ャ繧ｱ繝ｼ繧ｸ縺ｮ繝・ぅ繝ｬ繧ｯ繝医Μ・・kotlin/com/petitworksapps/japanfuturemap/`・峨↓`MainActivity.kt`繧剃ｽ懈・縺礼峩縺励∵立繝輔ぃ繧､繝ｫ繝ｻ遨ｺ繝・ぅ繝ｬ繧ｯ繝医Μ繧貞炎髯､縺励※隗｣豸・
+- `adb shell pidof`縺ｧPID縺悟ｮ牙ｮ壹＠縺ｦ縺・ｋ縺薙→縲～adb logcat --pid=<pid>`縺ｫ繧ｨ繝ｩ繝ｼ縺悟・縺ｪ縺・％縺ｨ縲～dumpsys window`縺ｮ繝輔か繝ｼ繧ｫ繧ｹ縺・
+  豁｣縺励＞譁ｰ繝代ャ繧ｱ繝ｼ繧ｸ蜷阪↓縺ｪ縺｣縺ｦ縺・ｋ縺薙→繧貞ｮ滓ｩ溘〒遒ｺ隱肴ｸ医∩
+
+## 27. 繧ｳ繝ｳ繝・Φ繝・ｬｬ3蠑ｾ諡｡蜈・ｼ・026-07-08・・
+- **遉ｾ莨夊ｪｲ鬘・*: 15莉ｶ竊・*20莉ｶ**縺ｫ諡｡螟ｧ
+  - 霑ｽ蜉: 菫晁ご蝨偵・蠕・ｩ溷・遶･・・elfare・峨・荳ｭ蟆丈ｼ∵･ｭ縺ｮ蠕檎ｶ呵・ｸ崎ｶｳ・・conomy・峨・逕ｷ螂ｳ縺ｮ雉・≡譬ｼ蟾ｮ・・conomy・峨・閾ｪ辟ｶ轣ｽ螳ｳ縺ｮ豼逕壼喧縺ｨ蠕ｩ譌ｧ雋ｻ逕ｨ・・ebt・峨・蝨ｰ譁ｹ縺ｮ蛹ｻ逋よｼ蟾ｮ/蛹ｻ蟶ｫ荳崎ｶｳ・・elfare・・
+  - 蜈ｨ20莉ｶ縺ｫ蟇ｾ蠢懊☆繧玖ｩｳ邏ｰ繝・・繧ｿ・郁レ譎ｯ隱ｬ譏弱・蜈ｬ蠑竣s豌鷹俣繝・・繧ｿ繝ｻ20蟷ｴ蠕・50蟷ｴ蠕後・逕滓ｴｻ蠖ｱ髻ｿ・峨ｒ謨ｴ蛯呎ｸ医∩
+- **繝槭け繝ｭ繝繝・す繝･繝懊・繝峨↓譁ｰ謖・ｨ呵ｿｽ蜉**: 縲悟現逋りｲｻ縺ｯ縺ｩ繧後□縺大｢励∴縺ｦ縺・ｋ・溘阪そ繧ｯ繧ｷ繝ｧ繝ｳ・亥嵜豌大現逋りｲｻ 2000縲・025蟷ｴ謗ｨ遘ｻ縲・0.1蜈・・竊・7.0蜈・・・・
+  - `MacroDashboard`縺ｫ`healthcareCostTrend`・・HealthcareCostData`繝ｪ繧ｹ繝茨ｼ峨ｒ霑ｽ蜉
+  - 譌｢蟄倥・繧ｨ繝阪Ν繧ｮ繝ｼ閾ｪ邨ｦ邇・そ繧ｯ繧ｷ繝ｧ繝ｳ縺ｨ蜷後§謚倥ｌ邱壹げ繝ｩ繝輔ヱ繧ｿ繝ｼ繝ｳ縺ｧ螳溯｣・～interval: 1`縺ｧ霆ｸ繝ｩ繝吶Ν驥崎､・ｒ蝗樣∩
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・xit code 0縲・9.5遘偵・*51.0MB**・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 26. 繝代ャ繧ｱ繝ｼ繧ｸ蜷阪・Firebase繧｢繧ｫ繧ｦ繝ｳ繝亥､画峩・・026-07-08・・
+- **譁ｹ驥晏､画峩**: 莉雁ｾ熊irebase/Google Play Console縺ｯ `funvestment1@gmail.com` 縺ｫ邨ｱ荳・域立: petitworksdev/petitworksappsdev・・
+- **applicationId螟画峩**: `com.petitworks.nihon_future_map` 竊・**`com.petitworksapps.japanfuturemap`**・・android/app/build.gradle.kts`縺ｮ`namespace`/`applicationId`荳｡譁ｹ・・
+  - Android縺ｧ縺ｯ蛻･繧｢繝励Μ謇ｱ縺・↓縺ｪ繧九◆繧√∝ｮ滓ｩ溘↓譌ｧ繝代ャ繧ｱ繝ｼ繧ｸ蜷阪・繧｢繝励Μ縺悟・縺｣縺ｦ縺・ｋ蝣ｴ蜷医・繧｢繝ｳ繧､繝ｳ繧ｹ繝医・繝ｫ縺悟ｿ・ｦ・
+- **google-services.json 譖ｴ譁ｰ**: 譁ｰ繝代ャ繧ｱ繝ｼ繧ｸ蜷咲畑縺ｮ繧ｨ繝ｳ繝医Μ繧貞性繧繝輔ぃ繧､繝ｫ縺ｫ蟾ｮ縺玲崛縺茨ｼ亥酔荳Firebase繝励Ο繧ｸ繧ｧ繧ｯ繝・petit-works-apps-9029a`蜀・・譁ｰ隕縦lient繧ｨ繝ｳ繝医Μ・・
+- **firebase_options.dart 譖ｴ譁ｰ**: `appId`繧呈眠縺励＞蛟､・・1:216377882454:android:189037cc74accf69d108f7`・峨↓螟画峩
+- **繝｡繝｢繝ｪ譖ｴ譁ｰ**: `user_firebase_account.md`縺ｫ繧｢繧ｫ繧ｦ繝ｳ繝域婿驥晏､画峩繧定ｨ倬鹸縲よｬ｡蝗槭％縺ｮ繧｢繝励Μ縺ｮFirebase險ｭ螳壹ｒ隗ｦ繧矩圀縺ｯ縲｝etitworksdev蜈ｱ騾壹・繝ｭ繧ｸ繧ｧ繧ｯ繝医・縺ｾ縺ｾ縺九’unvestment1蛛ｴ縺ｫ菴懊ｊ逶ｴ縺吶°繧定ｦ∫｢ｺ隱阪→譏手ｨ・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・xit code 0縲・45.6遘偵・*50.9MB**・・
+- 笞・・螳滓ｩ溘↓譌ｧ繝代ャ繧ｱ繝ｼ繧ｸ蜷搾ｼ・com.petitworks.nihon_future_map`・峨・繧｢繝励Μ縺悟・縺｣縺ｦ縺・ｋ蝣ｴ蜷医∵眠APK縺ｯ蛻･繧｢繝励Μ縺ｨ縺励※繧､繝ｳ繧ｹ繝医・繝ｫ縺輔ｌ繧具ｼ井ｸ頑嶌縺阪＆繧後↑縺・∵焔蜍輔い繝ｳ繧､繝ｳ繧ｹ繝医・繝ｫ謗ｨ螂ｨ・・
+
+## 25. 繧ｿ繧､繝繝槭す繝ｳ譁ｰ謖・ｨ吶・繧ｯ繧､繧ｺ髮｣譏灘ｺｦ蛻・ｲ撰ｼ・026-07-08・・
+- **繧ｿ繧､繝繝槭す繝ｳ譁ｰ謖・ｨ呵ｿｽ蜉**: 3謖・ｨ吮・**5謖・ｨ・*縺ｫ諡｡螟ｧ・亥現逋りｲｻ繝ｻ遨ｺ縺榊ｮｶ邇・ｒ霑ｽ蜉縲√＞縺壹ｌ繧ＡlowerIsBetter: true`・・
+  - `SegmentedButton`縺・鬆・岼縺ｧ逕ｻ髱｢蟷・ｒ雜・∴繧句庄閭ｽ諤ｧ縺後≠繧九◆繧～SingleChildScrollView`縺ｧ讓ｪ繧ｹ繧ｯ繝ｭ繝ｼ繝ｫ蟇ｾ蠢・
+- **險ｺ譁ｭ繧ｯ繧､繧ｺ縺ｮ髮｣譏灘ｺｦ蛻・ｲ・*: `QuizQuestion`縺ｫ`difficulty`繝輔ぅ繝ｼ繝ｫ繝峨ｒ霑ｽ蜉縺励～LoadQuizQuestions.advanced()`縺ｧ荳顔ｴ壼撫鬘・蝠上ｒ譁ｰ險ｭ・井ｸ闊ｬ莨夊ｨ井ｺ育ｮ礼ｷ城｡阪・逕滓ｴｻ菫晁ｭｷ蜿礼ｵｦ閠・焚繝ｻ蟷ｳ蝮・ｯｿ蜻ｽ繝ｻ豸郁ｲｻ遞主庶繝ｻ蟶ょ玄逕ｺ譚第焚・・
+  - 險ｺ譁ｭ邨先棡縺後檎､ｾ莨夊ｪｲ鬘後・繧ｹ繧ｿ繝ｼ縲榊愛螳壹・蝣ｴ蜷医・縺ｿ縲御ｸ顔ｴ壼撫鬘後↓謖第姶縺吶ｋ縲阪・繧ｿ繝ｳ繧定｡ｨ遉ｺ
+  - `isAdvancedQuizProvider`縺ｧ蜃ｺ鬘後そ繝・ヨ繧貞・繧頑崛縺医、ppBar繧ｿ繧､繝医Ν縺ｫ縲御ｸ顔ｴ壹崎｡ｨ遉ｺ
+  - 縲後ヨ繝・・縺ｫ謌ｻ繧九阪〒荳顔ｴ壹Δ繝ｼ繝峨ｒ繝ｪ繧ｻ繝・ヨ
+- **繝・せ繝郁ｿｽ蜉**: `load_policy_simulation_test.dart`縺ｫ譁ｰ謖・ｨ・莉ｶ縺ｮ繝・せ繝医ｒ霑ｽ蜉・亥・35繝・せ繝茨ｼ・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ35繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・xit code 0縲・7.0遘偵・*51.5MB**・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命
+
+## 24. 霑ｽ蜉螳溯｣・｡医・鬆・ｬ｡螳溯｣・ｼ・026-07-08・・
+- **荳紋ｻ｣蛻･雉帛酔繝槭ャ繝・*: `Challenge.generationAgreement`・域里蟄倥ョ繝ｼ繧ｿ・峨ｒ隱ｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢縺ｫ讓ｪ譽偵げ繝ｩ繝輔〒蜿ｯ隕門喧縲よ怙繧りｳ帛酔蠎ｦ縺碁ｫ倥＞荳紋ｻ｣繧定・蜍輔〒繝上う繝ｩ繧､繝・
+- **SNS縺ｸ縺ｮ逶ｴ謗･繧ｷ繧ｧ繧｢**: `share_plus`繝代ャ繧ｱ繝ｼ繧ｸ繧定ｿｽ蜉縺励√け繝ｪ繝・・繝懊・繝峨さ繝斐・縺ｮ縺ｿ縺縺｣縺溷・譛峨ｒ縲√ロ繧､繝・ぅ繝門・譛峨す繝ｼ繝亥他縺ｳ蜃ｺ縺暦ｼ・INE/X遲峨∈逶ｴ謗･・峨↓螟画峩
+  - `share_preview_screen.dart`: 逕ｻ蜒上ｒ荳譎ゅヵ繧｡繧､繝ｫ縺ｫ譖ｸ縺榊・縺輿Share.shareXFiles`縺ｧ蜈ｱ譛会ｼ・path_provider`縺ｧ荳譎ゅョ繧｣繝ｬ繧ｯ繝医Μ蜿門ｾ暦ｼ・
+  - `quiz_result_screen.dart`: `Share.share()`縺ｧ繝・く繧ｹ繝亥・譛峨√け繝ｪ繝・・繝懊・繝峨さ繝斐・縺ｯ繧ｵ繝悶・繧ｿ繝ｳ縺ｨ縺励※菴ｵ蟄・
+- **隱ｲ鬘後∈縺ｮ繧ｳ繝｡繝ｳ繝域ｩ溯・**: `Comment`繧ｨ繝ｳ繝・ぅ繝・ぅ譁ｰ險ｭ縲：irestore縺ｮ`challenges/{id}/comments`繧ｵ繝悶さ繝ｬ繧ｯ繧ｷ繝ｧ繝ｳ縺ｫ謚慕ｨｿ繝ｻ蜿門ｾ励☆繧義FirebaseService`繝｡繧ｽ繝・ラ繧定ｿｽ蜉縲りｪｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢縺ｫ蜈･蜉帶ｬ・ｼ九さ繝｡繝ｳ繝井ｸ隕ｧ繧貞ｮ溯｣・
+- **繝薙Ν繝蛾囿螳ｳ縺ｨ蟇ｾ蜃ｦ**・・谿ｵ髫趣ｼ・
+  1. `compileSdk = flutter.compileSdkVersion`・・3逶ｸ蠖難ｼ俄・ `compileSdk = 36`縺ｫ蝗ｺ螳壹＠縺溘′隗｣豎ｺ縺帙★
+  2. 逵溷屏縺ｯ`share_plus 7.2.2`閾ｪ菴薙・AAR縺悟商縺・ndroidx萓晏ｭ倥ｒ螳｣險縺励※縺翫ｊcompileSdk險ｭ螳壹→辟｡髢｢菫ゅ↓遶ｶ蜷・竊・`share_plus: ^10.0.0`縺ｫ繧｢繝・・繧ｰ繝ｬ繝ｼ繝峨＠縺ｦ隗｣豎ｺ・・lassic `Share.share()`/`Share.shareXFiles()` API縺ｮ縺ｾ縺ｾ蛻ｩ逕ｨ蜿ｯ閭ｽ・・
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ33繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・xit code 0縲・30.5遘偵・*51.5MB**・・
+- 笞・・Firestore縺ｸ縺ｮ繧ｳ繝｡繝ｳ繝域兜遞ｿ繝ｻ蜿門ｾ励ヾNS繧ｷ繧ｧ繧｢繧ｷ繝ｼ繝医・螳滓ｩ溷虚菴懊・譛ｪ讀懆ｨｼ・域ｬ｡蝗槫ｮ滓ｩ溽｢ｺ隱阪〒隕√メ繧ｧ繝・け・・
+
+## 23. 繧ｳ繝ｳ繝・Φ繝・・螳溘・逋ｺ隕区ｩ溯・繝ｻ繧ｰ繝ｩ繝穂ｿｮ豁｣・・026-07-08・・
+- **繧ｰ繝ｩ繝墓ｨｪ霆ｸ繝舌げ菫ｮ豁｣**: fl_chart縺ｮ`bottomTitles`縺ｫ`interval`譛ｪ謖・ｮ壹□縺｣縺溘◆繧∬ｻｸ繝ｩ繝吶Ν縺碁㍾隍・｡ｨ遉ｺ・医・023 2023 2030 2030窶ｦ縲搾ｼ峨＆繧後※縺・◆ 竊・`interval: 1`繧呈・遉ｺ縺輿value.round()`縺ｧ荳ｸ繧√ｋ繧医≧菫ｮ豁｣・・macro_dashboard_screen.dart`縺ｮ2邂・園縲～challenge_detail_screen.dart`縺ｮ1邂・園・・
+- **隱ｲ鬘瑚ｪｬ譏弱・蜈・ｮ・*: `ChallengeDetail`縺ｫ`detailedDescription`繝輔ぅ繝ｼ繝ｫ繝峨ｒ譁ｰ險ｭ縲ょ・15隱ｲ鬘後↓閭梧勹隱ｬ譏趣ｼ・縲・譁・ｼ峨ｒ霑ｽ蜉縺励∬ｩｳ邏ｰ逕ｻ髱｢縺ｫ陦ｨ遉ｺ
+- **逕滓ｴｻ蠖ｱ髻ｿ縺ｮ蜈ｷ菴灘喧**: 蜈ｨ15隱ｲ鬘後・`outlook20Years`/`outlook50Years`繧偵√・繧ｯ繝ｭ縺ｪ謨ｰ蛟､縺縺代〒縺ｪ縺上檎ｵｦ荳取・邏ｰ縺ｮ菫晞匱譁吶阪碁ｲ蟄ｦ縺ｮ驕ｸ謚櫁い縲阪悟ｮ溷ｮｶ縺ｮ遨ｺ縺榊ｮｶ縲阪↑縺ｩ蜈ｷ菴鍋噪縺ｪ逕滓ｴｻ繧ｷ繝ｼ繝ｳ縺ｫ邏舌▼縺代◆險倩ｿｰ縺ｫ譖ｸ縺肴鋤縺・
+- **逋ｺ隕区ｩ溯・・域眠隕擾ｼ・*:
+  - 繧ｫ繝・ざ繝ｪ繝輔ぅ繝ｫ繧ｿ繝ｼ繝√ャ繝暦ｼ医☆縺ｹ縺ｦ/邨梧ｸ・遖冗･・莠ｺ蜿｣/謾ｿ豐ｻ/雋｡謾ｿ・峨ｒ隱ｲ鬘御ｸ隕ｧ荳企Κ縺ｫ霑ｽ蜉
+  - 縲後≠縺ｪ縺溘↓縺翫☆縺吶ａ縲阪そ繧ｯ繧ｷ繝ｧ繝ｳ: 謚慕･ｨ貂医∩隱ｲ鬘後・繧ｫ繝・ざ繝ｪ縺ｫ霑代＞譛ｪ謚慕･ｨ隱ｲ鬘後ｒ謚慕･ｨ謨ｰ鬆・↓譛螟ｧ2莉ｶ陦ｨ遉ｺ・・votedChallengeIdsProvider`縺ｧ謚慕･ｨ螻･豁ｴ繧偵そ繝・す繝ｧ繝ｳ蜀・ｿｽ霍｡・・
+  - AppBar縺ｫ騾ｱ蛻翫Λ繝ｳ繧ｭ繝ｳ繧ｰ逕ｻ髱｢縺ｸ縺ｮ蟆守ｷ夲ｼ・Icons.leaderboard_outlined`・峨ｒ霑ｽ蜉
+
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ33繝・せ繝磯夐℃
+- 笨・`flutter build apk --release` 謌仙粥・・xit code 0縲・37.1遘偵・*50.9MB**・・
+- 竢ｸ 螳滓ｩ溘〒縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命・域ｬ｡蝗槭そ繝・す繝ｧ繝ｳ縺ｧ遒ｺ隱肴耳螂ｨ・・
+
+## 22. 螳滓ｩ溘ヰ繧ｰ菫ｮ豁｣・・026-07-08・・
+- **逋ｽ逕ｻ髱｢繧ｯ繝ｩ繝・す繝･菫ｮ豁｣**: 譛ｪ菴ｿ逕ｨ縺ｮ`firebase_crashlytics`縺熊irebase蛻晄悄蛹匁凾縺ｫNullPointerException繧堤匱逕溘＆縺帙※縺・◆ 竊・pubspec.yaml縺九ｉ蜑企勁
+- **繧ｷ繧ｧ繧｢繧ｫ繝ｼ繝蛾㍾縺ｪ繧贋ｿｮ豁｣**: 髱櫁｡ｨ遉ｺ繧ｭ繝｣繝励メ繝｣逕ｨ繧ｦ繧｣繧ｸ繧ｧ繝・ヨ縺形OverflowBox`蜊倅ｽ薙□縺ｨ縺昴・蝣ｴ縺ｫ謠冗判縺輔ｌ蜿ｯ隕悶さ繝ｳ繝・Φ繝・→驥阪↑繧・竊・`Transform.translate(-9999,-9999)`縺ｧ螳滄圀縺ｫ逕ｻ髱｢螟悶∈遘ｻ蜍・
+- **繧ｷ繧ｧ繧｢逕ｻ蜒上・遨ｺ逋ｽ菫ｮ豁｣**: `LossShareCard`蜀・Column`縺形mainAxisSize.max`縺ｮ縺ｾ縺ｾ繧ｭ繝｣繝励メ繝｣譎ゅ・`maxHeight:900`縺ｾ縺ｧ蠑輔″莨ｸ縺ｰ縺輔ｌ縲∽ｽ咏區縺斐→逕ｻ蜒丞喧縺輔ｌ縺ｦ縺・◆ 竊・`mainAxisSize.min`縺ｫ螟画峩
+- **繧｢繝励Μ襍ｷ蜍輔ヵ繝ｭ繝ｼ螟画峩**: `main.dart`縺ｮ`home`繧蛋AgeInputScreen`縺九ｉ`MacroDashboardScreen`縺ｫ螟画峩縲ょｹｴ驥題ｨ育ｮ励・縲後≠縺ｪ縺溘・蟷ｴ驥代・蠕暦ｼ滓錐・溘阪→縺・≧騾壼ｸｸ縺ｮ隱ｲ鬘後き繝ｼ繝会ｼ・id: 'my_pension_balance'`, category: welfare・峨→縺励※隱ｲ鬘御ｸ隕ｧ縺ｮ蜈磯ｭ縺ｫ邨ｱ蜷医＠縲√ち繝・・縺ｧ`AgeInputScreen`縺ｫ驕ｷ遘ｻ縺吶ｋ譁ｹ蠑上↓螟画峩
+- **螳滓ｩ溽｢ｺ隱肴ｸ医∩**・・iautomator dump縺ｧ豁｣遒ｺ縺ｪ蠎ｧ讓吶ｒ蜿門ｾ励＠讀懆ｨｼ・・
+  - 繧ｳ繝ｼ繝ｫ繝峨せ繧ｿ繝ｼ繝郁ｵｷ蜍・竊・繝槭け繝ｭ繝繝・す繝･繝懊・繝画ｭ｣蟶ｸ陦ｨ遉ｺ
+  - 縲瑚ｪｲ鬘後↓謚慕･ｨ縺吶ｋ縲坂・ 隱ｲ鬘御ｸ隕ｧ驕ｷ遘ｻ豁｣蟶ｸ
+  - 蟷ｴ驥代き繝ｼ繝・竊・繧ｿ繝・・縺ｧ蟷ｴ鮨｢蜈･蜉帷判髱｢縺ｫ豁｣蟶ｸ驕ｷ遘ｻ
+  - 繧ｷ繧ｧ繧｢繧ｫ繝ｼ繝臥函謌撰ｼ磯㍾縺ｪ繧翫・遨ｺ逋ｽ縺ｪ縺暦ｼ・
+- **APK**: `H:\繝槭う繝峨Λ繧､繝暴apk\nihon_future_map-app-release.apk`・・0.8MB・・
 
 ---
 
-## ✅ 完了した実装
+## 笨・螳御ｺ・＠縺溷ｮ溯｣・
 
-### 1. 年金損益計算エンジン（核心ロジック）
-- **ファイル**: `lib/application/usecases/calculate_pension_loss.dart`
-- **機能**:
-  - 年齢を入力 → 生涯年金損益を計算
-  - 厚労省公式データ使用（2026年度）
-  - 昇給率: 年2% を考慮
-  - 20～80歳対応
-- **特徴**:
-  - 外部ライブラリ非依存（確認性重視）
-  - Unit Test 8個全通過
-  - 損失率計算・カテゴリ分類機能付き
+### 1. 蟷ｴ驥第錐逶願ｨ育ｮ励お繝ｳ繧ｸ繝ｳ・域ｸ蠢・Ο繧ｸ繝・け・・
+- **繝輔ぃ繧､繝ｫ**: `lib/application/usecases/calculate_pension_loss.dart`
+- **讖溯・**:
+  - 蟷ｴ鮨｢繧貞・蜉・竊・逕滓ｶｯ蟷ｴ驥第錐逶翫ｒ險育ｮ・
+  - 蜴壼感逵∝・蠑上ョ繝ｼ繧ｿ菴ｿ逕ｨ・・026蟷ｴ蠎ｦ・・
+  - 譏・ｵｦ邇・ 蟷ｴ2% 繧定・・
+  - 20・・0豁ｳ蟇ｾ蠢・
+- **迚ｹ蠕ｴ**:
+  - 螟夜Κ繝ｩ繧､繝悶Λ繝ｪ髱樔ｾ晏ｭ假ｼ育｢ｺ隱肴ｧ驥崎ｦ厄ｼ・
+  - Unit Test 8蛟句・騾夐℃
+  - 謳榊､ｱ邇・ｨ育ｮ励・繧ｫ繝・ざ繝ｪ蛻・｡樊ｩ溯・莉倥″
 
-**テスト結果** ✅
+**繝・せ繝育ｵ先棡** 笨・
 ```
 CalculatePensionLoss
-  ✓ 30歳の男性: 年金損失を正しく計算
-  ✓ 25歳の若者: 長期納付による影響
-  ✓ 60歳: わずか5年間の納付
-  ✓ 20歳: 最長45年間の納付期間
-  ✓ 各年代カテゴリの給与が正しく適用される
-  ✓ 損失率の計算が正確
-  ✓ 無効な年齢は例外をスロー
-  ✓ toString形式が適切
-→ All tests passed!
+  笨・30豁ｳ縺ｮ逕ｷ諤ｧ: 蟷ｴ驥第錐螟ｱ繧呈ｭ｣縺励￥險育ｮ・
+  笨・25豁ｳ縺ｮ闍･閠・ 髟ｷ譛溽ｴ堺ｻ倥↓繧医ｋ蠖ｱ髻ｿ
+  笨・60豁ｳ: 繧上★縺・蟷ｴ髢薙・邏堺ｻ・
+  笨・20豁ｳ: 譛髟ｷ45蟷ｴ髢薙・邏堺ｻ俶悄髢・
+  笨・蜷・ｹｴ莉｣繧ｫ繝・ざ繝ｪ縺ｮ邨ｦ荳弱′豁｣縺励￥驕ｩ逕ｨ縺輔ｌ繧・
+  笨・謳榊､ｱ邇・・險育ｮ励′豁｣遒ｺ
+  笨・辟｡蜉ｹ縺ｪ蟷ｴ鮨｢縺ｯ萓句､悶ｒ繧ｹ繝ｭ繝ｼ
+  笨・toString蠖｢蠑上′驕ｩ蛻・
+竊・All tests passed!
 ```
 
-### 2. データモデル・エンティティ
+### 2. 繝・・繧ｿ繝｢繝・Ν繝ｻ繧ｨ繝ｳ繝・ぅ繝・ぅ
 - **User**: uid, age, occupation, region, createdAt, isPremium, votedChallenges, agreeCount
 - **PensionCalculation**: age, totalContributions, totalBenefits, netLoss, category
 
 ### 3. Riverpod Provider
-- **ファイル**: `lib/application/providers/pension_provider.dart`
-- `pensionCalculationProvider`: 年齢 → 計算結果
-- `userAgeProvider`: ユーザーの選択年齢を保持
-- `selectedPensionProvider`: 選択年齢での計算結果
+- **繝輔ぃ繧､繝ｫ**: `lib/application/providers/pension_provider.dart`
+- `pensionCalculationProvider`: 蟷ｴ鮨｢ 竊・險育ｮ礼ｵ先棡
+- `userAgeProvider`: 繝ｦ繝ｼ繧ｶ繝ｼ縺ｮ驕ｸ謚槫ｹｴ鮨｢繧剃ｿ晄戟
+- `selectedPensionProvider`: 驕ｸ謚槫ｹｴ鮨｢縺ｧ縺ｮ險育ｮ礼ｵ先棡
 
-### 4. 年齢入力画面（Aha Moment UI）
-- **ファイル**: `lib/presentation/screens/age_input_screen.dart`
-- **機能**:
-  - 年齢を入力（20～80）
-  - 「計算する」ボタン → 結果表示
-  - 生涯損益を赤字/黒字で表示
-  - 「別の年齢で計算」で再計算可能
+### 4. 蟷ｴ鮨｢蜈･蜉帷判髱｢・・ha Moment UI・・
+- **繝輔ぃ繧､繝ｫ**: `lib/presentation/screens/age_input_screen.dart`
+- **讖溯・**:
+  - 蟷ｴ鮨｢繧貞・蜉幢ｼ・0・・0・・
+  - 縲瑚ｨ育ｮ励☆繧九阪・繧ｿ繝ｳ 竊・邨先棡陦ｨ遉ｺ
+  - 逕滓ｶｯ謳咲寢繧定ｵ､蟄・鮟貞ｭ励〒陦ｨ遉ｺ
+  - 縲悟挨縺ｮ蟷ｴ鮨｢縺ｧ險育ｮ励阪〒蜀崎ｨ育ｮ怜庄閭ｽ
 
-### 5. プロジェクト基盤
-- ✅ Flutter 3.44.0 初期化
-- ✅ pubspec.yaml: firebase, riverpod, fl_chart, hive 依存関係設定
-- ✅ ディレクトリ構成: domain/application/infrastructure/presentation 分層
+### 5. 繝励Ο繧ｸ繧ｧ繧ｯ繝亥渕逶､
+- 笨・Flutter 3.44.0 蛻晄悄蛹・
+- 笨・pubspec.yaml: firebase, riverpod, fl_chart, hive 萓晏ｭ倬未菫りｨｭ螳・
+- 笨・繝・ぅ繝ｬ繧ｯ繝医Μ讒区・: domain/application/infrastructure/presentation 蛻・ｱ､
 
-### 6. マクロダッシュボード（グラフ表示）
-- **ファイル**: `lib/presentation/screens/macro_dashboard_screen.dart`
-- **機能**:
-  - 人口推移グラフ（2023→2070）
-  - 予算配分 円グラフ（社保/利息/防衛等）
-  - 困窮状況 棒グラフ（低収入/失業/非正規等）
-- **グラフ**: fl_chart で複数チャート対応
-- **データソース**: LoadMacroDashboard usecase
+### 6. 繝槭け繝ｭ繝繝・す繝･繝懊・繝会ｼ医げ繝ｩ繝戊｡ｨ遉ｺ・・
+- **繝輔ぃ繧､繝ｫ**: `lib/presentation/screens/macro_dashboard_screen.dart`
+- **讖溯・**:
+  - 莠ｺ蜿｣謗ｨ遘ｻ繧ｰ繝ｩ繝包ｼ・023竊・070・・
+  - 莠育ｮ鈴・蛻・蜀・げ繝ｩ繝包ｼ育､ｾ菫・蛻ｩ諱ｯ/髦ｲ陦帷ｭ会ｼ・
+  - 蝗ｰ遯ｮ迥ｶ豕・譽偵げ繝ｩ繝包ｼ井ｽ主庶蜈･/螟ｱ讌ｭ/髱樊ｭ｣隕冗ｭ会ｼ・
+- **繧ｰ繝ｩ繝・*: fl_chart 縺ｧ隍・焚繝√Ε繝ｼ繝亥ｯｾ蠢・
+- **繝・・繧ｿ繧ｽ繝ｼ繧ｹ**: LoadMacroDashboard usecase
 
-### 7. ナビゲーション統合
-- 年齢入力 → 結果表示 → 「日本の将来予測を見る」ボタン
-- Dashboard への遷移完装備
+### 7. 繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ邨ｱ蜷・
+- 蟷ｴ鮨｢蜈･蜉・竊・邨先棡陦ｨ遉ｺ 竊・縲梧律譛ｬ縺ｮ蟆・擂莠域ｸｬ繧定ｦ九ｋ縲阪・繧ｿ繝ｳ
+- Dashboard 縺ｸ縺ｮ驕ｷ遘ｻ螳瑚｣・ｙ
 
-### 8. Firebase 統合（Week 3）
-- **認証**: Firebase Anonymous Auth
-- **ファイル**: `lib/infrastructure/firebase/firebase_service.dart`
-- **機能**:
-  - 匿名認証（自動）
-  - Challenge（課題）データ取得
-  - 投票機能（vote）
-  - 賛同機能（agree）
-- **データモデル**: Challenge（id, name, category, voteCount, agreeCount等）
+### 8. Firebase 邨ｱ蜷茨ｼ・eek 3・・
+- **隱崎ｨｼ**: Firebase Anonymous Auth
+- **繝輔ぃ繧､繝ｫ**: `lib/infrastructure/firebase/firebase_service.dart`
+- **讖溯・**:
+  - 蛹ｿ蜷崎ｪ崎ｨｼ・郁・蜍包ｼ・
+  - Challenge・郁ｪｲ鬘鯉ｼ峨ョ繝ｼ繧ｿ蜿門ｾ・
+  - 謚慕･ｨ讖溯・・・ote・・
+  - 雉帛酔讖溯・・・gree・・
+- **繝・・繧ｿ繝｢繝・Ν**: Challenge・・d, name, category, voteCount, agreeCount遲会ｼ・
 
-### 9. 投票画面（ChallengeListScreen）
-- **ファイル**: `lib/presentation/screens/challenge_list_screen.dart`
-- **機能**:
-  - 5つの社会課題をカード表示
-  - 「投票する」ボタン（リアルタイム投票数更新）
-  - 「これは問題」ボタン（賛同機能）
-  - カテゴリ別カラー表示
-- **課題内容**:
-  1. 所得の停滞
-  2. 年金危機
-  3. 人口減少
-  4. 政治家の待遇
-  5. 国債残高
+### 9. 謚慕･ｨ逕ｻ髱｢・・hallengeListScreen・・
+- **繝輔ぃ繧､繝ｫ**: `lib/presentation/screens/challenge_list_screen.dart`
+- **讖溯・**:
+  - 5縺､縺ｮ遉ｾ莨夊ｪｲ鬘後ｒ繧ｫ繝ｼ繝芽｡ｨ遉ｺ
+  - 縲梧兜逾ｨ縺吶ｋ縲阪・繧ｿ繝ｳ・医Μ繧｢繝ｫ繧ｿ繧､繝謚慕･ｨ謨ｰ譖ｴ譁ｰ・・
+  - 縲後％繧後・蝠城｡後阪・繧ｿ繝ｳ・郁ｳ帛酔讖溯・・・
+  - 繧ｫ繝・ざ繝ｪ蛻･繧ｫ繝ｩ繝ｼ陦ｨ遉ｺ
+- **隱ｲ鬘悟・螳ｹ**:
+  1. 謇蠕励・蛛懈ｻ・
+  2. 蟷ｴ驥大些讖・
+  3. 莠ｺ蜿｣貂帛ｰ・
+  4. 謾ｿ豐ｻ螳ｶ縺ｮ蠕・∞
+  5. 蝗ｽ蛯ｵ谿矩ｫ・
 
-### 10. Provider 統合
-- `firebaseServiceProvider`: Firebase Service の DI
-- `userIdProvider`: 認証 UID 取得・自動匿名サインイン
-- `challengesProvider`: 課題一覧（モックデータ）
-- `voteChallengeProvider`: 投票実行
-- `agreeChallengeProvider`: 賛同実行
+### 10. Provider 邨ｱ蜷・
+- `firebaseServiceProvider`: Firebase Service 縺ｮ DI
+- `userIdProvider`: 隱崎ｨｼ UID 蜿門ｾ励・閾ｪ蜍募諺蜷阪し繧､繝ｳ繧､繝ｳ
+- `challengesProvider`: 隱ｲ鬘御ｸ隕ｧ・医Δ繝・け繝・・繧ｿ・・
+- `voteChallengeProvider`: 謚慕･ｨ螳溯｡・
+- `agreeChallengeProvider`: 雉帛酔螳溯｡・
 
-### 11. デザインシステム統一（シンプル化）
-- **ファイル**: `lib/presentation/theme/app_theme.dart`
-- **狙い**: 「わかりやすく、シンプルに」を徹底し、画面ごとにバラバラだった色・角丸・余白を一元管理
+### 11. 繝・じ繧､繝ｳ繧ｷ繧ｹ繝・Β邨ｱ荳・医す繝ｳ繝励Ν蛹厄ｼ・
+- **繝輔ぃ繧､繝ｫ**: `lib/presentation/theme/app_theme.dart`
+- **迢吶＞**: 縲後ｏ縺九ｊ繧・☆縺上√す繝ｳ繝励Ν縺ｫ縲阪ｒ蠕ｹ蠎輔＠縲∫判髱｢縺斐→縺ｫ繝舌Λ繝舌Λ縺縺｣縺溯牡繝ｻ隗剃ｸｸ繝ｻ菴咏區繧剃ｸ蜈・ｮ｡逅・
 - **AppColors**:
-  - ブランド色（青）、課題カテゴリ5色、赤字/黒字用ステータス色
-  - ニュートラルカラー階層（textPrimary/Secondary/Muted、border、background）
-  - `categoryColor()` / `categoryLabel()` でカテゴリ→色/日本語ラベル変換を一元化
-- **AppTheme.light**: ElevatedButton/OutlinedButton/Card/TextField を角丸14〜16pxで統一、AppBarをフラット化
-- **AppSpacing / AppRadius**: マジックナンバー排除（4/8/16/24/32/48の余白スケール）
+  - 繝悶Λ繝ｳ繝芽牡・磯搨・峨∬ｪｲ鬘後き繝・ざ繝ｪ5濶ｲ縲∬ｵ､蟄・鮟貞ｭ礼畑繧ｹ繝・・繧ｿ繧ｹ濶ｲ
+  - 繝九Η繝ｼ繝医Λ繝ｫ繧ｫ繝ｩ繝ｼ髫主ｱ､・・extPrimary/Secondary/Muted縲｜order縲｜ackground・・
+  - `categoryColor()` / `categoryLabel()` 縺ｧ繧ｫ繝・ざ繝ｪ竊定牡/譌･譛ｬ隱槭Λ繝吶Ν螟画鋤繧剃ｸ蜈・喧
+- **AppTheme.light**: ElevatedButton/OutlinedButton/Card/TextField 繧定ｧ剃ｸｸ14縲・6px縺ｧ邨ｱ荳縲、ppBar繧偵ヵ繝ｩ繝・ヨ蛹・
+- **AppSpacing / AppRadius**: 繝槭ず繝・け繝翫Φ繝舌・謗帝勁・・/8/16/24/32/48縺ｮ菴咏區繧ｹ繧ｱ繝ｼ繝ｫ・・
 
-**画面ごとの変更点**:
-| 画面 | Before | After |
+**逕ｻ髱｢縺斐→縺ｮ螟画峩轤ｹ**:
+| 逕ｻ髱｢ | Before | After |
 |-----|--------|-------|
-| 年齢入力 | 質問+ボタン+結果カードが縦に羅列 | 「得？損？」の問いを1枚に集約、数字を40ptで主役化、内訳は2列カードに整理 |
-| ダッシュボード | 3グラフ+リストが単純に縦積み | 各グラフを白カードで区切り、予算配分・困窮状況はグラフ→プログレスバー方式に変更して数値を読みやすく |
-| 投票画面 | カード内の要素が均等配置 | カテゴリバッジ・投票数を右上にコンパクト化、ボタンにカテゴリカラーを適用 |
+| 蟷ｴ鮨｢蜈･蜉・| 雉ｪ蝠・繝懊ち繝ｳ+邨先棡繧ｫ繝ｼ繝峨′邵ｦ縺ｫ鄒・・ | 縲悟ｾ暦ｼ滓錐・溘阪・蝠上＞繧・譫壹↓髮・ｴ・∵焚蟄励ｒ40pt縺ｧ荳ｻ蠖ｹ蛹悶∝・險ｳ縺ｯ2蛻励き繝ｼ繝峨↓謨ｴ逅・|
+| 繝繝・す繝･繝懊・繝・| 3繧ｰ繝ｩ繝・繝ｪ繧ｹ繝医′蜊倡ｴ斐↓邵ｦ遨阪∩ | 蜷・げ繝ｩ繝輔ｒ逋ｽ繧ｫ繝ｼ繝峨〒蛹ｺ蛻・ｊ縲∽ｺ育ｮ鈴・蛻・・蝗ｰ遯ｮ迥ｶ豕√・繧ｰ繝ｩ繝補・繝励Ο繧ｰ繝ｬ繧ｹ繝舌・譁ｹ蠑上↓螟画峩縺励※謨ｰ蛟､繧定ｪｭ縺ｿ繧・☆縺・|
+| 謚慕･ｨ逕ｻ髱｢ | 繧ｫ繝ｼ繝牙・縺ｮ隕∫ｴ縺悟插遲蛾・鄂ｮ | 繧ｫ繝・ざ繝ｪ繝舌ャ繧ｸ繝ｻ謚慕･ｨ謨ｰ繧貞承荳翫↓繧ｳ繝ｳ繝代け繝亥喧縲√・繧ｿ繝ｳ縺ｫ繧ｫ繝・ざ繝ｪ繧ｫ繝ｩ繝ｼ繧帝←逕ｨ |
 
-**確認事項**:
-- ✅ `flutter build web --release` が正常完了（コンパイルエラーなし）
-- ✅ Unit Test 8個は変更なしで全通過
-- ⚠️ このサンドボックス環境では CanvasKit(WebGL) のスクリーンショット取得ができず、実機/ローカルでの目視確認は未実施。ローカルで `flutter run -d chrome` または実機での確認を推奨
+**遒ｺ隱堺ｺ矩・*:
+- 笨・`flutter build web --release` 縺梧ｭ｣蟶ｸ螳御ｺ・ｼ医さ繝ｳ繝代う繝ｫ繧ｨ繝ｩ繝ｼ縺ｪ縺暦ｼ・
+- 笨・Unit Test 8蛟九・螟画峩縺ｪ縺励〒蜈ｨ騾夐℃
+- 笞・・縺薙・繧ｵ繝ｳ繝峨・繝・け繧ｹ迺ｰ蠅・〒縺ｯ CanvasKit(WebGL) 縺ｮ繧ｹ繧ｯ繝ｪ繝ｼ繝ｳ繧ｷ繝ｧ繝・ヨ蜿門ｾ励′縺ｧ縺阪★縲∝ｮ滓ｩ・繝ｭ繝ｼ繧ｫ繝ｫ縺ｧ縺ｮ逶ｮ隕也｢ｺ隱阪・譛ｪ螳滓命縲ゅΟ繝ｼ繧ｫ繝ｫ縺ｧ `flutter run -d chrome` 縺ｾ縺溘・螳滓ｩ溘〒縺ｮ遒ｺ隱阪ｒ謗ｨ螂ｨ
 
-### 12. 課題詳細ページ（公式 vs 民間データ並行表示）
-- **ファイル**: `lib/presentation/screens/challenge_detail_screen.dart`
-- **データモデル**: `lib/domain/entities/challenge_data.dart`（ChallengeDataSeries, ChallengeDataPoint, ChallengeDetail）
-- **データ**: `lib/application/usecases/load_challenge_detail.dart`（5課題分のモックデータ）
-- **機能**:
-  - 「あなたの生活とのつながり」でマクロ→ミクロの接続を説明
-  - 公式データ vs 民間分析を2本の折れ線グラフで並行表示（民間側は破線）
-  - 各データソースのカード表示（出典・乖離理由の注記）
-- **ナビゲーション**: 投票画面のカードをタップ → 詳細画面へ遷移（`InkWell` + `Material` でタップ領域化）
-- **対応課題**: 所得の停滞・年金危機・人口減少・政治家の待遇・国債残高の5件全てにデータ整備済み
+### 12. 隱ｲ鬘瑚ｩｳ邏ｰ繝壹・繧ｸ・亥・蠑・vs 豌鷹俣繝・・繧ｿ荳ｦ陦瑚｡ｨ遉ｺ・・
+- **繝輔ぃ繧､繝ｫ**: `lib/presentation/screens/challenge_detail_screen.dart`
+- **繝・・繧ｿ繝｢繝・Ν**: `lib/domain/entities/challenge_data.dart`・・hallengeDataSeries, ChallengeDataPoint, ChallengeDetail・・
+- **繝・・繧ｿ**: `lib/application/usecases/load_challenge_detail.dart`・・隱ｲ鬘悟・縺ｮ繝｢繝・け繝・・繧ｿ・・
+- **讖溯・**:
+  - 縲後≠縺ｪ縺溘・逕滓ｴｻ縺ｨ縺ｮ縺､縺ｪ縺後ｊ縲阪〒繝槭け繝ｭ竊偵Α繧ｯ繝ｭ縺ｮ謗･邯壹ｒ隱ｬ譏・
+  - 蜈ｬ蠑上ョ繝ｼ繧ｿ vs 豌鷹俣蛻・梵繧・譛ｬ縺ｮ謚倥ｌ邱壹げ繝ｩ繝輔〒荳ｦ陦瑚｡ｨ遉ｺ・域ｰ鷹俣蛛ｴ縺ｯ遐ｴ邱夲ｼ・
+  - 蜷・ョ繝ｼ繧ｿ繧ｽ繝ｼ繧ｹ縺ｮ繧ｫ繝ｼ繝芽｡ｨ遉ｺ・亥・蜈ｸ繝ｻ荵夜屬逅・罰縺ｮ豕ｨ險假ｼ・
+- **繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ**: 謚慕･ｨ逕ｻ髱｢縺ｮ繧ｫ繝ｼ繝峨ｒ繧ｿ繝・・ 竊・隧ｳ邏ｰ逕ｻ髱｢縺ｸ驕ｷ遘ｻ・・InkWell` + `Material` 縺ｧ繧ｿ繝・・鬆伜沺蛹厄ｼ・
+- **蟇ｾ蠢懆ｪｲ鬘・*: 謇蠕励・蛛懈ｻ槭・蟷ｴ驥大些讖溘・莠ｺ蜿｣貂帛ｰ代・謾ｿ豐ｻ螳ｶ縺ｮ蠕・∞繝ｻ蝗ｽ蛯ｵ谿矩ｫ倥・5莉ｶ蜈ｨ縺ｦ縺ｫ繝・・繧ｿ謨ｴ蛯呎ｸ医∩
 
-**確認事項**:
-- ✅ `flutter build web --release` が正常完了（コンパイルエラーなし、138.8秒）
-- ✅ Unit Test 8個は変更なしで全通過
+**遒ｺ隱堺ｺ矩・*:
+- 笨・`flutter build web --release` 縺梧ｭ｣蟶ｸ螳御ｺ・ｼ医さ繝ｳ繝代う繝ｫ繧ｨ繝ｩ繝ｼ縺ｪ縺励・38.8遘抵ｼ・
+- 笨・Unit Test 8蛟九・螟画峩縺ｪ縺励〒蜈ｨ騾夐℃
 
-### 13. タイムマシンスライダー（政策シミュレーション）
-- **ファイル**: `lib/presentation/screens/time_machine_screen.dart`
-- **データモデル**: `lib/domain/entities/policy_scenario.dart`（PolicyYearData, PolicySimulation, PolicyType enum）
-- **データ**: `lib/application/usecases/load_policy_simulation.dart`（2026〜2070年、年単位で線形補間）
-- **機能**:
-  - 人口推移を「現状維持・与党案・野党案・専門家案」の4シナリオで比較
-  - スライダーで年を動かすと、選択年の垂直マーカーがグラフ上をリアルタイム移動
-  - 各シナリオの数値カードに、現状維持との差分（±）を色分け表示
-- **Provider**: `policySimulationProvider`（データ生成）, `selectedYearProvider`（スライダー選択年の状態管理）
-- **ナビゲーション**: ダッシュボードの人口推移グラフ直下に「政策でどう変わる？タイムマシンで見る」ボタンを設置
+### 13. 繧ｿ繧､繝繝槭す繝ｳ繧ｹ繝ｩ繧､繝繝ｼ・域帆遲悶す繝溘Η繝ｬ繝ｼ繧ｷ繝ｧ繝ｳ・・
+- **繝輔ぃ繧､繝ｫ**: `lib/presentation/screens/time_machine_screen.dart`
+- **繝・・繧ｿ繝｢繝・Ν**: `lib/domain/entities/policy_scenario.dart`・・olicyYearData, PolicySimulation, PolicyType enum・・
+- **繝・・繧ｿ**: `lib/application/usecases/load_policy_simulation.dart`・・026縲・070蟷ｴ縲∝ｹｴ蜊倅ｽ阪〒邱壼ｽ｢陬憺俣・・
+- **讖溯・**:
+  - 莠ｺ蜿｣謗ｨ遘ｻ繧偵檎樟迥ｶ邯ｭ謖√・荳主・譯医・驥主・譯医・蟆る摩螳ｶ譯医阪・4繧ｷ繝翫Μ繧ｪ縺ｧ豈碑ｼ・
+  - 繧ｹ繝ｩ繧､繝繝ｼ縺ｧ蟷ｴ繧貞虚縺九☆縺ｨ縲・∈謚槫ｹｴ縺ｮ蝙ら峩繝槭・繧ｫ繝ｼ縺後げ繝ｩ繝穂ｸ翫ｒ繝ｪ繧｢繝ｫ繧ｿ繧､繝遘ｻ蜍・
+  - 蜷・す繝翫Μ繧ｪ縺ｮ謨ｰ蛟､繧ｫ繝ｼ繝峨↓縲∫樟迥ｶ邯ｭ謖√→縺ｮ蟾ｮ蛻・ｼ按ｱ・峨ｒ濶ｲ蛻・￠陦ｨ遉ｺ
+- **Provider**: `policySimulationProvider`・医ョ繝ｼ繧ｿ逕滓・・・ `selectedYearProvider`・医せ繝ｩ繧､繝繝ｼ驕ｸ謚槫ｹｴ縺ｮ迥ｶ諷狗ｮ｡逅・ｼ・
+- **繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ**: 繝繝・す繝･繝懊・繝峨・莠ｺ蜿｣謗ｨ遘ｻ繧ｰ繝ｩ繝慕峩荳九↓縲梧帆遲悶〒縺ｩ縺・､峨ｏ繧具ｼ溘ち繧､繝繝槭す繝ｳ縺ｧ隕九ｋ縲阪・繧ｿ繝ｳ繧定ｨｭ鄂ｮ
 
-**確認事項**:
-- ✅ `flutter build web --release` が正常完了（コンパイルエラーなし、210.7秒）
-- ✅ Unit Test 8個は変更なしで全通過
+**遒ｺ隱堺ｺ矩・*:
+- 笨・`flutter build web --release` 縺梧ｭ｣蟶ｸ螳御ｺ・ｼ医さ繝ｳ繝代う繝ｫ繧ｨ繝ｩ繝ｼ縺ｪ縺励・10.7遘抵ｼ・
+- 笨・Unit Test 8蛟九・螟画峩縺ｪ縺励〒蜈ｨ騾夐℃
 
-### 14. ギャップクイズ・診断機能
-- **データモデル**: `lib/domain/entities/quiz.dart`（QuizQuestion, QuizAnswer, QuizResult, DiagnosisLevel enum）
-- **データ**: `lib/application/usecases/load_quiz_questions.dart`（政治家給与・社会保障費・人口・国債・非正規雇用の5問、既存データと整合）
-- **画面**: `lib/presentation/screens/quiz_screen.dart`（1問ずつ回答→ギャップを棒グラフで可視化）, `lib/presentation/screens/quiz_result_screen.dart`（診断結果＋シェア）
+### 14. 繧ｮ繝｣繝・・繧ｯ繧､繧ｺ繝ｻ險ｺ譁ｭ讖溯・
+- **繝・・繧ｿ繝｢繝・Ν**: `lib/domain/entities/quiz.dart`・・uizQuestion, QuizAnswer, QuizResult, DiagnosisLevel enum・・
+- **繝・・繧ｿ**: `lib/application/usecases/load_quiz_questions.dart`・域帆豐ｻ螳ｶ邨ｦ荳弱・遉ｾ莨壻ｿ晞囿雋ｻ繝ｻ莠ｺ蜿｣繝ｻ蝗ｽ蛯ｵ繝ｻ髱樊ｭ｣隕城寐逕ｨ縺ｮ5蝠上∵里蟄倥ョ繝ｼ繧ｿ縺ｨ謨ｴ蜷茨ｼ・
+- **逕ｻ髱｢**: `lib/presentation/screens/quiz_screen.dart`・・蝠上★縺､蝗樒ｭ披・繧ｮ繝｣繝・・繧呈｣偵げ繝ｩ繝輔〒蜿ｯ隕門喧・・ `lib/presentation/screens/quiz_result_screen.dart`・郁ｨｺ譁ｭ邨先棡・九す繧ｧ繧｢・・
 - **Provider**: `lib/application/providers/quiz_provider.dart`
-- **機能**:
-  - 数値を予想入力 → 「あなたの予想」vs「実際の値」を横棒グラフで比較表示
-  - 正答度（0〜100%）に応じて色分け（緑=近い／赤=乖離大）
-  - 全問終了後、平均正答度から3段階診断（社会課題マスター🏆／平均的な認知度📊／伸びしろ十分🌱）
-  - Wordle風の絵文字結果（🟩🟨🟥）をクリップボードにコピーしてSNSシェア（`flutter/services` の `Clipboard` のみ使用、追加パッケージ不要）
-- **ナビゲーション**: ダッシュボード最下部に目立つCTAカード（プライマリカラー背景）を設置
+- **讖溯・**:
+  - 謨ｰ蛟､繧剃ｺ域Φ蜈･蜉・竊・縲後≠縺ｪ縺溘・莠域Φ縲貢s縲悟ｮ滄圀縺ｮ蛟､縲阪ｒ讓ｪ譽偵げ繝ｩ繝輔〒豈碑ｼ・｡ｨ遉ｺ
+  - 豁｣遲泌ｺｦ・・縲・00%・峨↓蠢懊§縺ｦ濶ｲ蛻・￠・育ｷ・霑代＞・剰ｵ､=荵夜屬螟ｧ・・
+  - 蜈ｨ蝠冗ｵゆｺ・ｾ後∝ｹｳ蝮・ｭ｣遲泌ｺｦ縺九ｉ3谿ｵ髫手ｨｺ譁ｭ・育､ｾ莨夊ｪｲ鬘後・繧ｹ繧ｿ繝ｼ醇・丞ｹｳ蝮・噪縺ｪ隱咲衍蠎ｦ投・丈ｼｸ縺ｳ縺励ｍ蜊∝・験・・
+  - Wordle鬚ｨ縺ｮ邨ｵ譁・ｭ礼ｵ先棡・芋沺ｩ洽衍・峨ｒ繧ｯ繝ｪ繝・・繝懊・繝峨↓繧ｳ繝斐・縺励※SNS繧ｷ繧ｧ繧｢・・flutter/services` 縺ｮ `Clipboard` 縺ｮ縺ｿ菴ｿ逕ｨ縲∬ｿｽ蜉繝代ャ繧ｱ繝ｼ繧ｸ荳崎ｦ・ｼ・
+- **繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ**: 繝繝・す繝･繝懊・繝画怙荳矩Κ縺ｫ逶ｮ遶九▽CTA繧ｫ繝ｼ繝会ｼ医・繝ｩ繧､繝槭Μ繧ｫ繝ｩ繝ｼ閭梧勹・峨ｒ險ｭ鄂ｮ
 
-**確認事項**:
-- ✅ Unit Test 8個は変更なしで全通過
-- ✅ `flutter build web --release` が正常完了（コンパイルエラーなし、332.9秒）
+**遒ｺ隱堺ｺ矩・*:
+- 笨・Unit Test 8蛟九・螟画峩縺ｪ縺励〒蜈ｨ騾夐℃
+- 笨・`flutter build web --release` 縺梧ｭ｣蟶ｸ螳御ｺ・ｼ医さ繝ｳ繝代う繝ｫ繧ｨ繝ｩ繝ｼ縺ｪ縺励・32.9遘抵ｼ・
 
-### 15. 生涯年金損益カード 画像生成・シェア機能
-- **ユーティリティ**: `lib/utils/widget_image_capture.dart`（`RenderRepaintBoundary.toImage()` を使用、追加パッケージ不要）
-- **ウィジェット**: `lib/presentation/widgets/loss_share_card.dart`（単体で完結したブランド付きシェア用カードデザイン）
-- **画面**: `lib/presentation/screens/share_preview_screen.dart`（生成画像プレビュー＋紹介文コピー）
-- **機能**:
-  - 年金結果画面の「結果を画像でシェア」ボタン→ `RepaintBoundary` でオフスクリーン描画したカードをPNGにキャプチャ
-  - `OverflowBox` でレイアウトに影響を与えずに非表示キャプチャ元を配置（Offstageだと再描画されず空画像になるため回避）
-  - プレビュー画面で `Image.memory()` 表示＋「長押しで保存」案内
-  - 紹介文を `Clipboard` にコピー（クイズのシェア機能と同じ、追加パッケージなしの一貫した方式）
-- **設計判断**: `dart:html`/JS interop によるブラウザ自動ダウンロードやOS別ネイティブ共有シートは新規パッケージ・プラットフォーム分岐が必要でリスクが高いため見送り、Flutterコア機能のみで確実に動く実装を優先
+### 15. 逕滓ｶｯ蟷ｴ驥第錐逶翫き繝ｼ繝・逕ｻ蜒冗函謌舌・繧ｷ繧ｧ繧｢讖溯・
+- **繝ｦ繝ｼ繝・ぅ繝ｪ繝・ぅ**: `lib/utils/widget_image_capture.dart`・・RenderRepaintBoundary.toImage()` 繧剃ｽｿ逕ｨ縲∬ｿｽ蜉繝代ャ繧ｱ繝ｼ繧ｸ荳崎ｦ・ｼ・
+- **繧ｦ繧｣繧ｸ繧ｧ繝・ヨ**: `lib/presentation/widgets/loss_share_card.dart`・亥腰菴薙〒螳檎ｵ舌＠縺溘ヶ繝ｩ繝ｳ繝我ｻ倥″繧ｷ繧ｧ繧｢逕ｨ繧ｫ繝ｼ繝峨ョ繧ｶ繧､繝ｳ・・
+- **逕ｻ髱｢**: `lib/presentation/screens/share_preview_screen.dart`・育函謌千判蜒上・繝ｬ繝薙Η繝ｼ・狗ｴｹ莉区枚繧ｳ繝斐・・・
+- **讖溯・**:
+  - 蟷ｴ驥醍ｵ先棡逕ｻ髱｢縺ｮ縲檎ｵ先棡繧堤判蜒上〒繧ｷ繧ｧ繧｢縲阪・繧ｿ繝ｳ竊・`RepaintBoundary` 縺ｧ繧ｪ繝輔せ繧ｯ繝ｪ繝ｼ繝ｳ謠冗判縺励◆繧ｫ繝ｼ繝峨ｒPNG縺ｫ繧ｭ繝｣繝励メ繝｣
+  - `OverflowBox` 縺ｧ繝ｬ繧､繧｢繧ｦ繝医↓蠖ｱ髻ｿ繧剃ｸ弱∴縺壹↓髱櫁｡ｨ遉ｺ繧ｭ繝｣繝励メ繝｣蜈・ｒ驟咲ｽｮ・・ffstage縺縺ｨ蜀肴緒逕ｻ縺輔ｌ縺夂ｩｺ逕ｻ蜒上↓縺ｪ繧九◆繧∝屓驕ｿ・・
+  - 繝励Ξ繝薙Η繝ｼ逕ｻ髱｢縺ｧ `Image.memory()` 陦ｨ遉ｺ・九碁聞謚ｼ縺励〒菫晏ｭ倥肴｡亥・
+  - 邏ｹ莉区枚繧・`Clipboard` 縺ｫ繧ｳ繝斐・・医け繧､繧ｺ縺ｮ繧ｷ繧ｧ繧｢讖溯・縺ｨ蜷後§縲∬ｿｽ蜉繝代ャ繧ｱ繝ｼ繧ｸ縺ｪ縺励・荳雋ｫ縺励◆譁ｹ蠑擾ｼ・
+- **險ｭ險亥愛譁ｭ**: `dart:html`/JS interop 縺ｫ繧医ｋ繝悶Λ繧ｦ繧ｶ閾ｪ蜍輔ム繧ｦ繝ｳ繝ｭ繝ｼ繝峨ｄOS蛻･繝阪う繝・ぅ繝門・譛峨す繝ｼ繝医・譁ｰ隕上ヱ繝・こ繝ｼ繧ｸ繝ｻ繝励Λ繝・ヨ繝輔か繝ｼ繝蛻・ｲ舌′蠢・ｦ√〒繝ｪ繧ｹ繧ｯ縺碁ｫ倥＞縺溘ａ隕矩√ｊ縲：lutter繧ｳ繧｢讖溯・縺ｮ縺ｿ縺ｧ遒ｺ螳溘↓蜍輔￥螳溯｣・ｒ蜆ｪ蜈・
 
-**確認事項**:
-- ✅ Unit Test 8個は変更なしで全通過
-- ✅ `flutter build web --release` が正常完了（コンパイルエラーなし、94.2秒）
+**遒ｺ隱堺ｺ矩・*:
+- 笨・Unit Test 8蛟九・螟画峩縺ｪ縺励〒蜈ｨ騾夐℃
+- 笨・`flutter build web --release` 縺梧ｭ｣蟶ｸ螳御ｺ・ｼ医さ繝ｳ繝代う繝ｫ繧ｨ繝ｩ繝ｼ縺ｪ縺励・4.2遘抵ｼ・
 
-### 16. テスト拡充・CI/CD設定（Week 7-8）
-- **新規テストファイル**:
-  - `test/load_policy_simulation_test.dart`（5件）: チェックポイント補間・範囲外クランプ・専門家案の優位性を検証
-  - `test/quiz_test.dart`（9件）: ギャップ計算・正答度・ゼロ除算回避・3段階診断の閾値
-  - `test/age_input_screen_test.dart`（4件）: 年齢入力→結果表示、範囲外エラー、リセットのWidget Test
-  - `test/quiz_screen_test.dart`（4件）: 問題表示→回答→次の問題遷移のWidget Test
-  - `test/widget_test.dart`: 初期テンプレート（カウンター）から実アプリの起動確認に置き換え
-- **バグ修正**: `PolicySimulation.dataForYear()` が範囲外の年で常に最終年のデータを返していた不具合を修正（最小年より小さい場合は最初のデータを返すよう修正）。タイムマシン画面はスライダーで範囲を制限しているため実害はなかったが、テスト作成中に発見
-- **テスト合計**: 31件全て通過（Unit 22件 + Widget 9件）
-- **CI/CD**: `.github/workflows/flutter_ci.yml` を新規作成
-  - `test`ジョブ: `dart format`チェック → `flutter analyze` → `flutter test`
-  - `build-android`ジョブ: デバッグAPKビルド（google-services.json未設定でも動作、Firebase Gradleプラグイン未適用のため）
-  - **注意**: このプロジェクトはまだGitリポジトリ化されていないため、実際にCIが動くにはGit初期化とGitHubリモート接続がユーザー側で必要
+### 16. 繝・せ繝域僑蜈・・CI/CD險ｭ螳夲ｼ・eek 7-8・・
+- **譁ｰ隕上ユ繧ｹ繝医ヵ繧｡繧､繝ｫ**:
+  - `test/load_policy_simulation_test.dart`・・莉ｶ・・ 繝√ぉ繝・け繝昴う繝ｳ繝郁｣憺俣繝ｻ遽・峇螟悶け繝ｩ繝ｳ繝励・蟆る摩螳ｶ譯医・蜆ｪ菴肴ｧ繧呈､懆ｨｼ
+  - `test/quiz_test.dart`・・莉ｶ・・ 繧ｮ繝｣繝・・險育ｮ励・豁｣遲泌ｺｦ繝ｻ繧ｼ繝ｭ髯､邂怜屓驕ｿ繝ｻ3谿ｵ髫手ｨｺ譁ｭ縺ｮ髢ｾ蛟､
+  - `test/age_input_screen_test.dart`・・莉ｶ・・ 蟷ｴ鮨｢蜈･蜉帚・邨先棡陦ｨ遉ｺ縲∫ｯ・峇螟悶お繝ｩ繝ｼ縲√Μ繧ｻ繝・ヨ縺ｮWidget Test
+  - `test/quiz_screen_test.dart`・・莉ｶ・・ 蝠城｡瑚｡ｨ遉ｺ竊貞屓遲披・谺｡縺ｮ蝠城｡碁・遘ｻ縺ｮWidget Test
+  - `test/widget_test.dart`: 蛻晄悄繝・Φ繝励Ξ繝ｼ繝茨ｼ医き繧ｦ繝ｳ繧ｿ繝ｼ・峨°繧牙ｮ溘い繝励Μ縺ｮ襍ｷ蜍慕｢ｺ隱阪↓鄂ｮ縺肴鋤縺・
+- **繝舌げ菫ｮ豁｣**: `PolicySimulation.dataForYear()` 縺檎ｯ・峇螟悶・蟷ｴ縺ｧ蟶ｸ縺ｫ譛邨ょｹｴ縺ｮ繝・・繧ｿ繧定ｿ斐＠縺ｦ縺・◆荳榊・蜷医ｒ菫ｮ豁｣・域怙蟆丞ｹｴ繧医ｊ蟆上＆縺・ｴ蜷医・譛蛻昴・繝・・繧ｿ繧定ｿ斐☆繧医≧菫ｮ豁｣・峨ゅち繧､繝繝槭す繝ｳ逕ｻ髱｢縺ｯ繧ｹ繝ｩ繧､繝繝ｼ縺ｧ遽・峇繧貞宛髯舌＠縺ｦ縺・ｋ縺溘ａ螳溷ｮｳ縺ｯ縺ｪ縺九▲縺溘′縲√ユ繧ｹ繝井ｽ懈・荳ｭ縺ｫ逋ｺ隕・
+- **繝・せ繝亥粋險・*: 31莉ｶ蜈ｨ縺ｦ騾夐℃・・nit 22莉ｶ + Widget 9莉ｶ・・
+- **CI/CD**: `.github/workflows/flutter_ci.yml` 繧呈眠隕丈ｽ懈・
+  - `test`繧ｸ繝ｧ繝・ `dart format`繝√ぉ繝・け 竊・`flutter analyze` 竊・`flutter test`
+  - `build-android`繧ｸ繝ｧ繝・ 繝・ヰ繝・げAPK繝薙Ν繝会ｼ・oogle-services.json譛ｪ險ｭ螳壹〒繧ょ虚菴懊：irebase Gradle繝励Λ繧ｰ繧､繝ｳ譛ｪ驕ｩ逕ｨ縺ｮ縺溘ａ・・
+  - **豕ｨ諢・*: 縺薙・繝励Ο繧ｸ繧ｧ繧ｯ繝医・縺ｾ縺Git繝ｪ繝昴ず繝医Μ蛹悶＆繧後※縺・↑縺・◆繧√∝ｮ滄圀縺ｫCI縺悟虚縺上↓縺ｯGit蛻晄悄蛹悶→GitHub繝ｪ繝｢繝ｼ繝域磁邯壹′繝ｦ繝ｼ繧ｶ繝ｼ蛛ｴ縺ｧ蠢・ｦ・
 
-**確認事項**:
-- ✅ 全31テスト通過（`flutter test` 実行、約9秒）
-- ⚠️ `flutter analyze` はこのサンドボックス環境（日本語パス）でクラッシュするため実行不可。GitHub Actions（英語パス）では問題なく動作する見込み
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ31繝・せ繝磯夐℃・・flutter test` 螳溯｡後∫ｴ・遘抵ｼ・
+- 笞・・`flutter analyze` 縺ｯ縺薙・繧ｵ繝ｳ繝峨・繝・け繧ｹ迺ｰ蠅・ｼ域律譛ｬ隱槭ヱ繧ｹ・峨〒繧ｯ繝ｩ繝・す繝･縺吶ｋ縺溘ａ螳溯｡御ｸ榊庄縲・itHub Actions・郁恭隱槭ヱ繧ｹ・峨〒縺ｯ蝠城｡後↑縺丞虚菴懊☆繧玖ｦ玖ｾｼ縺ｿ
 
-### 17. コンテンツ拡充（社会課題・クイズ・政策指標）
-- **社会課題**: 5件→**10件**に拡大
-  - 追加: 子供の貧困（welfare）・地方の消滅可能性（demographic）・医療費の増大（welfare）・教育格差（economy）・女性議員比率の低さ（politics）
-  - 全10件に対応する課題詳細データ（公式 vs 民間データ）も整備済み
-- **ギャップクイズ**: 5問→**10問**に拡大
-  - 追加: 子供の貧困率・女性議員比率・高齢化率・大学進学率・国民医療費
-- **タイムマシン**: 人口推移のみ→**3指標対応**（人口／年金積立金／国債残高）に拡張
-  - `SegmentedButton` で指標を切り替え可能
-  - 国債残高は「値が低いほど良い」指標のため `lowerIsBetter` フラグを追加し、差分の色分けロジックを指標に応じて反転
-  - `PolicySimulation` に `id`・`lowerIsBetter` フィールドを追加、`LoadPolicySimulation` を単一指標→複数指標（`List<PolicySimulation>`）返却に再設計
-- **テスト更新**: 政策シミュレーションのテストを複数指標対応に書き換え（7件）、クイズ画面テストの設問数表記を「1/5」→「1/10」に修正
+### 17. 繧ｳ繝ｳ繝・Φ繝・僑蜈・ｼ育､ｾ莨夊ｪｲ鬘後・繧ｯ繧､繧ｺ繝ｻ謾ｿ遲匁欠讓呻ｼ・
+- **遉ｾ莨夊ｪｲ鬘・*: 5莉ｶ竊・*10莉ｶ**縺ｫ諡｡螟ｧ
+  - 霑ｽ蜉: 蟄蝉ｾ帙・雋ｧ蝗ｰ・・elfare・峨・蝨ｰ譁ｹ縺ｮ豸域ｻ・庄閭ｽ諤ｧ・・emographic・峨・蛹ｻ逋りｲｻ縺ｮ蠅怜､ｧ・・elfare・峨・謨呵ご譬ｼ蟾ｮ・・conomy・峨・螂ｳ諤ｧ隴ｰ蜩｡豈皮紫縺ｮ菴弱＆・・olitics・・
+  - 蜈ｨ10莉ｶ縺ｫ蟇ｾ蠢懊☆繧玖ｪｲ鬘瑚ｩｳ邏ｰ繝・・繧ｿ・亥・蠑・vs 豌鷹俣繝・・繧ｿ・峨ｂ謨ｴ蛯呎ｸ医∩
+- **繧ｮ繝｣繝・・繧ｯ繧､繧ｺ**: 5蝠鞘・**10蝠・*縺ｫ諡｡螟ｧ
+  - 霑ｽ蜉: 蟄蝉ｾ帙・雋ｧ蝗ｰ邇・・螂ｳ諤ｧ隴ｰ蜩｡豈皮紫繝ｻ鬮倬ｽ｢蛹也紫繝ｻ螟ｧ蟄ｦ騾ｲ蟄ｦ邇・・蝗ｽ豌大現逋りｲｻ
+- **繧ｿ繧､繝繝槭す繝ｳ**: 莠ｺ蜿｣謗ｨ遘ｻ縺ｮ縺ｿ竊・*3謖・ｨ吝ｯｾ蠢・*・井ｺｺ蜿｣・丞ｹｴ驥醍ｩ咲ｫ矩≡・丞嵜蛯ｵ谿矩ｫ假ｼ峨↓諡｡蠑ｵ
+  - `SegmentedButton` 縺ｧ謖・ｨ吶ｒ蛻・ｊ譖ｿ縺亥庄閭ｽ
+  - 蝗ｽ蛯ｵ谿矩ｫ倥・縲悟､縺御ｽ弱＞縺ｻ縺ｩ濶ｯ縺・肴欠讓吶・縺溘ａ `lowerIsBetter` 繝輔Λ繧ｰ繧定ｿｽ蜉縺励∝ｷｮ蛻・・濶ｲ蛻・￠繝ｭ繧ｸ繝・け繧呈欠讓吶↓蠢懊§縺ｦ蜿崎ｻ｢
+  - `PolicySimulation` 縺ｫ `id`繝ｻ`lowerIsBetter` 繝輔ぅ繝ｼ繝ｫ繝峨ｒ霑ｽ蜉縲～LoadPolicySimulation` 繧貞腰荳謖・ｨ吮・隍・焚謖・ｨ呻ｼ・List<PolicySimulation>`・芽ｿ泌唆縺ｫ蜀崎ｨｭ險・
+- **繝・せ繝域峩譁ｰ**: 謾ｿ遲悶す繝溘Η繝ｬ繝ｼ繧ｷ繝ｧ繝ｳ縺ｮ繝・せ繝医ｒ隍・焚謖・ｨ吝ｯｾ蠢懊↓譖ｸ縺肴鋤縺茨ｼ・莉ｶ・峨√け繧､繧ｺ逕ｻ髱｢繝・せ繝医・險ｭ蝠乗焚陦ｨ險倥ｒ縲・/5縲坂・縲・/10縲阪↓菫ｮ豁｣
 
-**確認事項**:
-- ✅ 全33テスト通過（`flutter test` 実行）
-- ✅ `flutter build web --release` が正常完了（コンパイルエラーなし）
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ33繝・せ繝磯夐℃・・flutter test` 螳溯｡鯉ｼ・
+- 笨・`flutter build web --release` 縺梧ｭ｣蟶ｸ螳御ｺ・ｼ医さ繝ｳ繝代う繝ｫ繧ｨ繝ｩ繝ｼ縺ｪ縺暦ｼ・
 
 ---
 
-### 18. コンテンツ第2弾拡充（社会課題・クイズ・週刊ランキング・エネルギー指標）
-- **社会課題**: 10件→**15件**に拡大
-  - 追加: エネルギー自給率の低さ（economy）・後期高齢者医療費負担（welfare）・対内直接投資の少なさ（economy）・投票率の低下（politics）・空き家の増加（demographic）
-  - 全15件に対応する課題詳細データ（公式 vs 民間データ）を整備済み
-- **ギャップクイズ**: 10問→**15問**に拡大
-  - 追加: エネルギー自給率・投票率・空き家率・後期高齢者医療費・対内直接投資比率
-- **週刊ランキング機能（新規）**: `lib/presentation/screens/ranking_screen.dart`
-  - 課題を投票数でソートし、上位3位に🥇🥈🥉のメダルを表示
-  - タップで課題詳細画面へ遷移
-  - ダッシュボードから「週刊 課題ランキングを見る」ボタンで導線を追加
-- **マクロダッシュボードに新指標追加**: 「エネルギーは自分の国でまかなえている？」セクション
-  - `MacroDashboard` エンティティに `energySelfSufficiency`（`EnergyData` リスト）を追加
-  - 2000〜2025年のエネルギー自給率推移を折れ線グラフで表示（東日本大震災前後の落ち込みも反映）
-- **テスト修正**: クイズ画面テストの設問数表記を「1/10」→「1/15」に修正
-- **副次対応**: セッション中に `logger` パッケージのPubキャッシュが破損（ファイル欠落）していることが判明。`flutter pub cache repair` → `flutter clean` → `flutter pub get` で復旧（コード起因の問題ではなく、ローカル環境のキャッシュ破損）
+### 18. 繧ｳ繝ｳ繝・Φ繝・ｬｬ2蠑ｾ諡｡蜈・ｼ育､ｾ莨夊ｪｲ鬘後・繧ｯ繧､繧ｺ繝ｻ騾ｱ蛻翫Λ繝ｳ繧ｭ繝ｳ繧ｰ繝ｻ繧ｨ繝阪Ν繧ｮ繝ｼ謖・ｨ呻ｼ・
+- **遉ｾ莨夊ｪｲ鬘・*: 10莉ｶ竊・*15莉ｶ**縺ｫ諡｡螟ｧ
+  - 霑ｽ蜉: 繧ｨ繝阪Ν繧ｮ繝ｼ閾ｪ邨ｦ邇・・菴弱＆・・conomy・峨・蠕梧悄鬮倬ｽ｢閠・現逋りｲｻ雋諡・ｼ・elfare・峨・蟇ｾ蜀・峩謗･謚戊ｳ・・蟆代↑縺包ｼ・conomy・峨・謚慕･ｨ邇・・菴惹ｸ具ｼ・olitics・峨・遨ｺ縺榊ｮｶ縺ｮ蠅怜刈・・emographic・・
+  - 蜈ｨ15莉ｶ縺ｫ蟇ｾ蠢懊☆繧玖ｪｲ鬘瑚ｩｳ邏ｰ繝・・繧ｿ・亥・蠑・vs 豌鷹俣繝・・繧ｿ・峨ｒ謨ｴ蛯呎ｸ医∩
+- **繧ｮ繝｣繝・・繧ｯ繧､繧ｺ**: 10蝠鞘・**15蝠・*縺ｫ諡｡螟ｧ
+  - 霑ｽ蜉: 繧ｨ繝阪Ν繧ｮ繝ｼ閾ｪ邨ｦ邇・・謚慕･ｨ邇・・遨ｺ縺榊ｮｶ邇・・蠕梧悄鬮倬ｽ｢閠・現逋りｲｻ繝ｻ蟇ｾ蜀・峩謗･謚戊ｳ・ｯ皮紫
+- **騾ｱ蛻翫Λ繝ｳ繧ｭ繝ｳ繧ｰ讖溯・・域眠隕擾ｼ・*: `lib/presentation/screens/ranking_screen.dart`
+  - 隱ｲ鬘後ｒ謚慕･ｨ謨ｰ縺ｧ繧ｽ繝ｼ繝医＠縲∽ｸ贋ｽ・菴阪↓･・衍芋衍峨・繝｡繝繝ｫ繧定｡ｨ遉ｺ
+  - 繧ｿ繝・・縺ｧ隱ｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢縺ｸ驕ｷ遘ｻ
+  - 繝繝・す繝･繝懊・繝峨°繧峨碁ｱ蛻・隱ｲ鬘後Λ繝ｳ繧ｭ繝ｳ繧ｰ繧定ｦ九ｋ縲阪・繧ｿ繝ｳ縺ｧ蟆守ｷ壹ｒ霑ｽ蜉
+- **繝槭け繝ｭ繝繝・す繝･繝懊・繝峨↓譁ｰ謖・ｨ呵ｿｽ蜉**: 縲後お繝阪Ν繧ｮ繝ｼ縺ｯ閾ｪ蛻・・蝗ｽ縺ｧ縺ｾ縺九↑縺医※縺・ｋ・溘阪そ繧ｯ繧ｷ繝ｧ繝ｳ
+  - `MacroDashboard` 繧ｨ繝ｳ繝・ぅ繝・ぅ縺ｫ `energySelfSufficiency`・・EnergyData` 繝ｪ繧ｹ繝茨ｼ峨ｒ霑ｽ蜉
+  - 2000縲・025蟷ｴ縺ｮ繧ｨ繝阪Ν繧ｮ繝ｼ閾ｪ邨ｦ邇・耳遘ｻ繧呈釜繧檎ｷ壹げ繝ｩ繝輔〒陦ｨ遉ｺ・域擲譌･譛ｬ螟ｧ髴・⊃蜑榊ｾ後・關ｽ縺｡霎ｼ縺ｿ繧ょ渚譏・・
+- **繝・せ繝井ｿｮ豁｣**: 繧ｯ繧､繧ｺ逕ｻ髱｢繝・せ繝医・險ｭ蝠乗焚陦ｨ險倥ｒ縲・/10縲坂・縲・/15縲阪↓菫ｮ豁｣
+- **蜑ｯ谺｡蟇ｾ蠢・*: 繧ｻ繝・す繝ｧ繝ｳ荳ｭ縺ｫ `logger` 繝代ャ繧ｱ繝ｼ繧ｸ縺ｮPub繧ｭ繝｣繝・す繝･縺檎ｴ謳搾ｼ医ヵ繧｡繧､繝ｫ谺關ｽ・峨＠縺ｦ縺・ｋ縺薙→縺悟愛譏弱Ａflutter pub cache repair` 竊・`flutter clean` 竊・`flutter pub get` 縺ｧ蠕ｩ譌ｧ・医さ繝ｼ繝芽ｵｷ蝗縺ｮ蝠城｡後〒縺ｯ縺ｪ縺上√Ο繝ｼ繧ｫ繝ｫ迺ｰ蠅・・繧ｭ繝｣繝・す繝･遐ｴ謳搾ｼ・
 
-**確認事項**:
-- ✅ 全33テスト通過（`flutter test` 実行）
-- ✅ `flutter build web --release` が正常完了（コンパイルエラーなし）
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ33繝・せ繝磯夐℃・・flutter test` 螳溯｡鯉ｼ・
+- 笨・`flutter build web --release` 縺梧ｭ｣蟶ｸ螳御ｺ・ｼ医さ繝ｳ繝代う繝ｫ繧ｨ繝ｩ繝ｼ縺ｪ縺暦ｼ・
 
-### 19. 見目改善（カテゴリアイコン・遷移アニメーション）
-- **カテゴリアイコン**: `AppColors.categoryIcon()` を新設（economy=💰・welfare=❤️・demographic=👥・politics=🏛️・debt=📉）し、投票画面カード・課題詳細画面のバッジに色付きアイコン＋ラベルを併記
-- **年齢入力→結果のアニメーション**: `age_input_screen.dart` の質問⇔結果切り替えを `AnimatedSwitcher`（フェード＋わずかな上方向スライド、350ms・easeOutCubic）に変更。`KeyedSubtree` で状態ごとに明示的な `Key` を付与し、確実に遷移アニメーションが発火するように対応
+### 19. 隕狗岼謾ｹ蝟・ｼ医き繝・ざ繝ｪ繧｢繧､繧ｳ繝ｳ繝ｻ驕ｷ遘ｻ繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ・・
+- **繧ｫ繝・ざ繝ｪ繧｢繧､繧ｳ繝ｳ**: `AppColors.categoryIcon()` 繧呈眠險ｭ・・conomy=腸繝ｻwelfare=笶､・上・demographic=則繝ｻpolitics=鋤・上・debt=悼・峨＠縲∵兜逾ｨ逕ｻ髱｢繧ｫ繝ｼ繝峨・隱ｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢縺ｮ繝舌ャ繧ｸ縺ｫ濶ｲ莉倥″繧｢繧､繧ｳ繝ｳ・九Λ繝吶Ν繧剃ｽｵ險・
+- **蟷ｴ鮨｢蜈･蜉帚・邨先棡縺ｮ繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ**: `age_input_screen.dart` 縺ｮ雉ｪ蝠鞘∑邨先棡蛻・ｊ譖ｿ縺医ｒ `AnimatedSwitcher`・医ヵ繧ｧ繝ｼ繝会ｼ九ｏ縺壹°縺ｪ荳頑婿蜷代せ繝ｩ繧､繝峨・50ms繝ｻeaseOutCubic・峨↓螟画峩縲ＡKeyedSubtree` 縺ｧ迥ｶ諷九＃縺ｨ縺ｫ譏守､ｺ逧・↑ `Key` 繧剃ｻ倅ｸ弱＠縲∫｢ｺ螳溘↓驕ｷ遘ｻ繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ縺檎匱轣ｫ縺吶ｋ繧医≧縺ｫ蟇ｾ蠢・
 
-**確認事項**:
-- ✅ 全33テスト通過（`age_input_screen_test.dart` は `pumpAndSettle` でアニメーション完了を待機済み）
-- ✅ `flutter build web --release` が正常完了（コンパイルエラーなし）
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ33繝・せ繝磯夐℃・・age_input_screen_test.dart` 縺ｯ `pumpAndSettle` 縺ｧ繧｢繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ螳御ｺ・ｒ蠕・ｩ滓ｸ医∩・・
+- 笨・`flutter build web --release` 縺梧ｭ｣蟶ｸ螳御ｺ・ｼ医さ繝ｳ繝代う繝ｫ繧ｨ繝ｩ繝ｼ縺ｪ縺暦ｼ・
 
-### 20. APKビルド成功（build-flutter-apkスキル使用）
-- **Gradle前提設定**（`android/app/build.gradle.kts`）を初めて追加:
+### 20. APK繝薙Ν繝画・蜉滂ｼ・uild-flutter-apk繧ｹ繧ｭ繝ｫ菴ｿ逕ｨ・・
+- **Gradle蜑肴署險ｭ螳・*・・android/app/build.gradle.kts`・峨ｒ蛻昴ａ縺ｦ霑ｽ蜉:
   - `isCoreLibraryDesugaringEnabled = true`
-  - `minSdk = 21`（`flutter.minSdkVersion` から固定値に変更）
-  - `coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")` 依存追加
-- **ビルド結果**: `H:\マイドライブ\apk\nihon_future_map-app-release.apk`（**50.4MB**）
-- Gradleタスク `assembleRelease` は738.2秒で完了、exit code 0
-- google-services.json未配置でもビルド可能（Firebase Gradleプラグイン未適用のため、Dart側のFirebase呼び出しはビルド時にはチェックされない）
+  - `minSdk = 21`・・flutter.minSdkVersion` 縺九ｉ蝗ｺ螳壼､縺ｫ螟画峩・・
+  - `coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")` 萓晏ｭ倩ｿｽ蜉
+- **繝薙Ν繝臥ｵ先棡**: `H:\繝槭う繝峨Λ繧､繝暴apk\nihon_future_map-app-release.apk`・・*50.4MB**・・
+- Gradle繧ｿ繧ｹ繧ｯ `assembleRelease` 縺ｯ738.2遘偵〒螳御ｺ・‘xit code 0
+- google-services.json譛ｪ驟咲ｽｮ縺ｧ繧ゅン繝ｫ繝牙庄閭ｽ・・irebase Gradle繝励Λ繧ｰ繧､繝ｳ譛ｪ驕ｩ逕ｨ縺ｮ縺溘ａ縲．art蛛ｴ縺ｮFirebase蜻ｼ縺ｳ蜃ｺ縺励・繝薙Ν繝画凾縺ｫ縺ｯ繝√ぉ繝・け縺輔ｌ縺ｪ縺・ｼ・
 
-**確認事項**:
-- ✅ `flutter build apk --release` 成功（exit code 0、C:\apk\nihon_future_map でビルド）
-- ✅ APKサイズ確認（50.4MB）
-- ⏸ **実機インストール・起動確認は未実施**（[flutter-device-test]スキルで次に実施可能。実機接続が必要なためユーザー確認事項）
-- ⚠️ アプリ内でFirebase Anonymous Authを呼び出す画面（投票画面等）は、Firebase本設定前は実機で例外が発生する可能性が高い（未検証）
+**遒ｺ隱堺ｺ矩・*:
+- 笨・`flutter build apk --release` 謌仙粥・・xit code 0縲，:\apk\nihon_future_map 縺ｧ繝薙Ν繝会ｼ・
+- 笨・APK繧ｵ繧､繧ｺ遒ｺ隱搾ｼ・0.4MB・・
+- 竢ｸ **螳滓ｩ溘う繝ｳ繧ｹ繝医・繝ｫ繝ｻ襍ｷ蜍慕｢ｺ隱阪・譛ｪ螳滓命**・・flutter-device-test]繧ｹ繧ｭ繝ｫ縺ｧ谺｡縺ｫ螳滓命蜿ｯ閭ｽ縲ょｮ滓ｩ滓磁邯壹′蠢・ｦ√↑縺溘ａ繝ｦ繝ｼ繧ｶ繝ｼ遒ｺ隱堺ｺ矩・ｼ・
+- 笞・・繧｢繝励Μ蜀・〒Firebase Anonymous Auth繧貞他縺ｳ蜃ｺ縺咏判髱｢・域兜逾ｨ逕ｻ髱｢遲会ｼ峨・縲：irebase譛ｬ險ｭ螳壼燕縺ｯ螳滓ｩ溘〒萓句､悶′逋ｺ逕溘☆繧句庄閭ｽ諤ｧ縺碁ｫ倥＞・域悴讀懆ｨｼ・・
 
-### 21. Firebase本設定完了
-- **プロジェクト**: `petit-works-apps-9029a`（petitworksdev@gmail.com、全アプリ共通プロジェクトに相乗り）
-- **パッケージ名**: `com.petitworksapps.japanfuturemap`（`google-services.json` 内に登録済みであることを確認してから配置）
-- **配置ファイル**:
-  - `android/app/google-services.json`（H:\ 側に配置）
-  - `lib/firebase_options.dart`（google-services.jsonの値から手書き生成。Android のみ対応、Web/iOS未設定時は明示的に `UnsupportedError` を投げる設計）
-- **Gradle設定**:
-  - `android/settings.gradle.kts` に `com.google.gms.google-services` プラグイン（v4.4.2）を追加
-  - `android/app/build.gradle.kts` の `plugins{}` に同プラグインを適用
-- **main.dart**: `WidgetsFlutterBinding.ensureInitialized()` → `Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)` を追加
-- **有効化サービス**: Authentication（匿名ログイン、コード側で実装済み）・Firestore・Analytics（すべてFirebaseプロジェクト側で要確認）
+### 21. Firebase譛ｬ險ｭ螳壼ｮ御ｺ・
+- **繝励Ο繧ｸ繧ｧ繧ｯ繝・*: `petit-works-apps-9029a`・・etitworksdev@gmail.com縲∝・繧｢繝励Μ蜈ｱ騾壹・繝ｭ繧ｸ繧ｧ繧ｯ繝医↓逶ｸ荵励ｊ・・
+- **繝代ャ繧ｱ繝ｼ繧ｸ蜷・*: `com.petitworksapps.japanfuturemap`・・google-services.json` 蜀・↓逋ｻ骭ｲ貂医∩縺ｧ縺ゅｋ縺薙→繧堤｢ｺ隱阪＠縺ｦ縺九ｉ驟咲ｽｮ・・
+- **驟咲ｽｮ繝輔ぃ繧､繝ｫ**:
+  - `android/app/google-services.json`・・:\ 蛛ｴ縺ｫ驟咲ｽｮ・・
+  - `lib/firebase_options.dart`・・oogle-services.json縺ｮ蛟､縺九ｉ謇区嶌縺咲函謌舌・ndroid 縺ｮ縺ｿ蟇ｾ蠢懊仝eb/iOS譛ｪ險ｭ螳壽凾縺ｯ譏守､ｺ逧・↓ `UnsupportedError` 繧呈兜縺偵ｋ險ｭ險茨ｼ・
+- **Gradle險ｭ螳・*:
+  - `android/settings.gradle.kts` 縺ｫ `com.google.gms.google-services` 繝励Λ繧ｰ繧､繝ｳ・・4.4.2・峨ｒ霑ｽ蜉
+  - `android/app/build.gradle.kts` 縺ｮ `plugins{}` 縺ｫ蜷後・繝ｩ繧ｰ繧､繝ｳ繧帝←逕ｨ
+- **main.dart**: `WidgetsFlutterBinding.ensureInitialized()` 竊・`Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)` 繧定ｿｽ蜉
+- **譛牙柑蛹悶し繝ｼ繝薙せ**: Authentication・亥諺蜷阪Ο繧ｰ繧､繝ｳ縲√さ繝ｼ繝牙・縺ｧ螳溯｣・ｸ医∩・峨・Firestore繝ｻAnalytics・医☆縺ｹ縺ｦFirebase繝励Ο繧ｸ繧ｧ繧ｯ繝亥・縺ｧ隕∫｢ｺ隱搾ｼ・
 
-**確認事項**:
-- ✅ 全33テスト通過（Firebase初期化はmain()内のみで、Widget Testは`MyApp()`を直接pumpするため影響なし）
-- ✅ `flutter build apk --release` 成功（exit code 0、378.7秒、**51.0MB**）
-- ⏸ **実機起動・匿名ログイン成功の確認は未実施**（次のステップ）
-- ⏸ Firestore・Analyticsが実際にConsole側で有効化されているかは未確認（ユーザー確認事項）
-
----
-
-## 🎬 現在の画面遷移フロー
-
-```
-[起動]
-  ↓
-[年齢入力画面]
-  ├─ 年齢を入力（20～80）
-  └─ 「計算する」ボタン
-      ↓
-[年金損益結果]
-  ├─ 生涯損益を表示（赤字/黒字）
-  ├─ 「結果を画像でシェア」ボタン → シェア用カード画面へ
-  ├─ 「別の年齢で計算」ボタン
-  └─ 「日本の未来を見る」ボタン
-      ↓
-[シェア用カード画面（SharePreviewScreen）]
-  ├─ 生成したPNG画像プレビュー
-  └─ 「紹介文をコピーする」ボタン
-      ↓
-[ダッシュボード画面]
-  ├─ 人口推移ライングラフ
-  ├─ 「政策でどう変わる？タイムマシンで見る」ボタン
-  ├─ 予算配分円グラフ
-  ├─ 困窮状況棒グラフ
-  ├─ 「ギャップクイズで診断してみよう」CTAカード
-  └─ 「課題に投票する」ボタン
-      ↓
-[タイムマシン画面（TimeMachineScreen）]
-  ├─ 4シナリオ比較グラフ（現状維持/与党案/野党案/専門家案）
-  ├─ 年スライダー（2026〜2070）
-  └─ シナリオ別数値カード（現状維持との差分表示）
-
-[ギャップクイズ画面（QuizScreen）]
-  ├─ 全5問（政治家給与/社会保障費/人口/国債/非正規雇用）
-  ├─ 予想入力 → 実際の値とのギャップを棒グラフ表示
-  └─ 全問終了で診断結果画面へ
-      ↓
-[診断結果画面（QuizResultScreen）]
-  ├─ 3段階診断（マスター🏆／平均📊／伸びしろ🌱）
-  ├─ 問題ごとの正答度一覧
-  └─ 「結果をコピーしてシェア」（Wordle風絵文字）
-
-[投票画面（ChallengeListScreen）]
-  ├─ 社会課題カード一覧（5個、タップで詳細へ）
-  ├─ 「投票する」ボタン（リアルタイム更新）
-  └─ 「これは問題」ボタン（賛同）
-      ↓（カードタップ）
-[課題詳細画面（ChallengeDetailScreen）]
-  ├─ あなたの生活とのつながり
-  ├─ 公式 vs 民間データ 折れ線グラフ
-  └─ データソースカード（出典・乖離理由）
-```
-
-## 📋 次のステップ（Week 6 以降）
-
-### Week 6: 拡散機能の仕上げ
-- [ ] 週刊ランキング自動生成
-- [ ] Twitter・LINE 直接投稿連携（現状はクリップボード経由）
-
-### Week 7-8: 仕上げ
-- [ ] RevenueCat 統合（¥120/月）
-- [ ] Analytics イベント仕込み
-- [ ] Widget/Integration テスト
-- [ ] CI/CD 設定
+**遒ｺ隱堺ｺ矩・*:
+- 笨・蜈ｨ33繝・せ繝磯夐℃・・irebase蛻晄悄蛹悶・main()蜀・・縺ｿ縺ｧ縲仝idget Test縺ｯ`MyApp()`繧堤峩謗･pump縺吶ｋ縺溘ａ蠖ｱ髻ｿ縺ｪ縺暦ｼ・
+- 笨・`flutter build apk --release` 謌仙粥・・xit code 0縲・78.7遘偵・*51.0MB**・・
+- 竢ｸ **螳滓ｩ溯ｵｷ蜍輔・蛹ｿ蜷阪Ο繧ｰ繧､繝ｳ謌仙粥縺ｮ遒ｺ隱阪・譛ｪ螳滓命**・域ｬ｡縺ｮ繧ｹ繝・ャ繝暦ｼ・
+- 竢ｸ Firestore繝ｻAnalytics縺悟ｮ滄圀縺ｫConsole蛛ｴ縺ｧ譛牙柑蛹悶＆繧後※縺・ｋ縺九・譛ｪ遒ｺ隱搾ｼ医Θ繝ｼ繧ｶ繝ｼ遒ｺ隱堺ｺ矩・ｼ・
 
 ---
 
-## 🔧 技術詳細
+## 汐 迴ｾ蝨ｨ縺ｮ逕ｻ髱｢驕ｷ遘ｻ繝輔Ο繝ｼ
 
-### マクロダッシュボード統計値
+```
+[襍ｷ蜍評
+  竊・
+[蟷ｴ鮨｢蜈･蜉帷判髱｢]
+  笏懌楳 蟷ｴ鮨｢繧貞・蜉幢ｼ・0・・0・・
+  笏披楳 縲瑚ｨ育ｮ励☆繧九阪・繧ｿ繝ｳ
+      竊・
+[蟷ｴ驥第錐逶顔ｵ先棡]
+  笏懌楳 逕滓ｶｯ謳咲寢繧定｡ｨ遉ｺ・郁ｵ､蟄・鮟貞ｭ暦ｼ・
+  笏懌楳 縲檎ｵ先棡繧堤判蜒上〒繧ｷ繧ｧ繧｢縲阪・繧ｿ繝ｳ 竊・繧ｷ繧ｧ繧｢逕ｨ繧ｫ繝ｼ繝臥判髱｢縺ｸ
+  笏懌楳 縲悟挨縺ｮ蟷ｴ鮨｢縺ｧ險育ｮ励阪・繧ｿ繝ｳ
+  笏披楳 縲梧律譛ｬ縺ｮ譛ｪ譚･繧定ｦ九ｋ縲阪・繧ｿ繝ｳ
+      竊・
+[繧ｷ繧ｧ繧｢逕ｨ繧ｫ繝ｼ繝臥判髱｢・・harePreviewScreen・云
+  笏懌楳 逕滓・縺励◆PNG逕ｻ蜒上・繝ｬ繝薙Η繝ｼ
+  笏披楳 縲檎ｴｹ莉区枚繧偵さ繝斐・縺吶ｋ縲阪・繧ｿ繝ｳ
+      竊・
+[繝繝・す繝･繝懊・繝臥判髱｢]
+  笏懌楳 莠ｺ蜿｣謗ｨ遘ｻ繝ｩ繧､繝ｳ繧ｰ繝ｩ繝・
+  笏懌楳 縲梧帆遲悶〒縺ｩ縺・､峨ｏ繧具ｼ溘ち繧､繝繝槭す繝ｳ縺ｧ隕九ｋ縲阪・繧ｿ繝ｳ
+  笏懌楳 莠育ｮ鈴・蛻・・繧ｰ繝ｩ繝・
+  笏懌楳 蝗ｰ遯ｮ迥ｶ豕∵｣偵げ繝ｩ繝・
+  笏懌楳 縲後ぐ繝｣繝・・繧ｯ繧､繧ｺ縺ｧ險ｺ譁ｭ縺励※縺ｿ繧医≧縲垢TA繧ｫ繝ｼ繝・
+  笏披楳 縲瑚ｪｲ鬘後↓謚慕･ｨ縺吶ｋ縲阪・繧ｿ繝ｳ
+      竊・
+[繧ｿ繧､繝繝槭す繝ｳ逕ｻ髱｢・・imeMachineScreen・云
+  笏懌楳 4繧ｷ繝翫Μ繧ｪ豈碑ｼ・げ繝ｩ繝包ｼ育樟迥ｶ邯ｭ謖・荳主・譯・驥主・譯・蟆る摩螳ｶ譯茨ｼ・
+  笏懌楳 蟷ｴ繧ｹ繝ｩ繧､繝繝ｼ・・026縲・070・・
+  笏披楳 繧ｷ繝翫Μ繧ｪ蛻･謨ｰ蛟､繧ｫ繝ｼ繝会ｼ育樟迥ｶ邯ｭ謖√→縺ｮ蟾ｮ蛻・｡ｨ遉ｺ・・
 
-**人口推移（中位推計）**
-| 年 | 人口（百万） |
+[繧ｮ繝｣繝・・繧ｯ繧､繧ｺ逕ｻ髱｢・・uizScreen・云
+  笏懌楳 蜈ｨ5蝠擾ｼ域帆豐ｻ螳ｶ邨ｦ荳・遉ｾ莨壻ｿ晞囿雋ｻ/莠ｺ蜿｣/蝗ｽ蛯ｵ/髱樊ｭ｣隕城寐逕ｨ・・
+  笏懌楳 莠域Φ蜈･蜉・竊・螳滄圀縺ｮ蛟､縺ｨ縺ｮ繧ｮ繝｣繝・・繧呈｣偵げ繝ｩ繝戊｡ｨ遉ｺ
+  笏披楳 蜈ｨ蝠冗ｵゆｺ・〒險ｺ譁ｭ邨先棡逕ｻ髱｢縺ｸ
+      竊・
+[險ｺ譁ｭ邨先棡逕ｻ髱｢・・uizResultScreen・云
+  笏懌楳 3谿ｵ髫手ｨｺ譁ｭ・医・繧ｹ繧ｿ繝ｼ醇・丞ｹｳ蝮・沒奇ｼ丈ｼｸ縺ｳ縺励ｍ験・・
+  笏懌楳 蝠城｡後＃縺ｨ縺ｮ豁｣遲泌ｺｦ荳隕ｧ
+  笏披楳 縲檎ｵ先棡繧偵さ繝斐・縺励※繧ｷ繧ｧ繧｢縲搾ｼ・ordle鬚ｨ邨ｵ譁・ｭ暦ｼ・
+
+[謚慕･ｨ逕ｻ髱｢・・hallengeListScreen・云
+  笏懌楳 遉ｾ莨夊ｪｲ鬘後き繝ｼ繝我ｸ隕ｧ・・蛟九√ち繝・・縺ｧ隧ｳ邏ｰ縺ｸ・・
+  笏懌楳 縲梧兜逾ｨ縺吶ｋ縲阪・繧ｿ繝ｳ・医Μ繧｢繝ｫ繧ｿ繧､繝譖ｴ譁ｰ・・
+  笏披楳 縲後％繧後・蝠城｡後阪・繧ｿ繝ｳ・郁ｳ帛酔・・
+      竊難ｼ医き繝ｼ繝峨ち繝・・・・
+[隱ｲ鬘瑚ｩｳ邏ｰ逕ｻ髱｢・・hallengeDetailScreen・云
+  笏懌楳 縺ゅ↑縺溘・逕滓ｴｻ縺ｨ縺ｮ縺､縺ｪ縺後ｊ
+  笏懌楳 蜈ｬ蠑・vs 豌鷹俣繝・・繧ｿ 謚倥ｌ邱壹げ繝ｩ繝・
+  笏披楳 繝・・繧ｿ繧ｽ繝ｼ繧ｹ繧ｫ繝ｼ繝会ｼ亥・蜈ｸ繝ｻ荵夜屬逅・罰・・
+```
+
+## 搭 谺｡縺ｮ繧ｹ繝・ャ繝暦ｼ・eek 6 莉･髯搾ｼ・
+
+### Week 6: 諡｡謨｣讖溯・縺ｮ莉穂ｸ翫￡
+- [ ] 騾ｱ蛻翫Λ繝ｳ繧ｭ繝ｳ繧ｰ閾ｪ蜍慕函謌・
+- [ ] Twitter繝ｻLINE 逶ｴ謗･謚慕ｨｿ騾｣謳ｺ・育樟迥ｶ縺ｯ繧ｯ繝ｪ繝・・繝懊・繝臥ｵ檎罰・・
+
+### Week 7-8: 莉穂ｸ翫￡
+- [ ] RevenueCat 邨ｱ蜷茨ｼ按･120/譛茨ｼ・
+- [ ] Analytics 繧､繝吶Φ繝井ｻ戊ｾｼ縺ｿ
+- [ ] Widget/Integration 繝・せ繝・
+- [ ] CI/CD 險ｭ螳・
+
+---
+
+## 肌 謚陦楢ｩｳ邏ｰ
+
+### 繝槭け繝ｭ繝繝・す繝･繝懊・繝臥ｵｱ險亥､
+
+**莠ｺ蜿｣謗ｨ遘ｻ・井ｸｭ菴肴耳險茨ｼ・*
+| 蟷ｴ | 莠ｺ蜿｣・育卆荳・ｼ・|
 |----|----------|
 | 2023 | 125.1 |
 | 2030 | 123.0 |
@@ -1358,93 +1358,93 @@ CalculatePensionLoss
 | 2060 | 109.9 |
 | 2070 | 104.4 |
 
-**予算配分（2026年度）**
-| カテゴリ | 金額（兆円） | 割合 |
+**莠育ｮ鈴・蛻・ｼ・026蟷ｴ蠎ｦ・・*
+| 繧ｫ繝・ざ繝ｪ | 驥鷹｡搾ｼ亥・蜀・ｼ・| 蜑ｲ蜷・|
 |---------|-----------|-----|
-| 社会保障 | 36.2 | 35.1% |
-| 利息・その他 | 24.7 | 23.9% |
-| 公債費 | 15.3 | 14.8% |
-| 防衛 | 9.2 | 8.9% |
-| 教育・科学 | 8.5 | 8.2% |
-| その他 | 9.1 | 8.8% |
+| 遉ｾ莨壻ｿ晞囿 | 36.2 | 35.1% |
+| 蛻ｩ諱ｯ繝ｻ縺昴・莉・| 24.7 | 23.9% |
+| 蜈ｬ蛯ｵ雋ｻ | 15.3 | 14.8% |
+| 髦ｲ陦・| 9.2 | 8.9% |
+| 謨呵ご繝ｻ遘大ｭｦ | 8.5 | 8.2% |
+| 縺昴・莉・| 9.1 | 8.8% |
 
-**困窮状況（2025年推計）**
-| 困窮分類 | 人数（百万） | 割合 |
+**蝗ｰ遯ｮ迥ｶ豕・ｼ・025蟷ｴ謗ｨ險茨ｼ・*
+| 蝗ｰ遯ｮ蛻・｡・| 莠ｺ謨ｰ・育卆荳・ｼ・| 蜑ｲ蜷・|
 |---------|----------|-----|
-| 低収入（年300万以下） | 15.0 | 12.5% |
-| 失業・未就職 | 8.0 | 6.8% |
-| 非正規雇用 | 48.0 | 39.8% |
-| 65歳以上の就業希望 | 7.5 | 6.2% |
-| 生活保護受給 | 2.1 | 1.7% |
+| 菴主庶蜈･・亥ｹｴ300荳・ｻ･荳具ｼ・| 15.0 | 12.5% |
+| 螟ｱ讌ｭ繝ｻ譛ｪ蟆ｱ閨ｷ | 8.0 | 6.8% |
+| 髱樊ｭ｣隕城寐逕ｨ | 48.0 | 39.8% |
+| 65豁ｳ莉･荳翫・蟆ｱ讌ｭ蟶梧悍 | 7.5 | 6.2% |
+| 逕滓ｴｻ菫晁ｭｷ蜿礼ｵｦ | 2.1 | 1.7% |
 
-### 年金計算アルゴリズム
+### 蟷ｴ驥題ｨ育ｮ励い繝ｫ繧ｴ繝ｪ繧ｺ繝
 
-**定数**:
-- 被保険者保険料率: 9.15%
-- 年齢別給与（月額・ボーナス込み）:
-  - 20-29歳: ¥270,000
-  - 30-39歳: ¥330,000
-  - 40-49歳: ¥420,000
-  - 50-59歳: ¥480,000
-  - 60歳以上: ¥350,000
+**螳壽焚**:
+- 陲ｫ菫晞匱閠・ｿ晞匱譁咏紫: 9.15%
+- 蟷ｴ鮨｢蛻･邨ｦ荳趣ｼ域怦鬘阪・繝懊・繝翫せ霎ｼ縺ｿ・・
+  - 20-29豁ｳ: ﾂ･270,000
+  - 30-39豁ｳ: ﾂ･330,000
+  - 40-49豁ｳ: ﾂ･420,000
+  - 50-59豁ｳ: ﾂ･480,000
+  - 60豁ｳ莉･荳・ ﾂ･350,000
 
-**計算ロジック**:
-1. 現在年齢 → 65歳まで毎月保険料を納める
-2. 昇給率: 年2%
-3. 65歳～85歳: 月額 ¥60,000 を受け取る（20年間）
-4. 損益 = 納めた額 - 受け取った額
+**險育ｮ励Ο繧ｸ繝・け**:
+1. 迴ｾ蝨ｨ蟷ｴ鮨｢ 竊・65豁ｳ縺ｾ縺ｧ豈取怦菫晞匱譁吶ｒ邏阪ａ繧・
+2. 譏・ｵｦ邇・ 蟷ｴ2%
+3. 65豁ｳ・・5豁ｳ: 譛磯｡・ﾂ･60,000 繧貞女縺大叙繧具ｼ・0蟷ｴ髢難ｼ・
+4. 謳咲寢 = 邏阪ａ縺滄｡・- 蜿励￠蜿悶▲縺滄｡・
 
-**例: 30歳の場合**
-- 納める: 約 ¥18.1百万（35年間）
-- 受け取る: ¥14.4百万（20年間）
-- **赤字: △¥3.7百万（損失率 20.5%）**
+**萓・ 30豁ｳ縺ｮ蝣ｴ蜷・*
+- 邏阪ａ繧・ 邏・ﾂ･18.1逋ｾ荳・ｼ・5蟷ｴ髢難ｼ・
+- 蜿励￠蜿悶ｋ: ﾂ･14.4逋ｾ荳・ｼ・0蟷ｴ髢難ｼ・
+- **襍､蟄・ 笆ｳﾂ･3.7逋ｾ荳・ｼ域錐螟ｱ邇・20.5%・・*
 
 ---
 
-## 📝 Unit Test カバレッジ
+## 統 Unit Test 繧ｫ繝舌Ξ繝・ず
 
-| テスト項目 | ステータス | 内容 |
+| 繝・せ繝磯・岼 | 繧ｹ繝・・繧ｿ繧ｹ | 蜀・ｮｹ |
 |----------|----------|------|
-| 30歳シナリオ | ✅ | 損失計算・損失率検証 |
-| 若年・中年・老年 | ✅ | 各年代の給与・期間の影響 |
-| エッジケース | ✅ | 年齢範囲外（19, 81） |
-| カテゴリ分類 | ✅ | 給与カテゴリ適用確認 |
+| 30豁ｳ繧ｷ繝翫Μ繧ｪ | 笨・| 謳榊､ｱ險育ｮ励・謳榊､ｱ邇・､懆ｨｼ |
+| 闍･蟷ｴ繝ｻ荳ｭ蟷ｴ繝ｻ閠∝ｹｴ | 笨・| 蜷・ｹｴ莉｣縺ｮ邨ｦ荳弱・譛滄俣縺ｮ蠖ｱ髻ｿ |
+| 繧ｨ繝・ず繧ｱ繝ｼ繧ｹ | 笨・| 蟷ｴ鮨｢遽・峇螟厄ｼ・9, 81・・|
+| 繧ｫ繝・ざ繝ｪ蛻・｡・| 笨・| 邨ｦ荳弱き繝・ざ繝ｪ驕ｩ逕ｨ遒ｺ隱・|
 
-**ターゲット**: 50% 以上のコードカバレッジ（ロジック層）
-
----
-
-## 🚀 実装の注意点（遵守中）
-
-✅ **Aha Moment を最優先** → 年金計算エンジン完成・テスト済み  
-✅ **ロジックは Unit Test で 100% 検証** → 全 8 テスト通過  
-✅ **外部ライブラリに依存しない** → 厚労省データ信頼性確保  
-✅ **シンプルなコードから始める** → UI も Riverpod も基本的な実装  
-✅ **グラフは fl_chart で即座に表示** → マルチチャート対応  
-✅ **ナビゲーション統合済み** → 年齢入力 → Dashboard → 投票画面  
-✅ **投票機能は Firebase 準備済み** → Anonymous Auth + Firestore スキーマ対応  
-✅ **モックデータで先行実装** → Firebase Console 接続前にテスト可能
+**繧ｿ繝ｼ繧ｲ繝・ヨ**: 50% 莉･荳翫・繧ｳ繝ｼ繝峨き繝舌Ξ繝・ず・医Ο繧ｸ繝・け螻､・・
 
 ---
 
-## 🔐 Firebase 設定（次）
+## 噫 螳溯｣・・豕ｨ諢冗せ・磯・螳井ｸｭ・・
 
-**未実装**:
-- [ ] Firebase Console でプロジェクト作成
-- [ ] google-services.json / GoogleService-Info.plist 取得
-- [ ] Firestore 初期化
-- [ ] Authentication（Anonymous）
-
-**参考**:
-- Firebase アカウント: `petitworksdev@gmail.com`
-- プロジェクト: `nihon-future-map`
+笨・**Aha Moment 繧呈怙蜆ｪ蜈・* 竊・蟷ｴ驥題ｨ育ｮ励お繝ｳ繧ｸ繝ｳ螳梧・繝ｻ繝・せ繝域ｸ医∩  
+笨・**繝ｭ繧ｸ繝・け縺ｯ Unit Test 縺ｧ 100% 讀懆ｨｼ** 竊・蜈ｨ 8 繝・せ繝磯夐℃  
+笨・**螟夜Κ繝ｩ繧､繝悶Λ繝ｪ縺ｫ萓晏ｭ倥＠縺ｪ縺・* 竊・蜴壼感逵√ョ繝ｼ繧ｿ菫｡鬆ｼ諤ｧ遒ｺ菫・ 
+笨・**繧ｷ繝ｳ繝励Ν縺ｪ繧ｳ繝ｼ繝峨°繧牙ｧ九ａ繧・* 竊・UI 繧・Riverpod 繧ょ渕譛ｬ逧・↑螳溯｣・ 
+笨・**繧ｰ繝ｩ繝輔・ fl_chart 縺ｧ蜊ｳ蠎ｧ縺ｫ陦ｨ遉ｺ** 竊・繝槭Ν繝√メ繝｣繝ｼ繝亥ｯｾ蠢・ 
+笨・**繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ邨ｱ蜷域ｸ医∩** 竊・蟷ｴ鮨｢蜈･蜉・竊・Dashboard 竊・謚慕･ｨ逕ｻ髱｢  
+笨・**謚慕･ｨ讖溯・縺ｯ Firebase 貅門ｙ貂医∩** 竊・Anonymous Auth + Firestore 繧ｹ繧ｭ繝ｼ繝槫ｯｾ蠢・ 
+笨・**繝｢繝・け繝・・繧ｿ縺ｧ蜈郁｡悟ｮ溯｣・* 竊・Firebase Console 謗･邯壼燕縺ｫ繝・せ繝亥庄閭ｽ
 
 ---
 
-## 📊 KPI イベント（実装待ち）
+## 柏 Firebase 險ｭ螳夲ｼ域ｬ｡・・
+
+**譛ｪ螳溯｣・*:
+- [ ] Firebase Console 縺ｧ繝励Ο繧ｸ繧ｧ繧ｯ繝井ｽ懈・
+- [ ] google-services.json / GoogleService-Info.plist 蜿門ｾ・
+- [ ] Firestore 蛻晄悄蛹・
+- [ ] Authentication・・nonymous・・
+
+**蜿り・*:
+- Firebase 繧｢繧ｫ繧ｦ繝ｳ繝・ `petitworksdev@gmail.com`
+- 繝励Ο繧ｸ繧ｧ繧ｯ繝・ `nihon-future-map`
+
+---
+
+## 投 KPI 繧､繝吶Φ繝茨ｼ亥ｮ溯｣・ｾ・■・・
 
 ```dart
-// 実装予定の計測イベント
+// 螳溯｣・ｺ亥ｮ壹・險域ｸｬ繧､繝吶Φ繝・
 logEvent('loss_calculated', {'age': 28, 'loss_amount': 600000});
 logEvent('vote_submitted', {'challengeId': 'income_stagnation'});
 logEvent('content_shared', {'contentType': 'loss_card', 'platform': 'twitter'});
@@ -1452,12 +1452,13 @@ logEvent('content_shared', {'contentType': 'loss_card', 'platform': 'twitter'});
 
 ---
 
-## 🎯 現在の状態
+## 識 迴ｾ蝨ｨ縺ｮ迥ｶ諷・
 
-**プロジェクト準備完了** ✅
-- 基本ロジック実装
-- Unit Test カバレッジ
-- Provider 統合
-- 簡単な UI フロー
+**繝励Ο繧ｸ繧ｧ繧ｯ繝域ｺ門ｙ螳御ｺ・* 笨・
+- 蝓ｺ譛ｬ繝ｭ繧ｸ繝・け螳溯｣・
+- Unit Test 繧ｫ繝舌Ξ繝・ず
+- Provider 邨ｱ蜷・
+- 邁｡蜊倥↑ UI 繝輔Ο繝ｼ
 
-**次の実装へ**: Dashboard・グラフ表示 または Firebase 統合どちらを優先するか確認待ち
+**谺｡縺ｮ螳溯｣・∈**: Dashboard繝ｻ繧ｰ繝ｩ繝戊｡ｨ遉ｺ 縺ｾ縺溘・ Firebase 邨ｱ蜷医←縺｡繧峨ｒ蜆ｪ蜈医☆繧九°遒ｺ隱榊ｾ・■
+

@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.petitworksapps.nihonryoudodefense"
+    namespace = "com.yourwish.japanprefecuresgame"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -17,8 +17,8 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.petitworksapps.nihonryoudodefense"
-        minSdk = 21
+        applicationId = "com.yourwish.japanprefecuresgame"
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -26,10 +26,10 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = "release"
-            keyPassword = "geography_puzzle_king"
+            keyAlias = "release-key"
+            keyPassword = "petitworks2026"
             storeFile = file(System.getProperty("user.home") + "/.android/release-key.jks")
-            storePassword = "geography_puzzle_king"
+            storePassword = "petitworks2026"
         }
     }
 

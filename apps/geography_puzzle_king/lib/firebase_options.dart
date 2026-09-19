@@ -1,4 +1,4 @@
-import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
+﻿import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'dart:io';
 
 class DefaultFirebaseOptions {
@@ -28,7 +28,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '946448575860',
     projectId: 'apps2-752cb',
     storageBucket: 'apps2-752cb.firebasestorage.app',
-    iosBundleId: 'com.yourwish.nihonryoudodefence',
+    iosBundleId: 'com..nihonryoudodefence',
   );
 
   static const FirebaseOptions web = FirebaseOptions(
@@ -41,3 +41,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'geography-puzzle-king.appspot.com',
   );
 }
+
