@@ -2348,31 +2348,39 @@ class _GameScreenState extends ConsumerState<GameScreen>
           // prep フェーズ 開始ボタン
           if (_gameState.phase == GamePhase.prep) ...[
             const SizedBox(height: 6),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  _spawner.reset();
-                  setState(() {
-                    _gameState =
-                        TdEngine.startWave(_gameState, widget.difficulty);
-                  });
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orangeAccent,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+            Builder(builder: (context) {
+              // クイズ未回答の間は「開始!」を押せないようにする
+              // (押せてしまうとクイズオーバーレイが消え、クイズに答えられなくなるため)
+              final quizPending = _currentQuiz != null && !_quizAnswered;
+              return SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: quizPending
+                      ? null
+                      : () {
+                          _spawner.reset();
+                          setState(() {
+                            _gameState = TdEngine.startWave(
+                                _gameState, widget.difficulty);
+                          });
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orangeAccent,
+                    disabledBackgroundColor: Colors.white24,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: Text(
+                    quizPending ? 'クイズに答えよう！' : '開始!',
+                    style: TextStyle(
+                        color: quizPending ? Colors.white54 : Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14),
+                  ),
                 ),
-                child: const Text(
-                  '開始!',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14),
-                ),
-              ),
-            ),
+              );
+            }),
           ],
         ],
       ),
