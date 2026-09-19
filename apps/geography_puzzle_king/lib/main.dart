@@ -8,6 +8,7 @@ import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 import 'package:geography_puzzle_king/firebase_options.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart' show sharedPreferencesProvider;
+import 'package:geography_puzzle_king/providers/localization_provider.dart';
 import 'package:geography_puzzle_king/providers/monetization_provider.dart';
 import 'package:geography_puzzle_king/services/ad_service.dart';
 import 'package:geography_puzzle_king/screens/auth/splash_screen.dart';
