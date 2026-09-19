@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 import 'package:geography_puzzle_king/models/user_model.dart';
 import 'package:geography_puzzle_king/providers/auth_provider.dart';
 
@@ -127,12 +128,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          '🎮 ニックネームを入力',
-                          style: TextStyle(
+                        Text(
+                          '🎮 ${AppLocalizations.of(context)!.nickname}',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          AppLocalizations.of(context)!.nicknameInstruction,
+                          style: const TextStyle(
+                            color: Colors.white54,
+                            fontSize: 12,
                           ),
                         ),
                         const SizedBox(height: AppSpacing.md),

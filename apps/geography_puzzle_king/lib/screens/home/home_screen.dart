@@ -5,7 +5,6 @@ import 'package:geography_puzzle_king/models/achievement_model.dart';
 import 'package:geography_puzzle_king/providers/auth_provider.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
 import 'package:geography_puzzle_king/services/audio_service.dart';
-import 'package:geography_puzzle_king/services/daily_bonus_service.dart';
 import 'package:geography_puzzle_king/services/tutorial_service.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
@@ -22,50 +21,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     AudioService().stopBgm();
-    // デイリーボーナスとチュートリアルをチェック
-    Future.microtask(() => _checkDailyBonusAndTutorial());
+    // チュートリアルをチェック
+    Future.microtask(() => _checkTutorial());
   }
 
-  Future<void> _checkDailyBonusAndTutorial() async {
+  Future<void> _checkTutorial() async {
     final prefs = await ref.read(sharedPreferencesProvider.future);
-
-    // デイリーボーナスチェック
-    final dailyBonusService = DailyBonusService(prefs);
-    final bonusResult = await dailyBonusService.checkAndClaimDailyBonus();
-
-    if (bonusResult.claimed && mounted) {
-      _showDailyBonusDialog(bonusResult);
-    }
 
     // チュートリアルチェック
     final tutorialService = TutorialService(prefs);
     if (!tutorialService.isTutorialCompleted() && mounted) {
       _showTutorialStep(tutorialService);
     }
-  }
-
-  void _showDailyBonusDialog(DailyBonusResult result) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('🎁 デイリーボーナス'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('ログインボーナス！\n\n💰 ${result.gold} gold\n⭐ ${result.exp} EXP'),
-            const SizedBox(height: 8),
-            if (result.streak > 1)
-              Text('連続ログイン: ${result.streak}日 🔥', style: const TextStyle(color: Colors.orange)),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
   }
 
   void _showTutorialStep(TutorialService tutorialService) {

@@ -82,4 +82,103 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tryAgain => 'Try Again';
+
+  @override
+  String get appTitle => 'Prefectures Game';
+
+  @override
+  String get appSubtitle => 'Learn Prefectures Through Games';
+
+  @override
+  String get gameDescription => 'Master all 47 prefectures!';
+
+  @override
+  String get nickname => 'Enter Nickname';
+
+  @override
+  String get nicknameHint => 'tankenkka';
+
+  @override
+  String get nicknameInstruction => 'Please enter in Hiragana or Katakana';
+
+  @override
+  String get startButton => 'Start!';
+
+  @override
+  String get errorInvalidNickname => 'Please enter a nickname';
+
+  @override
+  String get home => 'Home';
+
+  @override
+  String get game => 'Game';
+
+  @override
+  String get map => 'Map';
+
+  @override
+  String get territory => 'Japan Unification Map';
+
+  @override
+  String get unificationProgress => 'Progress';
+
+  @override
+  String get prefectures => 'Prefectures';
+
+  @override
+  String get globalRanking => 'Global';
+
+  @override
+  String get prefectureVersus => 'Prefecture Rivalry';
+
+  @override
+  String get userInfo => 'User Info';
+
+  @override
+  String get playerName => 'Player Name';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get pushNotifications => 'Push Notifications';
+
+  @override
+  String get dailyEvents => 'Daily Events & Battle Notifications';
+
+  @override
+  String get soundSettings => 'Sound Settings';
+
+  @override
+  String get bgm => 'BGM';
+
+  @override
+  String get backgroundMusic => 'Background Music';
+
+  @override
+  String get sfx => 'Sound Effects';
+
+  @override
+  String get sfxDescription => 'Enable in-game sound effects';
+
+  @override
+  String get languageSelect => 'Select Language';
+
+  @override
+  String get privacySettings => 'Privacy & Other';
+
+  @override
+  String get rankingDisplay => 'Ranking Display';
+
+  @override
+  String get hideFromRanking => 'Hide';
+
+  @override
+  String get showInRanking => 'Show Player Name';
+
+  @override
+  String get clearedPrefectures => 'Cleared';
+
+  @override
+  String get totalPlayers => 'Players';
 }

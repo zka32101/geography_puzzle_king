@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -86,18 +87,18 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    const Text(
-                      'ゲームで学ぶ都道府県',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.appSubtitle,
+                      style: const TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                         color: AppColors.surface,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    const Text(
-                      '日本全国の県をマスターしよう',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.gameDescription,
+                      style: const TextStyle(
                         fontSize: 14,
                         color: Colors.white70,
                       ),

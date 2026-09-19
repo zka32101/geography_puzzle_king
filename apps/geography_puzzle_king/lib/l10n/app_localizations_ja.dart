@@ -82,4 +82,103 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get tryAgain => 'もう一度試す';
+
+  @override
+  String get appTitle => '都道府県ゲーム';
+
+  @override
+  String get appSubtitle => 'ゲームで学ぶ都道府県';
+
+  @override
+  String get gameDescription => '47都道府県を守り抜け！';
+
+  @override
+  String get nickname => 'ニックネームを入力';
+
+  @override
+  String get nicknameHint => 'たんけんか';
+
+  @override
+  String get nicknameInstruction => 'ひらがなまたはカタカナで入力してください';
+
+  @override
+  String get startButton => 'はじめる！';
+
+  @override
+  String get errorInvalidNickname => 'ニックネームを入力してください';
+
+  @override
+  String get home => 'ホーム';
+
+  @override
+  String get game => 'ゲーム';
+
+  @override
+  String get map => '地図';
+
+  @override
+  String get territory => '日本統一マップ';
+
+  @override
+  String get unificationProgress => '統一度';
+
+  @override
+  String get prefectures => '都道府県';
+
+  @override
+  String get globalRanking => 'グローバル';
+
+  @override
+  String get prefectureVersus => '都道府県対抗';
+
+  @override
+  String get userInfo => 'ユーザー情報';
+
+  @override
+  String get playerName => 'プレイヤー名';
+
+  @override
+  String get notifications => '通知設定';
+
+  @override
+  String get pushNotifications => 'プッシュ通知';
+
+  @override
+  String get dailyEvents => 'デイリーイベント・対戦通知';
+
+  @override
+  String get soundSettings => 'サウンド設定';
+
+  @override
+  String get bgm => 'BGM';
+
+  @override
+  String get backgroundMusic => 'バックグラウンドミュージック';
+
+  @override
+  String get sfx => '効果音';
+
+  @override
+  String get sfxDescription => 'ゲーム内の効果音を有効';
+
+  @override
+  String get languageSelect => '言語';
+
+  @override
+  String get privacySettings => 'プライバシー・その他';
+
+  @override
+  String get rankingDisplay => 'ランキング表示';
+
+  @override
+  String get hideFromRanking => '非表示';
+
+  @override
+  String get showInRanking => 'プレイヤー名を表示';
+
+  @override
+  String get clearedPrefectures => 'クリア県';
+
+  @override
+  String get totalPlayers => 'プレイヤー';
 }

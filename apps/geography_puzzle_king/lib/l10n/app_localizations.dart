@@ -244,6 +244,40 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try Again'**
   String get tryAgain;
+
+  String get appTitle;
+  String get appSubtitle;
+  String get gameDescription;
+  String get nickname;
+  String get nicknameHint;
+  String get nicknameInstruction;
+  String get startButton;
+  String get errorInvalidNickname;
+  String get home;
+  String get game;
+  String get map;
+  String get territory;
+  String get unificationProgress;
+  String get prefectures;
+  String get globalRanking;
+  String get prefectureVersus;
+  String get userInfo;
+  String get playerName;
+  String get notifications;
+  String get pushNotifications;
+  String get dailyEvents;
+  String get soundSettings;
+  String get bgm;
+  String get backgroundMusic;
+  String get sfx;
+  String get sfxDescription;
+  String get languageSelect;
+  String get privacySettings;
+  String get rankingDisplay;
+  String get hideFromRanking;
+  String get showInRanking;
+  String get clearedPrefectures;
+  String get totalPlayers;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

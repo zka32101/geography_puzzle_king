@@ -4,6 +4,7 @@ import 'package:geography_puzzle_king/config/app_config.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/providers/auth_provider.dart';
 import 'package:geography_puzzle_king/providers/monetization_provider.dart';
+import 'package:geography_puzzle_king/providers/localization_provider.dart';
 import 'package:geography_puzzle_king/services/audio_service.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -27,6 +28,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final audio = AudioService();
     _enableBgm = audio.bgmEnabled;
     _enableSoundEffects = audio.sfxEnabled;
+    _loadLanguage();
+  }
+
+  Future<void> _loadLanguage() async {
+    // localeProviderから現在の言語を取得
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final currentLocale = ref.read(localeProvider);
+      setState(() {
+        _selectedLanguage = currentLocale.languageCode;
+      });
+    });
   }
 
   @override
@@ -56,12 +68,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             title: 'プレイヤー名',
                             subtitle: _playerName,
                             onTap: _showPlayerNameDialog,
-                          ),
-                          _buildSettingTile(
-                            icon: Icons.email,
-                            title: 'メールアドレス',
-                            subtitle: 'not.logged.in@example.com',
-                            onTap: () {},
                             showDivider: false,
                           ),
                         ],
@@ -132,6 +138,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 setState(() {
                                   _selectedLanguage = value;
                                 });
+                                ref.read(localeProvider.notifier).setLocale(value);
                               }
                             },
                             showDivider: false,
