@@ -352,7 +352,10 @@ class Enemy {
 
   Offset posOnPath(List<GridPos> path) {
     final i = pathProgress.floor().clamp(0, path.length - 2);
-    final t = pathProgress - i;
+    // pathProgress が i+1 を大きく超える場合（低フレームレート時の大きな dt、
+    // ヒーラーの召喚処理など）、t をクランプしないとパスの外側へ大きく
+    // 外挿され、キャラクターがレーンから外れた位置に描画されてしまう。
+    final t = (pathProgress - i).clamp(0.0, 1.0);
     final a = path[i];
     final b = path[i + 1];
     return Offset(
