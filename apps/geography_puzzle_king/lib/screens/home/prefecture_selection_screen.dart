@@ -211,11 +211,16 @@ class _PrefectureSelectionScreenState
   void _showDifficultyDialog(BuildContext context, PrefectureData pref) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => _buildDifficultySheet(context, pref),
+      builder: (ctx) => SafeArea(
+        child: SingleChildScrollView(
+          child: _buildDifficultySheet(context, pref),
+        ),
+      ),
     );
   }
 
