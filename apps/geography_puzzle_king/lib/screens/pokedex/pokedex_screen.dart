@@ -43,8 +43,8 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
-        flexibleSpace: const DecoratedBox(
-          decoration: BoxDecoration(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,

@@ -161,46 +161,47 @@ class JapanMapWidget extends StatelessWidget {
             // コンテンツ
             Padding(
               padding: const EdgeInsets.all(AppSpacing.sm),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    emoji,
-                    style: const TextStyle(fontSize: 24),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    prefecture.name,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      emoji,
+                      style: const TextStyle(fontSize: 24),
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (isCleared) ...[
                     const SizedBox(height: 2),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 2,
+                    Text(
+                      prefecture.name,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: isCleared ? Colors.white : Colors.grey.shade800,
+                        fontWeight: FontWeight.bold,
                       ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(AppRadius.small),
-                      ),
-                      child: Text(
-                        'Lv$level',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Colors.blue.shade800,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
+                    ),
+                    if (isCleared) ...[
+                      const SizedBox(height: 2),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(AppRadius.small),
+                        ),
+                        child: Text(
+                          'Lv$level',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: Colors.blue.shade800,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ],
