@@ -76,7 +76,7 @@ jobs:
           zip -r Runner.app.zip Runner.app
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: geography-puzzle-king-ios-unsigned
           path: apps/geography_puzzle_king/build/ios/iphoneos/Runner.app.zip
@@ -141,7 +141,7 @@ jobs:
             --apiKey "$API_KEY_ID" --apiIssuer "$API_ISSUER_ID"
 
       - name: Upload IPA artifact (backup)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: geography-puzzle-king-ios-signed
           path: apps/geography_puzzle_king/build/ios/ipa/*.ipa
