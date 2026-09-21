@@ -2102,16 +2102,22 @@ class _GameScreenState extends ConsumerState<GameScreen>
   Widget _buildQuizOverlay(_QuizQuestion quiz) {
     return Container(
       color: Colors.black87,
+      // クイズの内容(タイトル+設問+選択肢4つ)がゲームフィールドの利用可能な
+      // 高さを超えると、Column がオーバーフローして下側(4番目の選択肢)が
+      // Stack の境界でクリップされ見えなくなっていた。SingleChildScrollView
+      // でラップして、高さが足りない場合はスクロールできるようにする。
       child: Center(
-        child: Card(
-          margin: const EdgeInsets.all(16),
-          color: const Color(0xFF1A2332),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Card(
+            margin: const EdgeInsets.all(16),
+            color: const Color(0xFF1A2332),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                 const Text(
                   '📝 クイズ！+40コイン',
                   style: TextStyle(
@@ -2176,7 +2182,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
                           fontSize: 16),
                     ),
                   ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
