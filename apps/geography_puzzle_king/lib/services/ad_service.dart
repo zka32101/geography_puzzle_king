@@ -1,20 +1,30 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 /// 広告ユニットID
 ///
-/// 現在はGoogle公式のテストIDを使用している。本番リリース前に、
-/// AdMobコンソールで作成した実際の広告ユニットIDに置き換えること。
+/// Androidはリリースビルドでのみ本番ID、デバッグ時はGoogle公式のテストIDを使う
+/// （開発中の自己タップによる無効なトラフィック判定を避けるため）。
+/// iOSは本番IDの設定待ちのため、現在は常にテストID。
 class AdUnitIds {
   static String get banner {
-    if (Platform.isAndroid) return 'ca-app-pub-5058227312086483/7793638149';
+    if (Platform.isAndroid) {
+      return kDebugMode
+          ? 'ca-app-pub-3940256099942544/6300978111'
+          : 'ca-app-pub-5058227312086483/7793638149';
+    }
     if (Platform.isIOS) return 'ca-app-pub-3940256099942544/2934735716'; // TODO: iOS本番ID設定待ち
     throw UnsupportedError('この端末では広告に対応していません');
   }
 
   static String get interstitial {
-    if (Platform.isAndroid) return 'ca-app-pub-5058227312086483/8490632980';
+    if (Platform.isAndroid) {
+      return kDebugMode
+          ? 'ca-app-pub-3940256099942544/1033173712'
+          : 'ca-app-pub-5058227312086483/8490632980';
+    }
     if (Platform.isIOS) return 'ca-app-pub-3940256099942544/4411468910'; // TODO: iOS本番ID設定待ち
     throw UnsupportedError('この端末では広告に対応していません');
   }

@@ -48,3 +48,6 @@ GoogleService-Info.plist
 *.p8
 *.p12
 
+
+# leftover working directory from git filter-branch
+.git-rewrite/

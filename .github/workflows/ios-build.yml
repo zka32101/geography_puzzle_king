@@ -22,7 +22,7 @@ jobs:
   analyze-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -51,7 +51,7 @@ jobs:
     # 固定せずmacos-latestのデフォルト（App Store提出SDK要件を満たす）を使う。
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Show Xcode version
         run: xcodebuild -version
@@ -76,7 +76,7 @@ jobs:
           zip -r Runner.app.zip Runner.app
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: geography-puzzle-king-ios-unsigned
           path: apps/geography_puzzle_king/build/ios/iphoneos/Runner.app.zip
@@ -88,7 +88,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -141,7 +141,7 @@ jobs:
             --apiKey "$API_KEY_ID" --apiIssuer "$API_ISSUER_ID"
 
       - name: Upload IPA artifact (backup)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: geography-puzzle-king-ios-signed
           path: apps/geography_puzzle_king/build/ios/ipa/*.ipa
