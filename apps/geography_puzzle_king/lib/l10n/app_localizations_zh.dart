@@ -662,13 +662,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get searchByPrefNameHint => '按县名搜索';
 
   @override
-  String get difficultyDescriptionEasy => '敌方HP -20%\n波数 -1\n分数 ×0.8';
+  String get difficultyDescriptionEasy => '敌人较弱且较慢\n生命更多・休息更长\n适合新手和小朋友';
 
   @override
-  String get difficultyDescriptionNormal => '标准难度\n敌方HP ±0%\n波数 ±0';
+  String get difficultyDescriptionNormal => '标准难度\n合理布置即可通关';
 
   @override
-  String get difficultyDescriptionHard => '敌方HP +15%\n波数 +2\n分数 ×1.5';
+  String get difficultyDescriptionHard => '敌方HP +30%・更快\n波数 +2・生命更少\n分数 ×1.5';
 
   @override
   String minSecFormat(int m, int s) {

@@ -10,7 +10,7 @@ class TdEngine {
   static const int rows = 8;
   static final _rng = Random();
   static const int totalWaves = 5;
-  static const double waveBreakDuration = 5.0; // 秒
+  static const double waveBreakDuration = 5.0; // 秒（旧既定値。現在は難易度別 waveBreakSeconds を使用）
 
   static const int regionTotalWaves = 7;
 
@@ -461,7 +461,7 @@ class TdEngine {
 
   /// ウェーブ定義（難度別） — 内部用
   static List<WaveDefinition> _baseWavesForDifficulty(String difficulty) {
-    final modifier = difficultyModifiers[difficulty] ?? difficultyModifiers['normal']!;
+    final modifier = difficultyModifierOf(difficulty);
     final waveCount = (totalWaves + modifier.waveAddition).clamp(1, 10);
 
     return List.generate(waveCount, (i) {
@@ -492,7 +492,7 @@ class TdEngine {
 
   /// 地方決戦ウェーブ定義（7波・通常より強め）
   static List<WaveDefinition> regionBattleWaves(String regionCode, String difficulty) {
-    final modifier = difficultyModifiers[difficulty] ?? difficultyModifiers['normal']!;
+    final modifier = difficultyModifierOf(difficulty);
     final baseMult = 1.2; // 地方決戦の基本倍率
     final types = _regionEnemyTheme(regionCode);
 
@@ -512,7 +512,7 @@ class TdEngine {
 
   /// 歴史ステージウェーブ定義（8〜10波・地方決戦より強め）
   static List<WaveDefinition> historyBattleWaves(String histCode, String difficulty) {
-    final modifier = difficultyModifiers[difficulty] ?? difficultyModifiers['normal']!;
+    final modifier = difficultyModifierOf(difficulty);
     final baseMult = 1.4; // 歴史ステージの基本倍率
     final stageMult = switch (histCode) {
       'h02' => 1.1,
@@ -728,7 +728,7 @@ class TdEngine {
       facilities: const {},
       enemies: const [],
       coins: startCoins,
-      baseHp: baseHp + hqHpBonus,
+      baseHp: max(1, baseHp + difficultyModifierOf(difficulty).heartBonus + hqHpBonus),
       score: 0,
       currentWave: 0,
       totalWaves: waves,
@@ -752,7 +752,7 @@ class TdEngine {
       _ => 0,
     };
     return switch (diff) {
-      'easy' => 270 + bonus,
+      'easy' => 290 + bonus,
       'hard' => 200 + bonus,
       _ => 240 + bonus,
     };
@@ -768,14 +768,14 @@ class TdEngine {
   }
 
   static int _startCoins(String diff) => switch (diff) {
-    'easy' => 200,
-    'hard' => 145,
+    'easy' => 220,
+    'hard' => 140,
     _ => 160,
   };
 
   static int _startCoinsRegion(String diff) => switch (diff) {
-    'easy' => 240,
-    'hard' => 180,
+    'easy' => 260,
+    'hard' => 175,
     _ => 210,
   };
 
@@ -959,7 +959,9 @@ class TdEngine {
           ? (waveDef.baseHp * 2.5).round()
           : (waveDef.baseHp * hpMult * modHp).round();
       final baseSpd = eType.speedMult * (isBoss ? 0.6 : 1.2) * modSpd;
-      final spd = baseSpd * max(0.3, 1.0 - state.enemySpeedPenalty);
+      final spd = baseSpd *
+          difficultyModifierOf(difficulty).speedMultiplier *
+          max(0.3, 1.0 - state.enemySpeedPenalty);
       enemies.add(Enemy(
         id: 'e_${state.currentWave}_${spawner.spawned}',
         isBoss: isBoss,
@@ -1040,11 +1042,15 @@ class TdEngine {
           // タワーが強いと総ハート(12前後)を使い切る前にクリアしてしまい
           // 「ハートが簡単にクリアできる」＝実質ノーリスク化の原因になっていた。
           // ボス・装甲敵の突破はより重く響かせ、終盤の緊張感を作る。
-          final breach = enemy.isBoss
-              ? 3
-              : enemy.enemyType == EnemyType.armored
-                  ? 2
-                  : 1;
+          // イージーは子ども向けに常に1（一気に負けない）。
+          final heavy = difficultyModifierOf(difficulty).heavyBreach;
+          final breach = !heavy
+              ? 1
+              : enemy.isBoss
+                  ? (difficulty == 'hard' ? 3 : 2)
+                  : enemy.enemyType == EnemyType.armored
+                      ? 2
+                      : 1;
           baseHp -= breach;
           mistakes++;
           events.add('reached_goal');
@@ -1223,8 +1229,11 @@ class TdEngine {
               'bounty') {
             totalReward *= 2;
           }
-          // 本部強化: コイン獲得倍率
-          totalReward = (totalReward * state.hqCoinMultiplier).round();
+          // 本部強化: コイン獲得倍率 × 難易度別報酬倍率
+          totalReward = (totalReward *
+                  state.hqCoinMultiplier *
+                  difficultyModifierOf(difficulty).rewardMultiplier)
+              .round();
 
           coins += totalReward;
 
@@ -1255,7 +1264,7 @@ class TdEngine {
         events.add('victory');
       } else {
         nextPhase = GamePhase.waveEnd;
-        nextTimer = waveBreakDuration;
+        nextTimer = difficultyModifierOf(difficulty).waveBreakSeconds;
         events.add('wave_clear');
       }
     }

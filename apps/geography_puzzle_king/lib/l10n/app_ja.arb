@@ -408,9 +408,9 @@
   "facilityDescUdonShop": "超低コスト・高速攻撃",
   "facilityDescDefault": "都道府県限定の特殊施設",
   "searchByPrefNameHint": "県名で検索",
-  "difficultyDescriptionEasy": "敵HP -20%\n波数 -1\nスコア ×0.8",
-  "difficultyDescriptionNormal": "標準難度\n敵HP ±0%\n波数 ±0",
-  "difficultyDescriptionHard": "敵HP +15%\n波数 +2\nスコア ×1.5",
+  "difficultyDescriptionEasy": "敵が弱くてゆっくり\nハート多め・休憩長め\nはじめての人・小さい子向け",
+  "difficultyDescriptionNormal": "標準の難しさ\n置き方を考えればクリア",
+  "difficultyDescriptionHard": "敵HP +30%・速い\n波数 +2・ハート少なめ\nスコア ×1.5",
   "minSecFormat": "{m}分{s}秒",
   "@minSecFormat": {
     "placeholders": {

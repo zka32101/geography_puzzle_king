@@ -662,13 +662,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchByPrefNameHint => 'Search by prefecture name';
 
   @override
-  String get difficultyDescriptionEasy => 'Enemy HP -20%\nWaves -1\nScore ×0.8';
+  String get difficultyDescriptionEasy => 'Weaker, slower enemies\nMore hearts, longer breaks\nGreat for beginners & kids';
 
   @override
-  String get difficultyDescriptionNormal => 'Standard difficulty\nEnemy HP ±0%\nWaves ±0';
+  String get difficultyDescriptionNormal => 'Standard difficulty\nPlan your placement to win';
 
   @override
-  String get difficultyDescriptionHard => 'Enemy HP +15%\nWaves +2\nScore ×1.5';
+  String get difficultyDescriptionHard => 'Enemy HP +30%, faster\nWaves +2, fewer hearts\nScore ×1.5';
 
   @override
   String minSecFormat(int m, int s) {

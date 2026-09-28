@@ -415,9 +415,9 @@
   "facilityDescUdonShop": "超低成本・高速攻击",
   "facilityDescDefault": "该都道府县限定的特殊设施",
   "searchByPrefNameHint": "按县名搜索",
-  "difficultyDescriptionEasy": "敌方HP -20%\n波数 -1\n分数 ×0.8",
-  "difficultyDescriptionNormal": "标准难度\n敌方HP ±0%\n波数 ±0",
-  "difficultyDescriptionHard": "敌方HP +15%\n波数 +2\n分数 ×1.5",
+  "difficultyDescriptionEasy": "敌人较弱且较慢\n生命更多・休息更长\n适合新手和小朋友",
+  "difficultyDescriptionNormal": "标准难度\n合理布置即可通关",
+  "difficultyDescriptionHard": "敌方HP +30%・更快\n波数 +2・生命更少\n分数 ×1.5",
   "minSecFormat": "{m}分{s}秒",
   "@minSecFormat": {
     "placeholders": {

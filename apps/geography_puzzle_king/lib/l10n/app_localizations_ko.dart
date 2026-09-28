@@ -662,13 +662,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get searchByPrefNameHint => '현 이름으로 검색';
 
   @override
-  String get difficultyDescriptionEasy => '적 HP -20%\n웨이브 -1\n점수 ×0.8';
+  String get difficultyDescriptionEasy => '적이 약하고 느림\n하트 많음・휴식 길게\n초보자・어린이에게 추천';
 
   @override
-  String get difficultyDescriptionNormal => '표준 난이도\n적 HP ±0%\n웨이브 ±0';
+  String get difficultyDescriptionNormal => '표준 난이도\n배치를 잘 생각하면 클리어';
 
   @override
-  String get difficultyDescriptionHard => '적 HP +15%\n웨이브 +2\n점수 ×1.5';
+  String get difficultyDescriptionHard => '적 HP +30%・빠름\n웨이브 +2・하트 적음\n점수 ×1.5';
 
   @override
   String minSecFormat(int m, int s) {

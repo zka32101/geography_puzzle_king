@@ -408,9 +408,9 @@
   "facilityDescUdonShop": "Very low cost, rapid attack speed",
   "facilityDescDefault": "Special facility exclusive to this prefecture",
   "searchByPrefNameHint": "Search by prefecture name",
-  "difficultyDescriptionEasy": "Enemy HP -20%\nWaves -1\nScore ×0.8",
-  "difficultyDescriptionNormal": "Standard difficulty\nEnemy HP ±0%\nWaves ±0",
-  "difficultyDescriptionHard": "Enemy HP +15%\nWaves +2\nScore ×1.5",
+  "difficultyDescriptionEasy": "Weaker, slower enemies\nMore hearts, longer breaks\nGreat for beginners & kids",
+  "difficultyDescriptionNormal": "Standard difficulty\nPlan your placement to win",
+  "difficultyDescriptionHard": "Enemy HP +30%, faster\nWaves +2, fewer hearts\nScore ×1.5",
   "minSecFormat": "{m}m {s}s",
   "@minSecFormat": {
     "placeholders": {
