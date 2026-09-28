@@ -50,16 +50,31 @@ class JapanMapWidget extends StatefulWidget {
   State<JapanMapWidget> createState() => _JapanMapWidgetState();
 }
 
+// 沖縄は本土から大きく南西に離れているため、通常のバウンディングボックスに
+// 含めると本土側の縮尺が大きく下がってしまう。沖縄だけは地図右下に固定表示の
+// インセット枠を設け、本土側をズームアップして表示する。
+const String _okinawaCode = '47';
+
+/// インセット枠のサイズ・位置（メイン地図の描画領域に対する比率）。
+const double _insetWidthRatio = 0.30;
+const double _insetHeightRatio = 0.22;
+const double _insetMargin = 6.0;
+
 class _JapanMapWidgetState extends State<JapanMapWidget> {
   String? _selectedCode;
   Size? _pathsSize;
   Map<String, List<Path>>? _paths;
+  List<Path>? _okinawaPaths;
+  Rect? _okinawaInsetRect;
 
   Map<String, List<Path>> _pathsFor(Size size) {
     if (_paths != null && _pathsSize == size) return _paths!;
 
     double minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
-    for (final boundary in prefBoundaryMap.values) {
+    for (final entry in prefBoundaryMap.entries) {
+      // 沖縄は本土のバウンディングボックス計算から除外し、別枠で描画する。
+      if (entry.key == 'okinawa') continue;
+      final boundary = entry.value;
       for (final ring in boundary.borders) {
         for (final p in ring) {
           if (p.lat < minLat) minLat = p.lat;
@@ -97,6 +112,7 @@ class _JapanMapWidgetState extends State<JapanMapWidget> {
 
     final result = <String, List<Path>>{};
     _codeToId.forEach((code, id) {
+      if (code == _okinawaCode) return; // 沖縄はインセット枠で別途描画
       final boundary = prefBoundaryMap[id];
       if (boundary == null) return;
       final ringPaths = <Path>[];
@@ -117,10 +133,85 @@ class _JapanMapWidgetState extends State<JapanMapWidget> {
 
     _paths = result;
     _pathsSize = size;
+    _buildOkinawaInset(size);
     return result;
   }
 
+  /// 沖縄を画面右下の固定インセット枠内に独自の縮尺で描画するためのパスを作る。
+  void _buildOkinawaInset(Size size) {
+    final boundary = prefBoundaryMap['okinawa'];
+    if (boundary == null) {
+      _okinawaPaths = null;
+      _okinawaInsetRect = null;
+      return;
+    }
+
+    final insetW = size.width * _insetWidthRatio;
+    final insetH = size.height * _insetHeightRatio;
+    final insetRect = Rect.fromLTWH(
+      size.width - insetW - _insetMargin,
+      size.height - insetH - _insetMargin,
+      insetW,
+      insetH,
+    );
+
+    double minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+    for (final ring in boundary.borders) {
+      for (final p in ring) {
+        if (p.lat < minLat) minLat = p.lat;
+        if (p.lat > maxLat) maxLat = p.lat;
+        if (p.lng < minLng) minLng = p.lng;
+        if (p.lng > maxLng) maxLng = p.lng;
+      }
+    }
+    final centerLatRad = (minLat + maxLat) / 2 * (math.pi / 180);
+    final lngScale = math.cos(centerLatRad);
+    final geoWidth = (maxLng - minLng) * lngScale;
+    final geoHeight = (maxLat - minLat);
+    const padding = 4.0;
+    final availW = insetRect.width - padding * 2;
+    final availH = insetRect.height - padding * 2;
+    final scale = geoWidth == 0 || geoHeight == 0
+        ? 1.0
+        : (availW / geoWidth < availH / geoHeight
+            ? availW / geoWidth
+            : availH / geoHeight);
+    final drawnW = geoWidth * scale;
+    final drawnH = geoHeight * scale;
+    final offsetX = insetRect.left + padding + (availW - drawnW) / 2;
+    final offsetY = insetRect.top + padding + (availH - drawnH) / 2;
+
+    Offset project(GeoPoint p) {
+      final x = (p.lng - minLng) * lngScale * scale + offsetX;
+      final y = (maxLat - p.lat) * scale + offsetY;
+      return Offset(x, y);
+    }
+
+    final ringPaths = <Path>[];
+    for (final ring in boundary.borders) {
+      if (ring.isEmpty) continue;
+      final path = Path();
+      final first = project(ring.first);
+      path.moveTo(first.dx, first.dy);
+      for (final p in ring.skip(1)) {
+        final o = project(p);
+        path.lineTo(o.dx, o.dy);
+      }
+      path.close();
+      ringPaths.add(path);
+    }
+
+    _okinawaPaths = ringPaths;
+    _okinawaInsetRect = insetRect;
+  }
+
   String? _hitTest(Map<String, List<Path>> paths, Offset position) {
+    // 沖縄インセット枠内のタップを優先判定する。
+    if (_okinawaPaths != null) {
+      for (final path in _okinawaPaths!) {
+        if (path.contains(position)) return _okinawaCode;
+      }
+    }
     for (final entry in paths.entries) {
       for (final path in entry.value) {
         if (path.contains(position)) return entry.key;
@@ -159,6 +250,8 @@ class _JapanMapWidgetState extends State<JapanMapWidget> {
                   size: size,
                   painter: _JapanMapPainter(
                     paths: paths,
+                    okinawaPaths: _okinawaPaths,
+                    okinawaInsetRect: _okinawaInsetRect,
                     records: widget.records,
                     selectedCode: _selectedCode,
                   ),
@@ -181,11 +274,15 @@ class _JapanMapWidgetState extends State<JapanMapWidget> {
 
 class _JapanMapPainter extends CustomPainter {
   final Map<String, List<Path>> paths;
+  final List<Path>? okinawaPaths;
+  final Rect? okinawaInsetRect;
   final Map<String, PrefectureRecord> records;
   final String? selectedCode;
 
   _JapanMapPainter({
     required this.paths,
+    this.okinawaPaths,
+    this.okinawaInsetRect,
     required this.records,
     this.selectedCode,
   });
@@ -223,11 +320,40 @@ class _JapanMapPainter extends CustomPainter {
         );
       }
     });
+
+    // 沖縄インセット枠（別枠であることが分かるよう背景と枠線を描く）。
+    if (okinawaPaths != null && okinawaInsetRect != null) {
+      final insetBgPaint = Paint()
+        ..style = PaintingStyle.fill
+        ..color = Colors.blueGrey.shade50;
+      final insetBorderPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.0
+        ..color = Colors.grey.shade500;
+      final insetRRect = RRect.fromRectAndRadius(
+        okinawaInsetRect!,
+        const Radius.circular(4),
+      );
+      canvas.drawRRect(insetRRect, insetBgPaint);
+      canvas.drawRRect(insetRRect, insetBorderPaint);
+
+      final fillPaint = Paint()
+        ..style = PaintingStyle.fill
+        ..color = _colorFor(_okinawaCode);
+      for (final path in okinawaPaths!) {
+        canvas.drawPath(path, fillPaint);
+        canvas.drawPath(
+          path,
+          _okinawaCode == selectedCode ? selectedBorderPaint : borderPaint,
+        );
+      }
+    }
   }
 
   @override
   bool shouldRepaint(covariant _JapanMapPainter oldDelegate) {
     return oldDelegate.paths != paths ||
+        oldDelegate.okinawaPaths != okinawaPaths ||
         oldDelegate.records != records ||
         oldDelegate.selectedCode != selectedCode;
   }
