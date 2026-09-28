@@ -11,6 +11,8 @@ import 'package:geography_puzzle_king/services/player_level_service.dart';
 import 'package:geography_puzzle_king/services/daily_bonus_service.dart';
 import 'package:geography_puzzle_king/models/hq_upgrade_model.dart';
 import 'package:geography_puzzle_king/services/hq_upgrade_service.dart';
+import 'package:geography_puzzle_king/providers/auth_provider.dart';
+import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 
 // ─── SharedPreferences 初期化 (FutureProvider) ──────────────────────────────
 
@@ -31,10 +33,10 @@ final achievementServiceProvider = Provider<AchievementService?>((ref) {
 });
 
 // ─── ランキングサービス ──────────────────────────────────────────────────────
+// Firestore連携版。SharedPreferencesは不要になったため引数なしで生成する。
 
-final rankingServiceProvider = Provider<RankingService?>((ref) {
-  final prefs = ref.watch(sharedPreferencesProvider).value;
-  return prefs != null ? RankingService(prefs) : null;
+final rankingServiceProvider = Provider<RankingService>((ref) {
+  return RankingService();
 });
 
 // ─── プレイヤーレベルサービス ────────────────────────────────────────────────
@@ -247,14 +249,15 @@ class GameService {
 
     // ランキング更新
     if (isCleared) {
-      final rankingSvc = ref.read(rankingServiceProvider);
-      if (rankingSvc != null) {
-        await rankingSvc.recordPrefectureScore(
-          userId: 'player_1',
-          prefCode: g.prefectureCode,
-          difficulty: g.difficulty,
+      final user = ref.read(currentUserProvider);
+      if (user != null) {
+        final pref = getPrefectureByCode(g.prefectureCode);
+        final rankingSvc = ref.read(rankingServiceProvider);
+        await rankingSvc.submitPrefectureScore(
+          prefectureCode: g.prefectureCode,
+          prefectureName: pref?.name ?? g.prefectureCode,
+          uid: user.uid,
           score: finalScore,
-          clearTime: finalTime,
         );
       }
     }

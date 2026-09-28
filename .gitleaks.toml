@@ -1,0 +1,14 @@
+title = "geography_puzzle_king gitleaks config"
+
+# デフォルトルールセットを継承しつつ、実際には機密情報ではない
+# 誤検知（false positive）のみを個別に許可リスト化する。
+[extend]
+useDefault = true
+
+[allowlist]
+description = "実害のない誤検知の許可リスト"
+regexes = [
+  # SharedPreferences保存用のローカルキー名。APIキーやトークンではない。
+  # apps/geography_puzzle_king/lib/services/purchase_service.dart
+  '''premium_plan_v1''',
+]
