@@ -16,13 +16,32 @@ const String kRemoveAdsProductId = 'remove_ads';
 /// 事前に作成しておくこと。
 const String kUnlockMapProductId = 'unlock_map';
 
-/// アプリ内課金（広告除去・マップ解放）の管理サービス。
+/// 「プレミアムプラン」アプリ内課金の商品ID。
+///
+/// [kRemoveAdsProductId]（広告除去）と [kUnlockMapProductId]（マップ解放）を
+/// 1つにまとめた統合商品。購入すると広告非表示＋全マップ解放＋今後追加される
+/// プレミアム特典が有効になる。App Store Connect / Google Play Consoleの
+/// 両方でこの文字列と完全に一致する商品を事前に作成しておくこと（未作成の間は
+/// queryProductDetailsでnotFoundIDsに含まれ、[PurchaseService.fetchPremiumPlanProduct]は
+/// nullを返す＝画面上は「現在購入できません」表示になるだけで、既存の個別課金には
+/// 影響しない）。
+const String kPremiumPlanProductId = 'premium_plan_unlock';
+
+/// アプリ内課金（広告除去・マップ解放・プレミアムプラン）の管理サービス。
 ///
 /// 購入結果は端末ローカル（SharedPreferences）に保存する。複数端末間の
 /// 同期が必要になった場合は、Firestore等への保存を別途追加すること。
+///
+/// 後方互換について: [kRemoveAdsProductId] / [kUnlockMapProductId] は
+/// 個別課金として引き続き購入可能。[kPremiumPlanProductId]
+/// （プレミアムプラン）はこの2つを内包する上位互換の統合商品で、
+/// 購入すると両方のフラグが同時に立つ。既に個別購入済みのユーザーが
+/// 後からプレミアムプランを買う必要はない（[isAdsRemoved] /
+/// [isMapUnlocked] は個別購入・プレミアムプランのどちらでもtrueになる）。
 class PurchaseService {
   static const _keyAdsRemoved = 'ads_removed_v1';
   static const _keyMapUnlocked = 'map_unlocked_v1';
+  static const _keyPremiumPlan = 'premium_plan_v1';
 
   final SharedPreferences _prefs;
   final InAppPurchase _iap = InAppPurchase.instance;
@@ -30,30 +49,39 @@ class PurchaseService {
 
   PurchaseService(this._prefs);
 
-  bool get isAdsRemoved => _prefs.getBool(_keyAdsRemoved) ?? false;
-  bool get isMapUnlocked => _prefs.getBool(_keyMapUnlocked) ?? false;
+  bool get isPremiumPlan => _prefs.getBool(_keyPremiumPlan) ?? false;
+
+  // 広告除去・マップ解放は「個別課金」または「プレミアムプラン」のどちらか
+  // 一方でも購入済みならtrueを返す。
+  bool get isAdsRemoved => (_prefs.getBool(_keyAdsRemoved) ?? false) || isPremiumPlan;
+  bool get isMapUnlocked => (_prefs.getBool(_keyMapUnlocked) ?? false) || isPremiumPlan;
 
   Future<void> _setAdsRemoved() => _prefs.setBool(_keyAdsRemoved, true);
   Future<void> _setMapUnlocked() => _prefs.setBool(_keyMapUnlocked, true);
+  Future<void> _setPremiumPlan() => _prefs.setBool(_keyPremiumPlan, true);
 
   /// 購入更新イベントの購読を開始する。アプリ起動時に一度だけ呼ぶこと。
   ///
   /// [onPurchased] には購入が確定した商品IDが渡される
-  /// （[kRemoveAdsProductId] または [kUnlockMapProductId]）。
+  /// （[kRemoveAdsProductId] / [kUnlockMapProductId] / [kPremiumPlanProductId]）。
   void startListening({required void Function(String productId) onPurchased}) {
     _subscription?.cancel();
     _subscription = _iap.purchaseStream.listen((purchases) async {
       for (final purchase in purchases) {
         final isKnownProduct = purchase.productID == kRemoveAdsProductId ||
-            purchase.productID == kUnlockMapProductId;
+            purchase.productID == kUnlockMapProductId ||
+            purchase.productID == kPremiumPlanProductId;
         if (!isKnownProduct) continue;
 
         if (purchase.status == PurchaseStatus.purchased ||
             purchase.status == PurchaseStatus.restored) {
           if (purchase.productID == kRemoveAdsProductId) {
             await _setAdsRemoved();
-          } else {
+          } else if (purchase.productID == kUnlockMapProductId) {
             await _setMapUnlocked();
+          } else {
+            // プレミアムプラン: 広告除去＋マップ解放を同時に有効化。
+            await _setPremiumPlan();
           }
           onPurchased(purchase.productID);
         }
@@ -78,6 +106,7 @@ class PurchaseService {
 
   Future<ProductDetails?> fetchRemoveAdsProduct() => _fetchProduct(kRemoveAdsProductId);
   Future<ProductDetails?> fetchUnlockMapProduct() => _fetchProduct(kUnlockMapProductId);
+  Future<ProductDetails?> fetchPremiumPlanProduct() => _fetchProduct(kPremiumPlanProductId);
 
   Future<void> buyNonConsumable(ProductDetails product) async {
     final param = PurchaseParam(productDetails: product);

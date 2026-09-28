@@ -9,6 +9,7 @@ import 'package:geography_puzzle_king/providers/localization_provider.dart';
 import 'package:geography_puzzle_king/services/audio_service.dart';
 import 'package:geography_puzzle_king/config/legal_content.dart';
 import 'package:geography_puzzle_king/screens/settings/legal_text_screen.dart';
+import 'package:geography_puzzle_king/screens/settings/premium_plan_screen.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -251,6 +252,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       _buildSection(
                         title: l10n.adsAndPurchases,
                         children: [
+                          _buildPremiumPlanTile(),
                           _buildRemoveAdsTile(),
                           _buildUnlockMapTile(),
                         ],
@@ -307,6 +309,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  // NOTE: このタイルの文言は日本語ハードコード。l10n化は別途対応すること。
+  Widget _buildPremiumPlanTile() {
+    final isPremium = ref.watch(premiumPlanProvider);
+    return _tileShell(
+      icon: Icons.workspace_premium,
+      iconColor: isPremium ? AppColors.success : AppColors.primary,
+      title: isPremium ? 'プレミアムプラン（購入済み）' : 'プレミアムプラン',
+      subtitle: isPremium
+          ? '広告非表示・全マップ解放が有効です'
+          : '広告除去＋マップ解放がまとめてお得に',
+      trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const PremiumPlanScreen()),
+        );
+      },
+      showDivider: true,
     );
   }
 

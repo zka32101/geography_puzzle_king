@@ -58,6 +58,12 @@ final mapUnlockedProvider = StateNotifierProvider<PurchaseFlagNotifier, bool>((r
   return PurchaseFlagNotifier(ref, (service) => service.isMapUnlocked);
 });
 
+/// true の場合: プレミアムプラン購入済み（広告非表示＋全マップ解放＋今後の特典）
+/// （商品ID: [kPremiumPlanProductId]）。
+final premiumPlanProvider = StateNotifierProvider<PurchaseFlagNotifier, bool>((ref) {
+  return PurchaseFlagNotifier(ref, (service) => service.isPremiumPlan);
+});
+
 /// ストア上の「広告除去」商品情報（価格表示用）。
 final removeAdsProductProvider = FutureProvider<ProductDetails?>((ref) async {
   final service = ref.watch(purchaseServiceProvider);
@@ -72,4 +78,12 @@ final unlockMapProductProvider = FutureProvider<ProductDetails?>((ref) async {
   if (service == null) return null;
   if (!await service.isStoreAvailable()) return null;
   return service.fetchUnlockMapProduct();
+});
+
+/// ストア上の「プレミアムプラン」商品情報（価格表示用）。
+final premiumPlanProductProvider = FutureProvider<ProductDetails?>((ref) async {
+  final service = ref.watch(purchaseServiceProvider);
+  if (service == null) return null;
+  if (!await service.isStoreAvailable()) return null;
+  return service.fetchPremiumPlanProduct();
 });
