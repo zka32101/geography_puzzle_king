@@ -315,6 +315,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get territoryMapTitle => '日本統一マップ';
 
   @override
+  String get japanMapLabel => '日本地図';
+
+  @override
+  String get mapDataAttribution => '地図データ: 「地球地図日本」国土地理院';
+
+  @override
   String genericErrorPrefix(String error) {
     return 'エラー: $error';
   }

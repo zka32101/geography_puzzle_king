@@ -118,6 +118,8 @@
     "placeholders": { "count": {"type": "int"} }
   },
   "territoryMapTitle": "Japan Unification Map",
+  "japanMapLabel": "Japan Map",
+  "mapDataAttribution": "Map data: Global Map Japan, GSI",
   "genericErrorPrefix": "Error: {error}",
   "@genericErrorPrefix": {
     "placeholders": { "error": {"type": "String"} }

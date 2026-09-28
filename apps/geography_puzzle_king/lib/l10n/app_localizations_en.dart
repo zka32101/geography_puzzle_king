@@ -315,6 +315,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get territoryMapTitle => 'Japan Unification Map';
 
   @override
+  String get japanMapLabel => 'Japan Map';
+
+  @override
+  String get mapDataAttribution => 'Map data: Global Map Japan, GSI';
+
+  @override
   String genericErrorPrefix(String error) {
     return 'Error: $error';
   }
