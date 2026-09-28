@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
+import 'package:geography_puzzle_king/data/prefecture_quiz_data.dart';
 import 'package:geography_puzzle_king/models/td_model.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
 import 'package:geography_puzzle_king/providers/monetization_provider.dart';
@@ -136,18 +137,9 @@ const _waveSkillChoices = [
 ];
 
 // ─── クイズ ───────────────────────────────────────────────────────────────
-
-class _QuizQuestion {
-  final String question;
-  final List<String> options;
-  final int correctIndex;
-
-  const _QuizQuestion({
-    required this.question,
-    required this.options,
-    required this.correctIndex,
-  });
-}
+// クイズ問題の本体（Quiz クラス）は lib/data/prefecture_quiz_data.dart に
+// 都道府県ごとに最低3問ずつ用意されており、ゲーム開始時にその中から
+// ランダムで1問選ぶ（_generateQuiz 参照）。
 
 // ─── ゲーム画面 ──────────────────────────────────────────────────────────
 
@@ -231,7 +223,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   List<_ShopItem> _currentShopItems = [];
 
   // クイズ
-  _QuizQuestion? _currentQuiz;
+  Quiz? _currentQuiz;
   bool _quizAnswered = false;
   int? _quizSelectedIndex;
 
@@ -1036,48 +1028,29 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
   // ─── クイズ ──────────────────────────────────────────────────────────
 
-  _QuizQuestion _generateQuiz(PrefectureData pref, List<PrefectureData> allPrefs) {
-    final type = _rng.nextInt(3);
-
-    if (type == 0) {
-      // 県庁所在地クイズ
-      final wrongList = allPrefs
-          .where((p) => p.code != pref.code)
-          .map((p) => p.capitalCity)
-          .toList()
-        ..shuffle(_rng);
-      final options = [pref.capitalCity, ...wrongList.take(3)]..shuffle(_rng);
-      return _QuizQuestion(
-        question: '${pref.name}の県庁所在地は？',
-        options: options,
-        correctIndex: options.indexOf(pref.capitalCity),
-      );
-    } else if (type == 1) {
-      // 特産品クイズ
-      final correct = pref.specialties.isNotEmpty ? pref.specialties.first : pref.name;
-      final wrongPrefs = allPrefs.where((p) => p.code != pref.code).toList()..shuffle(_rng);
-      final wrong = wrongPrefs
-          .take(3)
-          .map((p) => p.specialties.isNotEmpty ? p.specialties.first : p.name)
-          .toList();
-      final options = [correct, ...wrong]..shuffle(_rng);
-      return _QuizQuestion(
-        question: '${pref.name}の特産品は？',
-        options: options,
-        correctIndex: options.indexOf(correct),
-      );
-    } else {
-      // ボス名クイズ
-      final correct = pref.boss.name;
-      final wrongPrefs = allPrefs.where((p) => p.code != pref.code).toList()..shuffle(_rng);
-      final wrong = wrongPrefs.take(3).map((p) => p.boss.name).toList();
-      final options = [correct, ...wrong]..shuffle(_rng);
-      return _QuizQuestion(
-        question: '${pref.name}のボスの名前は？',
-        options: options,
-        correctIndex: options.indexOf(correct),
-      );
+  /// 都道府県コードに紐づくクイズ一覧（prefectureQuizData）からランダムに
+  /// 1問を選ぶ。各県には最低3問（県庁所在地・特産品・地方など）が
+  /// 用意されているため、周回プレイでも毎回違う問題に出会える。
+  /// データが未整備の県が万一あってもゲームが落ちないよう、その場合は
+  /// 旧来のロジック（全都道府県データから動的に生成）にフォールバックする。
+  Quiz _generateQuiz(PrefectureData pref, List<PrefectureData> allPrefs) {
+    final quizzes = prefectureQuizData[pref.code];
+    if (quizzes != null && quizzes.isNotEmpty) {
+      return quizzes[_rng.nextInt(quizzes.length)];
     }
+
+    // フォールバック: 県庁所在地クイズを動的生成
+    final wrongList = allPrefs
+        .where((p) => p.code != pref.code)
+        .map((p) => p.capitalCity)
+        .toList()
+      ..shuffle(_rng);
+    final options = [pref.capitalCity, ...wrongList.take(3)]..shuffle(_rng);
+    return Quiz(
+      question: '${pref.name}の県庁所在地は？',
+      options: options,
+      correctIndex: options.indexOf(pref.capitalCity),
+    );
   }
 
   void _onQuizAnswer(int index) {
@@ -2108,7 +2081,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     );
   }
 
-  Widget _buildQuizOverlay(_QuizQuestion quiz) {
+  Widget _buildQuizOverlay(Quiz quiz) {
     return Container(
       color: Colors.black87,
       // クイズの内容(タイトル+設問+選択肢4つ)がゲームフィールドの利用可能な

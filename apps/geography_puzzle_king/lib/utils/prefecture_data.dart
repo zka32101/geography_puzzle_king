@@ -882,6 +882,24 @@ extension PrefectureGeographyX on PrefectureData {
     }
   }
 
+  /// クリア画面用の詳細解説文。手書きの [funFact]（1〜2文）に加えて、
+  /// 地方・地形・特産品・県庁所在地という確実な地理情報から
+  /// もう1文を自動生成して補足し、全体で2〜3文程度の解説にする。
+  /// 全47都道府県ぶんを手書きする代わりに、既存の確実なデータ
+  /// （region/geography/specialties/capitalCity）だけを使うことで、
+  /// 不確かな統計を混ぜずに拡充できるようにしている。
+  String get detailedDescription {
+    final regionLabel = regionNames[region];
+    final regionPart = regionLabel != null ? '$regionLabel地方に位置する' : '';
+    final geoPart = '「$geographyName」タイプの地形が特徴の県';
+    final specialtyPart = specialties.isNotEmpty
+        ? '名産品は${specialties.take(2).join('や')}などが知られていて、'
+            '県庁所在地の$capitalCityを中心ににぎわっているよ。'
+        : '県庁所在地は$capitalCityだよ。';
+    final extraSentence = '$regionPart$geoPart。$specialtyPart';
+    return '$funFact$extraSentence';
+  }
+
   /// 制圧トリビア（データから自動生成する豆知識を1つ返す）
   String get trivia {
     final c = int.tryParse(code) ?? 0;

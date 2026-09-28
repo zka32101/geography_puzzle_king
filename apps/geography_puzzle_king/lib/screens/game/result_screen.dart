@@ -353,7 +353,9 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          pref.funFact,
+                          // クリア後の解説を、豆知識＋地方/地形/特産品の
+                          // 自動補足文で2〜3文程度に拡充したもの
+                          pref.detailedDescription,
                           style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
