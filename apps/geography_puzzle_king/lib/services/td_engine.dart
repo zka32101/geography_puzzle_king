@@ -469,7 +469,10 @@ class TdEngine {
       return WaveDefinition(
         waveNumber: w,
         enemyCount: 3 + w * 2,
-        baseHp: (40 * w * modifier.hpMultiplier).round(),
+        // 敵HPを+20%（40→48係数）。序盤タワー1〜2基のDPSだけで
+        // 被弾ゼロのままクリアできてしまい、ハートが全く減らない
+        // ケースが多かったための調整。
+        baseHp: (48 * w * modifier.hpMultiplier).round(),
         baseAttack: (5 + w * 2 * modifier.hpMultiplier).round(),
         spawnInterval: max(0.5, 1.5 - w * 0.15),
         hasBoss: w == waveCount,
@@ -1033,7 +1036,16 @@ class TdEngine {
           shieldHits--;
           events.add('shield_block');
         } else {
-          baseHp--;
+          // 突破時のハート損失を敵の脅威度で変える。旧実装は常に-1固定で、
+          // タワーが強いと総ハート(12前後)を使い切る前にクリアしてしまい
+          // 「ハートが簡単にクリアできる」＝実質ノーリスク化の原因になっていた。
+          // ボス・装甲敵の突破はより重く響かせ、終盤の緊張感を作る。
+          final breach = enemy.isBoss
+              ? 3
+              : enemy.enemyType == EnemyType.armored
+                  ? 2
+                  : 1;
+          baseHp -= breach;
           mistakes++;
           events.add('reached_goal');
         }
