@@ -7,6 +7,8 @@ import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
 import 'app_localizations_ja.dart';
+import 'app_localizations_ko.dart';
+import 'app_localizations_zh.dart';
 
 // ignore_for_file: type=lint
 
@@ -92,7 +94,9 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('ja')
+    Locale('ja'),
+    Locale('ko'),
+    Locale('zh')
   ];
 
   /// App title
@@ -340,6 +344,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'English'**
   String get english;
+
+  /// No description provided for @chinese.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese'**
+  String get chinese;
+
+  /// No description provided for @korean.
+  ///
+  /// In en, this message translates to:
+  /// **'Korean'**
+  String get korean;
 
   /// No description provided for @difficulty.
   ///
@@ -1642,6 +1658,372 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{percent}% Complete'**
   String conquestPercent(String percent);
+
+  /// No description provided for @facilityNameFarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Farm'**
+  String get facilityNameFarm;
+
+  /// No description provided for @facilityNameFishery.
+  ///
+  /// In en, this message translates to:
+  /// **'Fishery'**
+  String get facilityNameFishery;
+
+  /// No description provided for @facilityNameFactory.
+  ///
+  /// In en, this message translates to:
+  /// **'Factory'**
+  String get facilityNameFactory;
+
+  /// No description provided for @facilityNameMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Mine'**
+  String get facilityNameMine;
+
+  /// No description provided for @facilityNameCastle.
+  ///
+  /// In en, this message translates to:
+  /// **'Castle'**
+  String get facilityNameCastle;
+
+  /// No description provided for @facilityNameShrine.
+  ///
+  /// In en, this message translates to:
+  /// **'Shrine'**
+  String get facilityNameShrine;
+
+  /// No description provided for @facilityNameDairyFarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Dairy Farm'**
+  String get facilityNameDairyFarm;
+
+  /// No description provided for @facilityNameAlpineWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Alpine Watchtower'**
+  String get facilityNameAlpineWatch;
+
+  /// No description provided for @facilityNameToyotaFactory.
+  ///
+  /// In en, this message translates to:
+  /// **'Toyota Factory'**
+  String get facilityNameToyotaFactory;
+
+  /// No description provided for @facilityNameKiyomizuTemple.
+  ///
+  /// In en, this message translates to:
+  /// **'Kiyomizu Temple'**
+  String get facilityNameKiyomizuTemple;
+
+  /// No description provided for @facilityNamePeaceShrine.
+  ///
+  /// In en, this message translates to:
+  /// **'Peace Memorial'**
+  String get facilityNamePeaceShrine;
+
+  /// No description provided for @facilityNameShisaGuardian.
+  ///
+  /// In en, this message translates to:
+  /// **'Shisa Guardian'**
+  String get facilityNameShisaGuardian;
+
+  /// No description provided for @facilityNameUmeSakeBrewery.
+  ///
+  /// In en, this message translates to:
+  /// **'Ume Sake Brewery'**
+  String get facilityNameUmeSakeBrewery;
+
+  /// No description provided for @facilityNameUdonShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Udon Shop'**
+  String get facilityNameUdonShop;
+
+  /// No description provided for @prefectureName01.
+  ///
+  /// In en, this message translates to:
+  /// **'Hokkaido'**
+  String get prefectureName01;
+
+  /// No description provided for @prefectureName02.
+  ///
+  /// In en, this message translates to:
+  /// **'Aomori'**
+  String get prefectureName02;
+
+  /// No description provided for @prefectureName03.
+  ///
+  /// In en, this message translates to:
+  /// **'Iwate'**
+  String get prefectureName03;
+
+  /// No description provided for @prefectureName04.
+  ///
+  /// In en, this message translates to:
+  /// **'Miyagi'**
+  String get prefectureName04;
+
+  /// No description provided for @prefectureName05.
+  ///
+  /// In en, this message translates to:
+  /// **'Akita'**
+  String get prefectureName05;
+
+  /// No description provided for @prefectureName06.
+  ///
+  /// In en, this message translates to:
+  /// **'Yamagata'**
+  String get prefectureName06;
+
+  /// No description provided for @prefectureName07.
+  ///
+  /// In en, this message translates to:
+  /// **'Fukushima'**
+  String get prefectureName07;
+
+  /// No description provided for @prefectureName08.
+  ///
+  /// In en, this message translates to:
+  /// **'Ibaraki'**
+  String get prefectureName08;
+
+  /// No description provided for @prefectureName09.
+  ///
+  /// In en, this message translates to:
+  /// **'Tochigi'**
+  String get prefectureName09;
+
+  /// No description provided for @prefectureName10.
+  ///
+  /// In en, this message translates to:
+  /// **'Gunma'**
+  String get prefectureName10;
+
+  /// No description provided for @prefectureName11.
+  ///
+  /// In en, this message translates to:
+  /// **'Saitama'**
+  String get prefectureName11;
+
+  /// No description provided for @prefectureName12.
+  ///
+  /// In en, this message translates to:
+  /// **'Chiba'**
+  String get prefectureName12;
+
+  /// No description provided for @prefectureName13.
+  ///
+  /// In en, this message translates to:
+  /// **'Tokyo'**
+  String get prefectureName13;
+
+  /// No description provided for @prefectureName14.
+  ///
+  /// In en, this message translates to:
+  /// **'Kanagawa'**
+  String get prefectureName14;
+
+  /// No description provided for @prefectureName15.
+  ///
+  /// In en, this message translates to:
+  /// **'Niigata'**
+  String get prefectureName15;
+
+  /// No description provided for @prefectureName16.
+  ///
+  /// In en, this message translates to:
+  /// **'Toyama'**
+  String get prefectureName16;
+
+  /// No description provided for @prefectureName17.
+  ///
+  /// In en, this message translates to:
+  /// **'Ishikawa'**
+  String get prefectureName17;
+
+  /// No description provided for @prefectureName18.
+  ///
+  /// In en, this message translates to:
+  /// **'Fukui'**
+  String get prefectureName18;
+
+  /// No description provided for @prefectureName19.
+  ///
+  /// In en, this message translates to:
+  /// **'Yamanashi'**
+  String get prefectureName19;
+
+  /// No description provided for @prefectureName20.
+  ///
+  /// In en, this message translates to:
+  /// **'Nagano'**
+  String get prefectureName20;
+
+  /// No description provided for @prefectureName21.
+  ///
+  /// In en, this message translates to:
+  /// **'Gifu'**
+  String get prefectureName21;
+
+  /// No description provided for @prefectureName22.
+  ///
+  /// In en, this message translates to:
+  /// **'Shizuoka'**
+  String get prefectureName22;
+
+  /// No description provided for @prefectureName23.
+  ///
+  /// In en, this message translates to:
+  /// **'Aichi'**
+  String get prefectureName23;
+
+  /// No description provided for @prefectureName24.
+  ///
+  /// In en, this message translates to:
+  /// **'Mie'**
+  String get prefectureName24;
+
+  /// No description provided for @prefectureName25.
+  ///
+  /// In en, this message translates to:
+  /// **'Shiga'**
+  String get prefectureName25;
+
+  /// No description provided for @prefectureName26.
+  ///
+  /// In en, this message translates to:
+  /// **'Kyoto'**
+  String get prefectureName26;
+
+  /// No description provided for @prefectureName27.
+  ///
+  /// In en, this message translates to:
+  /// **'Osaka'**
+  String get prefectureName27;
+
+  /// No description provided for @prefectureName28.
+  ///
+  /// In en, this message translates to:
+  /// **'Hyogo'**
+  String get prefectureName28;
+
+  /// No description provided for @prefectureName29.
+  ///
+  /// In en, this message translates to:
+  /// **'Nara'**
+  String get prefectureName29;
+
+  /// No description provided for @prefectureName30.
+  ///
+  /// In en, this message translates to:
+  /// **'Wakayama'**
+  String get prefectureName30;
+
+  /// No description provided for @prefectureName31.
+  ///
+  /// In en, this message translates to:
+  /// **'Tottori'**
+  String get prefectureName31;
+
+  /// No description provided for @prefectureName32.
+  ///
+  /// In en, this message translates to:
+  /// **'Shimane'**
+  String get prefectureName32;
+
+  /// No description provided for @prefectureName33.
+  ///
+  /// In en, this message translates to:
+  /// **'Okayama'**
+  String get prefectureName33;
+
+  /// No description provided for @prefectureName34.
+  ///
+  /// In en, this message translates to:
+  /// **'Hiroshima'**
+  String get prefectureName34;
+
+  /// No description provided for @prefectureName35.
+  ///
+  /// In en, this message translates to:
+  /// **'Yamaguchi'**
+  String get prefectureName35;
+
+  /// No description provided for @prefectureName36.
+  ///
+  /// In en, this message translates to:
+  /// **'Tokushima'**
+  String get prefectureName36;
+
+  /// No description provided for @prefectureName37.
+  ///
+  /// In en, this message translates to:
+  /// **'Kagawa'**
+  String get prefectureName37;
+
+  /// No description provided for @prefectureName38.
+  ///
+  /// In en, this message translates to:
+  /// **'Ehime'**
+  String get prefectureName38;
+
+  /// No description provided for @prefectureName39.
+  ///
+  /// In en, this message translates to:
+  /// **'Kochi'**
+  String get prefectureName39;
+
+  /// No description provided for @prefectureName40.
+  ///
+  /// In en, this message translates to:
+  /// **'Fukuoka'**
+  String get prefectureName40;
+
+  /// No description provided for @prefectureName41.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga'**
+  String get prefectureName41;
+
+  /// No description provided for @prefectureName42.
+  ///
+  /// In en, this message translates to:
+  /// **'Nagasaki'**
+  String get prefectureName42;
+
+  /// No description provided for @prefectureName43.
+  ///
+  /// In en, this message translates to:
+  /// **'Kumamoto'**
+  String get prefectureName43;
+
+  /// No description provided for @prefectureName44.
+  ///
+  /// In en, this message translates to:
+  /// **'Oita'**
+  String get prefectureName44;
+
+  /// No description provided for @prefectureName45.
+  ///
+  /// In en, this message translates to:
+  /// **'Miyazaki'**
+  String get prefectureName45;
+
+  /// No description provided for @prefectureName46.
+  ///
+  /// In en, this message translates to:
+  /// **'Kagoshima'**
+  String get prefectureName46;
+
+  /// No description provided for @prefectureName47.
+  ///
+  /// In en, this message translates to:
+  /// **'Okinawa'**
+  String get prefectureName47;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -1653,7 +2035,7 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'ja'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'ja', 'ko', 'zh'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -1666,6 +2048,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en': return AppLocalizationsEn();
     case 'ja': return AppLocalizationsJa();
+    case 'ko': return AppLocalizationsKo();
+    case 'zh': return AppLocalizationsZh();
   }
 
   throw FlutterError(

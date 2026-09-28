@@ -1,3 +1,4 @@
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 import 'package:geography_puzzle_king/models/td_model.dart';
 
 class PrefectureData {
@@ -913,5 +914,64 @@ extension PrefectureGeographyX on PrefectureData {
     ];
     // code をシード代わりにして毎回同じ県は同じ豆知識
     return facts[c % facts.length];
+  }
+}
+
+/// 都道府県名のl10n拡張。
+/// [name] は日本語固定のため既存呼び出し箇所を壊さず残しつつ、
+/// 英語・中国語・韓国語でも都道府県名が表示できるよう
+/// [localizedName] を新規に追加する。UI側は順次こちらへ置き換える。
+extension PrefectureDataL10nX on PrefectureData {
+  String localizedName(AppLocalizations l10n) {
+    switch (code) {
+      case '01': return l10n.prefectureName01;
+      case '02': return l10n.prefectureName02;
+      case '03': return l10n.prefectureName03;
+      case '04': return l10n.prefectureName04;
+      case '05': return l10n.prefectureName05;
+      case '06': return l10n.prefectureName06;
+      case '07': return l10n.prefectureName07;
+      case '08': return l10n.prefectureName08;
+      case '09': return l10n.prefectureName09;
+      case '10': return l10n.prefectureName10;
+      case '11': return l10n.prefectureName11;
+      case '12': return l10n.prefectureName12;
+      case '13': return l10n.prefectureName13;
+      case '14': return l10n.prefectureName14;
+      case '15': return l10n.prefectureName15;
+      case '16': return l10n.prefectureName16;
+      case '17': return l10n.prefectureName17;
+      case '18': return l10n.prefectureName18;
+      case '19': return l10n.prefectureName19;
+      case '20': return l10n.prefectureName20;
+      case '21': return l10n.prefectureName21;
+      case '22': return l10n.prefectureName22;
+      case '23': return l10n.prefectureName23;
+      case '24': return l10n.prefectureName24;
+      case '25': return l10n.prefectureName25;
+      case '26': return l10n.prefectureName26;
+      case '27': return l10n.prefectureName27;
+      case '28': return l10n.prefectureName28;
+      case '29': return l10n.prefectureName29;
+      case '30': return l10n.prefectureName30;
+      case '31': return l10n.prefectureName31;
+      case '32': return l10n.prefectureName32;
+      case '33': return l10n.prefectureName33;
+      case '34': return l10n.prefectureName34;
+      case '35': return l10n.prefectureName35;
+      case '36': return l10n.prefectureName36;
+      case '37': return l10n.prefectureName37;
+      case '38': return l10n.prefectureName38;
+      case '39': return l10n.prefectureName39;
+      case '40': return l10n.prefectureName40;
+      case '41': return l10n.prefectureName41;
+      case '42': return l10n.prefectureName42;
+      case '43': return l10n.prefectureName43;
+      case '44': return l10n.prefectureName44;
+      case '45': return l10n.prefectureName45;
+      case '46': return l10n.prefectureName46;
+      case '47': return l10n.prefectureName47;
+      default: return name;
+    }
   }
 }

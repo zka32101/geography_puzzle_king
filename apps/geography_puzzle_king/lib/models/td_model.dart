@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
+
 /// ボス特殊スキルタイプ
 enum BossSkillType { speedBurst, hpRegen, summon, stunFacility }
 
@@ -58,6 +60,28 @@ extension FacilityTypeX on FacilityType {
       case FacilityType.shisaGuardian: return 'シーサー守り';
       case FacilityType.umeSakeBrewery: return '紀州梅酒醸造所';
       case FacilityType.udonShop:     return 'うどん店';
+    }
+  }
+
+  /// l10n化された施設名を返す。UI側では [label]（日本語固定）の代わりに
+  /// こちらを使うことで、英語・中国語・韓国語でも施設名が翻訳される。
+  /// 既存の [label] 呼び出し箇所を壊さないよう、新規メソッドとして追加。
+  String localizedLabel(AppLocalizations l10n) {
+    switch (this) {
+      case FacilityType.farm:          return l10n.facilityNameFarm;
+      case FacilityType.fishery:       return l10n.facilityNameFishery;
+      case FacilityType.factory:       return l10n.facilityNameFactory;
+      case FacilityType.mine:          return l10n.facilityNameMine;
+      case FacilityType.castle:        return l10n.facilityNameCastle;
+      case FacilityType.shrine:        return l10n.facilityNameShrine;
+      case FacilityType.dairyFarm:     return l10n.facilityNameDairyFarm;
+      case FacilityType.alpineWatch:   return l10n.facilityNameAlpineWatch;
+      case FacilityType.toyotaFactory: return l10n.facilityNameToyotaFactory;
+      case FacilityType.kiyomizuTemple: return l10n.facilityNameKiyomizuTemple;
+      case FacilityType.peaceShrine:   return l10n.facilityNamePeaceShrine;
+      case FacilityType.shisaGuardian: return l10n.facilityNameShisaGuardian;
+      case FacilityType.umeSakeBrewery: return l10n.facilityNameUmeSakeBrewery;
+      case FacilityType.udonShop:      return l10n.facilityNameUdonShop;
     }
   }
 

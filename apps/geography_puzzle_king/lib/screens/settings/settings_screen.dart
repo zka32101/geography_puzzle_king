@@ -139,6 +139,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             items: {
                               'ja': l10n.japanese,
                               'en': l10n.english,
+                              'zh': l10n.chinese,
+                              'ko': l10n.korean,
                             },
                             onChanged: (value) {
                               if (value != null) {

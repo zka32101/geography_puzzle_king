@@ -132,6 +132,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get english => 'English';
 
   @override
+  String get chinese => '中国語';
+
+  @override
+  String get korean => '韓国語';
+
+  @override
   String get difficulty => '難易度';
 
   @override
@@ -879,4 +885,188 @@ class AppLocalizationsJa extends AppLocalizations {
   String conquestPercent(String percent) {
     return '$percent% 制圧完了';
   }
+
+  @override
+  String get facilityNameFarm => '農業';
+
+  @override
+  String get facilityNameFishery => '漁業';
+
+  @override
+  String get facilityNameFactory => '工業';
+
+  @override
+  String get facilityNameMine => '鉱業';
+
+  @override
+  String get facilityNameCastle => '城';
+
+  @override
+  String get facilityNameShrine => '神社';
+
+  @override
+  String get facilityNameDairyFarm => '酪農施設';
+
+  @override
+  String get facilityNameAlpineWatch => '高山見張所';
+
+  @override
+  String get facilityNameToyotaFactory => 'トヨタ工場';
+
+  @override
+  String get facilityNameKiyomizuTemple => '清水寺';
+
+  @override
+  String get facilityNamePeaceShrine => '平和記念碑';
+
+  @override
+  String get facilityNameShisaGuardian => 'シーサー守り';
+
+  @override
+  String get facilityNameUmeSakeBrewery => '紀州梅酒醸造所';
+
+  @override
+  String get facilityNameUdonShop => 'うどん店';
+
+  @override
+  String get prefectureName01 => '北海道';
+
+  @override
+  String get prefectureName02 => '青森県';
+
+  @override
+  String get prefectureName03 => '岩手県';
+
+  @override
+  String get prefectureName04 => '宮城県';
+
+  @override
+  String get prefectureName05 => '秋田県';
+
+  @override
+  String get prefectureName06 => '山形県';
+
+  @override
+  String get prefectureName07 => '福島県';
+
+  @override
+  String get prefectureName08 => '茨城県';
+
+  @override
+  String get prefectureName09 => '栃木県';
+
+  @override
+  String get prefectureName10 => '群馬県';
+
+  @override
+  String get prefectureName11 => '埼玉県';
+
+  @override
+  String get prefectureName12 => '千葉県';
+
+  @override
+  String get prefectureName13 => '東京都';
+
+  @override
+  String get prefectureName14 => '神奈川県';
+
+  @override
+  String get prefectureName15 => '新潟県';
+
+  @override
+  String get prefectureName16 => '富山県';
+
+  @override
+  String get prefectureName17 => '石川県';
+
+  @override
+  String get prefectureName18 => '福井県';
+
+  @override
+  String get prefectureName19 => '山梨県';
+
+  @override
+  String get prefectureName20 => '長野県';
+
+  @override
+  String get prefectureName21 => '岐阜県';
+
+  @override
+  String get prefectureName22 => '静岡県';
+
+  @override
+  String get prefectureName23 => '愛知県';
+
+  @override
+  String get prefectureName24 => '三重県';
+
+  @override
+  String get prefectureName25 => '滋賀県';
+
+  @override
+  String get prefectureName26 => '京都府';
+
+  @override
+  String get prefectureName27 => '大阪府';
+
+  @override
+  String get prefectureName28 => '兵庫県';
+
+  @override
+  String get prefectureName29 => '奈良県';
+
+  @override
+  String get prefectureName30 => '和歌山県';
+
+  @override
+  String get prefectureName31 => '鳥取県';
+
+  @override
+  String get prefectureName32 => '島根県';
+
+  @override
+  String get prefectureName33 => '岡山県';
+
+  @override
+  String get prefectureName34 => '広島県';
+
+  @override
+  String get prefectureName35 => '山口県';
+
+  @override
+  String get prefectureName36 => '徳島県';
+
+  @override
+  String get prefectureName37 => '香川県';
+
+  @override
+  String get prefectureName38 => '愛媛県';
+
+  @override
+  String get prefectureName39 => '高知県';
+
+  @override
+  String get prefectureName40 => '福岡県';
+
+  @override
+  String get prefectureName41 => '佐賀県';
+
+  @override
+  String get prefectureName42 => '長崎県';
+
+  @override
+  String get prefectureName43 => '熊本県';
+
+  @override
+  String get prefectureName44 => '大分県';
+
+  @override
+  String get prefectureName45 => '宮崎県';
+
+  @override
+  String get prefectureName46 => '鹿児島県';
+
+  @override
+  String get prefectureName47 => '沖縄県';
+
 }

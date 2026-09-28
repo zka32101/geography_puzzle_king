@@ -1,0 +1,699 @@
+{
+  "appTitle": "都道府县游戏",
+  "appSubtitle": "在游戏中学习都道府县",
+  "gameDescription": "守护全部47个都道府县！",
+  "nickname": "输入昵称",
+  "nicknameHint": "tankenkka",
+  "nicknameInstruction": "请使用平假名或片假名输入",
+  "startButton": "开始！",
+  "errorInvalidNickname": "请输入昵称",
+  "home": "首页",
+  "game": "游戏",
+  "map": "地图",
+  "ranking": "排行榜",
+  "settings": "设置",
+  "territory": "日本统一地图",
+  "unificationProgress": "统一度",
+  "prefectures": "都道府县",
+  "globalRanking": "全球",
+  "prefectureVersus": "都道府县对抗",
+  "userInfo": "用户信息",
+  "playerName": "玩家名称",
+  "notifications": "通知设置",
+  "pushNotifications": "推送通知",
+  "dailyEvents": "每日活动・对战通知",
+  "soundSettings": "音效设置",
+  "bgm": "背景音乐",
+  "backgroundMusic": "背景音乐",
+  "sfx": "音效",
+  "sfxDescription": "启用游戏内音效",
+  "language": "语言设置",
+  "languageSelect": "选择语言",
+  "privacySettings": "隐私与其他",
+  "rankingDisplay": "排行榜显示",
+  "hideFromRanking": "隐藏",
+  "showInRanking": "显示玩家名称",
+  "clearedPrefectures": "通关县",
+  "totalPlayers": "玩家数",
+  "gameTitle": "地理拼图王",
+  "startGame": "开始游戏",
+  "profile": "个人资料",
+  "japanese": "日语",
+  "english": "英语",
+  "chinese": "中文",
+  "korean": "韩语",
+  "difficulty": "难度",
+  "easy": "简单",
+  "normal": "普通",
+  "hard": "困难",
+  "score": "分数",
+  "level": "等级",
+  "stage": "关卡",
+  "gameOver": "游戏结束",
+  "victory": "胜利",
+  "retry": "重试",
+  "back": "返回",
+  "ok": "确定",
+  "cancel": "取消",
+  "loading": "加载中...",
+  "error": "错误",
+  "tryAgain": "再试一次",
+  "menu": "菜单",
+  "pokedex": "图鉴",
+  "hqUpgrade": "总部强化",
+  "nationalConquest": "全国制霸",
+  "deploy": "出击",
+  "deploySubtitle": "选择都道府县开始防守",
+  "conqueredCount": "制霸县",
+  "totalScore": "总分",
+  "achievements": "成就",
+  "commanderName": "指挥官 {name}",
+  "@commanderName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "appInfo": "应用信息",
+  "version": "版本",
+  "buildNumber": "构建号",
+  "adsAndPurchases": "广告与购买",
+  "privacyPolicyTitle": "隐私政策",
+  "termsOfServiceTitle": "服务条款",
+  "removeAds": "移除广告",
+  "removeAdsPurchased": "广告已移除（已购买）",
+  "purchaseThankYou": "感谢您的购买",
+  "storeConnectionError": "无法连接到商店",
+  "notAvailableNow": "当前不可用",
+  "purchaseButton": "购买",
+  "guestPlayer": "访客玩家",
+  "changePlayerName": "更改玩家名称",
+  "personalInfoWarning": "请勿输入个人信息（真实姓名、地址等）。可能会显示给其他玩家。",
+  "save": "保存",
+  "removeAdsDescription": "{price} — 移除所有游戏内广告",
+  "@removeAdsDescription": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "unlockMap": "解锁全部都道府县",
+  "unlockMapPurchased": "全部都道府县已解锁",
+  "unlockMapThankYou": "全部47个都道府县均可游玩",
+  "unlockMapDescription": "{price} — 解锁全部47个都道府县、地区战与历史战",
+  "@unlockMapDescription": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "stageLockedTitle": "🔒 该都道府县已锁定",
+  "stageLockedBody": "仅前{count}个都道府县可免费游玩。\n购买“解锁全部都道府县”即可游玩全部47个。",
+  "@stageLockedBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "goToPurchaseButton": "前往购买",
+  "rankingTitle": "排行榜",
+  "rankingTabGlobal": "全球",
+  "rankingTabPrefecture": "都道府县对抗",
+  "rankingClearedCount": "通关县：{cleared} / 47",
+  "@rankingClearedCount": {
+    "placeholders": {
+      "cleared": {
+        "type": "int"
+      }
+    }
+  },
+  "pointsSuffix": "分",
+  "rankingPlayerCount": "玩家：{count} 人",
+  "@rankingPlayerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "territoryMapTitle": "日本统一地图",
+  "japanMapLabel": "日本地图",
+  "mapDataAttribution": "地图数据：Global Map Japan, GSI",
+  "genericErrorPrefix": "错误：{error}",
+  "@genericErrorPrefix": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "territoryUnificationLabel": "日本统一度",
+  "statsSectionTitle": "📊 统计信息",
+  "statTotalClears": "总通关次数",
+  "statAverageLevel": "平均等级",
+  "statHighScore": "最高分",
+  "timesSuffix": "{count} 次",
+  "@timesSuffix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pokedexTitle": "图鉴",
+  "pokedexTabCleared": "通关县",
+  "pokedexTabStats": "统计",
+  "pokedexTabAchievements": "成就",
+  "clearProgressLabel": "通关进度",
+  "percentComplete": "完成 {percent}%",
+  "@percentComplete": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "learningStatsTitle": "学习统计",
+  "statClearedPrefCount": "通关县数",
+  "statTotalPlayTime": "总游玩时间",
+  "hoursMinutesFormat": "{hours}小时{minutes}分钟",
+  "@hoursMinutesFormat": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "statTotalScore": "总分",
+  "statTotalGamesPlayed": "总游玩次数",
+  "clearsByDifficultyLabel": "各难度通关数",
+  "achievementsTitle": "成就",
+  "kanaLabel": "假名：",
+  "capitalCityLabel": "县厅：",
+  "populationLabel": "人口：约{population}人",
+  "@populationLabel": {
+    "placeholders": {
+      "population": {
+        "type": "String"
+      }
+    }
+  },
+  "areaLabel": "面积：",
+  "bestScoreLabel": "最高分：{score} 分",
+  "@bestScoreLabel": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "clearedDifficultiesLabel": "已通关难度：",
+  "specialtiesLabel": "特产：",
+  "closeButton": "关闭",
+  "researchPointsLabel": "研究点数",
+  "researchPointsHint": "通过通关都道府县获得",
+  "levelFraction": "Lv.{level} / {max}",
+  "@levelFraction": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "currentEffectLabel": "当前效果：{effect}",
+  "@currentEffectLabel": {
+    "placeholders": {
+      "effect": {
+        "type": "String"
+      }
+    }
+  },
+  "maxLabel": "MAX",
+  "upgradeForCostButton": "🔬{cost} 强化",
+  "@upgradeForCostButton": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "hqTrackAttackTitle": "⚔️ 武器开发",
+  "hqTrackCoinTitle": "💰 经济政策",
+  "hqTrackHpTitle": "🏯 城墙强化",
+  "hqTrackAttackDescription": "永久提升所有设施伤害",
+  "hqTrackCoinDescription": "永久提升击败敌人获得的金币",
+  "hqTrackHpDescription": "永久提升所有关卡初始生命值",
+  "selectPrefectureTitle": "选择都道府县",
+  "tabPrefectures": "都道府县",
+  "tabRegionBattle": "地区决战",
+  "tabHistoryBattle": "历史决战",
+  "searchByNameHint": "按名称搜索",
+  "regionAll": "全国",
+  "countSuffix": "{count} 项",
+  "@countSuffix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "legendConquered": "已制霸",
+  "legendDifficulty": "难度",
+  "regionUnlockHint": "以任意难度通关该地区全部都道府县即可解锁",
+  "bossLabel": "首领：{name}",
+  "@bossLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "clearedOfTotalPref": "{cleared}/{total} 县",
+  "@clearedOfTotalPref": {
+    "placeholders": {
+      "cleared": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "regionBattleHeader": "{name}地区 决战",
+  "@regionBattleHeader": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "regionBattleSubheader": "WAVE {waves}  ／  通往地区统一之路",
+  "@regionBattleSubheader": {
+    "placeholders": {
+      "waves": {
+        "type": "int"
+      }
+    }
+  },
+  "conqueredBanner": "已制霸！",
+  "bossSkillLabel": "技能「{skill}」",
+  "@bossSkillLabel": {
+    "placeholders": {
+      "skill": {
+        "type": "String"
+      }
+    }
+  },
+  "targetPrefecturesHeader": "目标都道府县（{count}县）",
+  "@targetPrefecturesHeader": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectDifficultyLabel": "选择难度",
+  "startRegionBattleButton": "开始地区决战",
+  "historyUnlockedBanner": "🏆 全国困难制霸达成！历史决战已解锁！",
+  "postgameSectionLabel": "⚔️ 后续挑战内容",
+  "historyUnlockHint": "以困难难度通关全部47个都道府县\n即可解锁「诸神时代」",
+  "hardClearedProgress": "{count} / 47 县 已困难通关",
+  "@hardClearedProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "conqueredBadge": "制霸",
+  "bossWaveCount": "{name}  •  {waves}波",
+  "@bossWaveCount": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "waves": {
+        "type": "int"
+      }
+    }
+  },
+  "historyLockReason1": "通关全部困难难度后解锁",
+  "historyLockReason2": "通关上一历史关卡后解锁",
+  "historyConqueredBanner": "历史决战已制霸！",
+  "wavesUltraHard": "{waves}波・极高难度",
+  "@wavesUltraHard": {
+    "placeholders": {
+      "waves": {
+        "type": "int"
+      }
+    }
+  },
+  "startHistoryBattleButton": "开始历史决战！",
+  "exclusiveBadge": "限定",
+  "difficultyLabel": "难度",
+  "terrainLabel": "地形",
+  "notConqueredLabel": "未制霸",
+  "conqueredDifficultiesLabel": "已制霸难度：{diffs}",
+  "@conqueredDifficultiesLabel": {
+    "placeholders": {
+      "diffs": {
+        "type": "String"
+      }
+    }
+  },
+  "capitalCityTitle": "县厅所在地",
+  "areaTitle": "面积",
+  "bossStatsLine": "HP {hp} / 攻击 {attack} / 技能「{skill}」",
+  "@bossStatsLine": {
+    "placeholders": {
+      "hp": {
+        "type": "int"
+      },
+      "attack": {
+        "type": "int"
+      },
+      "skill": {
+        "type": "String"
+      }
+    }
+  },
+  "startDefenseButton": "开始防守",
+  "exclusiveFacilityLabel": "限定设施",
+  "industryBonusLine": "{label}设施 强化 +{pct}%（成本降低・威力提升）",
+  "@industryBonusLine": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "geographySea": "海・沿海",
+  "geographyMountain": "山岳",
+  "geographyUrban": "都市",
+  "geographyAgriculture": "农业",
+  "geographyMixed": "综合",
+  "facilityDescDairyFarm": "使敌人速度降低20%的酪农设施",
+  "facilityDescAlpineWatch": "远程瞭望台，附带减速效果",
+  "facilityDescToyotaFactory": "高速攻击＋额外金币产出",
+  "facilityDescKiyomizuTemple": "对敌人造成伤害 +40%",
+  "facilityDescPeaceShrine": "为敌人附加护盾使其弱化",
+  "facilityDescShisaGuardian": "40%几率使敌人眩晕1秒",
+  "facilityDescUmeSakeBrewery": "50%几率附加减速效果",
+  "facilityDescUdonShop": "超低成本・高速攻击",
+  "facilityDescDefault": "该都道府县限定的特殊设施",
+  "searchByPrefNameHint": "按县名搜索",
+  "difficultyDescriptionEasy": "敌方HP -20%\n波数 -1\n分数 ×0.8",
+  "difficultyDescriptionNormal": "标准难度\n敌方HP ±0%\n波数 ±0",
+  "difficultyDescriptionHard": "敌方HP +15%\n波数 +2\n分数 ×1.5",
+  "minSecFormat": "{m}分{s}秒",
+  "@minSecFormat": {
+    "placeholders": {
+      "m": {
+        "type": "int"
+      },
+      "s": {
+        "type": "int"
+      }
+    }
+  },
+  "secFormat": "{s}秒",
+  "@secFormat": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      }
+    }
+  },
+  "victoryTitle": "通关！",
+  "statTime": "时间",
+  "statMistakes": "失误",
+  "learnAboutPrefHeader": "📚 了解{name}吧！",
+  "@learnAboutPrefHeader": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "geographySectionTitle": "地理",
+  "industryPopSectionTitle": "产业与人口",
+  "populationTitle": "人口",
+  "specialtiesTitle": "特产",
+  "populationApprox": "约 {population} 人",
+  "@populationApprox": {
+    "placeholders": {
+      "population": {
+        "type": "String"
+      }
+    }
+  },
+  "companionJoinedMessage": "{name} 加入了你的队伍！",
+  "@companionJoinedMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "badgesEarnedHeader": "获得的徽章",
+  "bossDefeatedLine": "击败了{name}！",
+  "@bossDefeatedLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "regionConqueredLine": "制霸了{name}地区",
+  "@regionConqueredLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stageClearedLine": "{name} 通关！",
+  "@stageClearedLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "historyMasterAchievedBanner": "🏆 全部达成！被认证为历史守护者！",
+  "retryButton": "再来一次",
+  "backToMapButton": "返回地图",
+  "waveClearShopTitle": "波数{wave}通关！商店",
+  "@waveClearShopTitle": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "chooseOneItemHint": "请选择一个道具",
+  "freeLabel": "免费",
+  "skipButton": "跳过",
+  "cannotPlaceFacility": "无法在此放置设施",
+  "notEnoughCoins": "金币不足",
+  "blocksPath": "这会挡住道路",
+  "tileOccupied": "此处已有设施",
+  "notEnoughCoinsNeeded": "🪙 金币不足（需要：{cost}，持有：{coins}）",
+  "@notEnoughCoinsNeeded": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      },
+      "coins": {
+        "type": "int"
+      }
+    }
+  },
+  "blocksPathDetailed": "🛤️ 该位置会挡住道路",
+  "tileOccupiedDetailed": "⚠️ 此处已有设施",
+  "selectWaveSkillButton": "选择波数技能",
+  "effectAppliesNextWaveHint": "效果将从下一波开始生效",
+  "statAttack": "攻击力",
+  "statRange": "射程",
+  "statSpeed": "速度",
+  "facilityUpgradeButton": "升级 🪙{cost}",
+  "@facilityUpgradeButton": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "notEnoughCoinsSimple": "金币不足（需要：{cost}）",
+  "@notEnoughCoinsSimple": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "sellForButton": "卖出 (+{amount}🪙)",
+  "@sellForButton": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "quitConfirmTitle": "要中断战斗吗？",
+  "quitConfirmBody": "要中断本场战斗并返回首页吗？",
+  "continueButton": "继续",
+  "abortButton": "中断",
+  "historyBattleWaveBadge": "历史决战 {waves}波",
+  "@historyBattleWaveBadge": {
+    "placeholders": {
+      "waves": {
+        "type": "int"
+      }
+    }
+  },
+  "regionBattleWaveBadge": "地区决战 7波",
+  "skillSelectedStatus": "技能已选择",
+  "secondsUntilNextWave": "距下一波还有 {seconds} 秒",
+  "@secondsUntilNextWave": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "startNowButton": "立即开始",
+  "answerQuizPrompt": "回答问题吧！",
+  "gameStartButton": "开始!",
+  "waveCounter": "波数 {current}/{total}",
+  "@waveCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "remainingEnemies": "剩余 {count} 个",
+  "@remainingEnemies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nextWavePreviewLabel": "下一波 W{wave}:",
+  "@nextWavePreviewLabel": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "enemyCountSuffix": "{count}只  ",
+  "@enemyCountSuffix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ultimateReadyLabel": "必杀技已就绪！点击！",
+  "ultimateButtonLabel": "必杀・领土防卫",
+  "placeFacilitiesHint": "放置设施后\n按下「开始!」",
+  "clearedOfTotal": "{cleared} / {total}",
+  "@clearedOfTotal": {
+    "placeholders": {
+      "cleared": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "conquestPercent": "已制霸 {percent}%",
+  "@conquestPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "facilityNameFarm": "农业",
+  "facilityNameFishery": "渔业",
+  "facilityNameFactory": "工业",
+  "facilityNameMine": "矿业",
+  "facilityNameCastle": "城堡",
+  "facilityNameShrine": "神社",
+  "facilityNameDairyFarm": "酪农设施",
+  "facilityNameAlpineWatch": "高山瞭望台",
+  "facilityNameToyotaFactory": "丰田工厂",
+  "facilityNameKiyomizuTemple": "清水寺",
+  "facilityNamePeaceShrine": "和平纪念碑",
+  "facilityNameShisaGuardian": "风狮爷守卫",
+  "facilityNameUmeSakeBrewery": "纪州梅酒酿造所",
+  "facilityNameUdonShop": "乌冬面店",
+  "prefectureName01": "北海道",
+  "prefectureName02": "青森县",
+  "prefectureName03": "岩手县",
+  "prefectureName04": "宫城县",
+  "prefectureName05": "秋田县",
+  "prefectureName06": "山形县",
+  "prefectureName07": "福岛县",
+  "prefectureName08": "茨城县",
+  "prefectureName09": "枥木县",
+  "prefectureName10": "群马县",
+  "prefectureName11": "埼玉县",
+  "prefectureName12": "千叶县",
+  "prefectureName13": "东京都",
+  "prefectureName14": "神奈川县",
+  "prefectureName15": "新潟县",
+  "prefectureName16": "富山县",
+  "prefectureName17": "石川县",
+  "prefectureName18": "福井县",
+  "prefectureName19": "山梨县",
+  "prefectureName20": "长野县",
+  "prefectureName21": "岐阜县",
+  "prefectureName22": "静冈县",
+  "prefectureName23": "爱知县",
+  "prefectureName24": "三重县",
+  "prefectureName25": "滋贺县",
+  "prefectureName26": "京都府",
+  "prefectureName27": "大阪府",
+  "prefectureName28": "兵库县",
+  "prefectureName29": "奈良县",
+  "prefectureName30": "和歌山县",
+  "prefectureName31": "鸟取县",
+  "prefectureName32": "岛根县",
+  "prefectureName33": "冈山县",
+  "prefectureName34": "广岛县",
+  "prefectureName35": "山口县",
+  "prefectureName36": "德岛县",
+  "prefectureName37": "香川县",
+  "prefectureName38": "爱媛县",
+  "prefectureName39": "高知县",
+  "prefectureName40": "福冈县",
+  "prefectureName41": "佐贺县",
+  "prefectureName42": "长崎县",
+  "prefectureName43": "熊本县",
+  "prefectureName44": "大分县",
+  "prefectureName45": "宫崎县",
+  "prefectureName46": "鹿儿岛县",
+  "prefectureName47": "冲绳县"
+}

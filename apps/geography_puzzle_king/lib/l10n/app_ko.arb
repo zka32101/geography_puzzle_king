@@ -1,0 +1,699 @@
+{
+  "appTitle": "도도부현 게임",
+  "appSubtitle": "게임으로 배우는 도도부현",
+  "gameDescription": "47개 도도부현을 모두 지켜라!",
+  "nickname": "닉네임 입력",
+  "nicknameHint": "tankenkka",
+  "nicknameInstruction": "히라가나 또는 가타카나로 입력해 주세요",
+  "startButton": "시작!",
+  "errorInvalidNickname": "닉네임을 입력해 주세요",
+  "home": "홈",
+  "game": "게임",
+  "map": "지도",
+  "ranking": "랭킹",
+  "settings": "설정",
+  "territory": "일본 통일 지도",
+  "unificationProgress": "통일도",
+  "prefectures": "도도부현",
+  "globalRanking": "글로벌",
+  "prefectureVersus": "도도부현 대항전",
+  "userInfo": "사용자 정보",
+  "playerName": "플레이어 이름",
+  "notifications": "알림 설정",
+  "pushNotifications": "푸시 알림",
+  "dailyEvents": "데일리 이벤트・대전 알림",
+  "soundSettings": "사운드 설정",
+  "bgm": "BGM",
+  "backgroundMusic": "배경음악",
+  "sfx": "효과음",
+  "sfxDescription": "게임 내 효과음 사용",
+  "language": "언어 설정",
+  "languageSelect": "언어 선택",
+  "privacySettings": "개인정보・기타",
+  "rankingDisplay": "랭킹 표시",
+  "hideFromRanking": "숨기기",
+  "showInRanking": "플레이어 이름 표시",
+  "clearedPrefectures": "클리어 현",
+  "totalPlayers": "플레이어",
+  "gameTitle": "지리 퍼즐킹",
+  "startGame": "게임 시작",
+  "profile": "프로필",
+  "japanese": "일본어",
+  "english": "영어",
+  "chinese": "중국어",
+  "korean": "한국어",
+  "difficulty": "난이도",
+  "easy": "이지",
+  "normal": "노멀",
+  "hard": "하드",
+  "score": "점수",
+  "level": "레벨",
+  "stage": "스테이지",
+  "gameOver": "게임 오버",
+  "victory": "승리",
+  "retry": "재도전",
+  "back": "뒤로",
+  "ok": "확인",
+  "cancel": "취소",
+  "loading": "로딩 중...",
+  "error": "오류",
+  "tryAgain": "다시 시도",
+  "menu": "메뉴",
+  "pokedex": "도감",
+  "hqUpgrade": "본부 강화",
+  "nationalConquest": "전국 제패",
+  "deploy": "출격",
+  "deploySubtitle": "도도부현을 선택해 방어를 시작하세요",
+  "conqueredCount": "제압 현",
+  "totalScore": "총 점수",
+  "achievements": "업적",
+  "commanderName": "지휘관 {name}",
+  "@commanderName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "appInfo": "앱 정보",
+  "version": "버전",
+  "buildNumber": "빌드 번호",
+  "adsAndPurchases": "광고・결제",
+  "privacyPolicyTitle": "개인정보처리방침",
+  "termsOfServiceTitle": "이용약관",
+  "removeAds": "광고 제거",
+  "removeAdsPurchased": "광고 제거됨 (구매완료)",
+  "purchaseThankYou": "구매해 주셔서 감사합니다",
+  "storeConnectionError": "스토어에 연결할 수 없습니다",
+  "notAvailableNow": "현재 이용할 수 없습니다",
+  "purchaseButton": "구매",
+  "guestPlayer": "게스트 플레이어",
+  "changePlayerName": "플레이어 이름 변경",
+  "personalInfoWarning": "개인정보(실명, 주소 등)는 입력하지 마세요. 다른 플레이어에게 표시될 수 있습니다.",
+  "save": "저장",
+  "removeAdsDescription": "{price} — 게임 내 모든 광고를 제거합니다",
+  "@removeAdsDescription": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "unlockMap": "전체 도도부현 잠금 해제",
+  "unlockMapPurchased": "전체 도도부현 잠금 해제됨",
+  "unlockMapThankYou": "47개 도도부현 전부 플레이 가능합니다",
+  "unlockMapDescription": "{price} — 47개 도도부현 전체, 지역전 및 역사전이 해제됩니다",
+  "@unlockMapDescription": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "stageLockedTitle": "🔒 이 도도부현은 잠겨 있습니다",
+  "stageLockedBody": "무료로 플레이할 수 있는 것은 처음 {count}개 도도부현까지입니다.\n“전체 도도부현 잠금 해제”를 구매하면 47개 전부 플레이할 수 있습니다.",
+  "@stageLockedBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "goToPurchaseButton": "구매 화면으로",
+  "rankingTitle": "랭킹",
+  "rankingTabGlobal": "글로벌",
+  "rankingTabPrefecture": "도도부현 대항전",
+  "rankingClearedCount": "클리어 현: {cleared} / 47",
+  "@rankingClearedCount": {
+    "placeholders": {
+      "cleared": {
+        "type": "int"
+      }
+    }
+  },
+  "pointsSuffix": "pts",
+  "rankingPlayerCount": "플레이어: {count} 명",
+  "@rankingPlayerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "territoryMapTitle": "일본 통일 지도",
+  "japanMapLabel": "일본 지도",
+  "mapDataAttribution": "지도 데이터: Global Map Japan, GSI",
+  "genericErrorPrefix": "오류: {error}",
+  "@genericErrorPrefix": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "territoryUnificationLabel": "일본 통일도",
+  "statsSectionTitle": "📊 통계 정보",
+  "statTotalClears": "총 클리어 횟수",
+  "statAverageLevel": "평균 레벨",
+  "statHighScore": "최고 점수",
+  "timesSuffix": "{count} 회",
+  "@timesSuffix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pokedexTitle": "도감",
+  "pokedexTabCleared": "클리어 현",
+  "pokedexTabStats": "통계",
+  "pokedexTabAchievements": "업적",
+  "clearProgressLabel": "클리어 진행도",
+  "percentComplete": "{percent}% 완료",
+  "@percentComplete": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "learningStatsTitle": "학습 통계",
+  "statClearedPrefCount": "클리어 현 수",
+  "statTotalPlayTime": "총 플레이 시간",
+  "hoursMinutesFormat": "{hours}시간 {minutes}분",
+  "@hoursMinutesFormat": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "statTotalScore": "총 점수",
+  "statTotalGamesPlayed": "총 플레이 횟수",
+  "clearsByDifficultyLabel": "난이도별 클리어 수",
+  "achievementsTitle": "업적",
+  "kanaLabel": "가나: ",
+  "capitalCityLabel": "현청 소재지: ",
+  "populationLabel": "인구: 약 {population}명",
+  "@populationLabel": {
+    "placeholders": {
+      "population": {
+        "type": "String"
+      }
+    }
+  },
+  "areaLabel": "면적: ",
+  "bestScoreLabel": "최고 점수: {score} pts",
+  "@bestScoreLabel": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "clearedDifficultiesLabel": "클리어한 난이도: ",
+  "specialtiesLabel": "특산품: ",
+  "closeButton": "닫기",
+  "researchPointsLabel": "연구 포인트",
+  "researchPointsHint": "도도부현을 클리어하면 획득",
+  "levelFraction": "Lv.{level} / {max}",
+  "@levelFraction": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "currentEffectLabel": "현재 효과: {effect}",
+  "@currentEffectLabel": {
+    "placeholders": {
+      "effect": {
+        "type": "String"
+      }
+    }
+  },
+  "maxLabel": "MAX",
+  "upgradeForCostButton": "🔬{cost} 강화",
+  "@upgradeForCostButton": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "hqTrackAttackTitle": "⚔️ 무기 개발",
+  "hqTrackCoinTitle": "💰 경제 정책",
+  "hqTrackHpTitle": "🏯 성벽 강화",
+  "hqTrackAttackDescription": "모든 시설의 데미지가 영구적으로 증가",
+  "hqTrackCoinDescription": "적 처치 시 획득 코인이 영구적으로 증가",
+  "hqTrackHpDescription": "모든 스테이지의 초기 HP가 영구적으로 증가",
+  "selectPrefectureTitle": "도도부현 선택",
+  "tabPrefectures": "도도부현",
+  "tabRegionBattle": "지역 결전",
+  "tabHistoryBattle": "역사 결전",
+  "searchByNameHint": "이름으로 검색",
+  "regionAll": "전국",
+  "countSuffix": "{count}",
+  "@countSuffix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "legendConquered": "제압 완료",
+  "legendDifficulty": "난이도",
+  "regionUnlockHint": "지역 내 모든 도도부현을 어느 난이도로든 클리어하면 해제됩니다",
+  "bossLabel": "보스: {name}",
+  "@bossLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "clearedOfTotalPref": "{cleared}/{total} 현",
+  "@clearedOfTotalPref": {
+    "placeholders": {
+      "cleared": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "regionBattleHeader": "{name} 지역 결전",
+  "@regionBattleHeader": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "regionBattleSubheader": "WAVE {waves}  ／  지역 통일로 가는 길",
+  "@regionBattleSubheader": {
+    "placeholders": {
+      "waves": {
+        "type": "int"
+      }
+    }
+  },
+  "conqueredBanner": "제압 완료!",
+  "bossSkillLabel": "스킬 「{skill}」",
+  "@bossSkillLabel": {
+    "placeholders": {
+      "skill": {
+        "type": "String"
+      }
+    }
+  },
+  "targetPrefecturesHeader": "대상 도도부현 ({count}현)",
+  "@targetPrefecturesHeader": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectDifficultyLabel": "난이도 선택",
+  "startRegionBattleButton": "지역 결전 시작",
+  "historyUnlockedBanner": "🏆 전국 하드 제패 달성! 역사 결전 해제!",
+  "postgameSectionLabel": "⚔️ 엔드콘텐츠",
+  "historyUnlockHint": "47개 도도부현을 하드 난이도로 클리어하면\n「신들의 시대」가 해제됩니다",
+  "hardClearedProgress": "{count} / 47 현 하드 클리어",
+  "@hardClearedProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "conqueredBadge": "제패",
+  "bossWaveCount": "{name}  •  {waves}웨이브",
+  "@bossWaveCount": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "waves": {
+        "type": "int"
+      }
+    }
+  },
+  "historyLockReason1": "전국 하드 클리어 후 해제",
+  "historyLockReason2": "이전 역사 스테이지 클리어 후 해제",
+  "historyConqueredBanner": "역사 결전 제패 완료!",
+  "wavesUltraHard": "{waves}웨이브・초고난도",
+  "@wavesUltraHard": {
+    "placeholders": {
+      "waves": {
+        "type": "int"
+      }
+    }
+  },
+  "startHistoryBattleButton": "역사 결전 시작!",
+  "exclusiveBadge": "한정",
+  "difficultyLabel": "난이도",
+  "terrainLabel": "지형",
+  "notConqueredLabel": "미제압",
+  "conqueredDifficultiesLabel": "제압 난이도: {diffs}",
+  "@conqueredDifficultiesLabel": {
+    "placeholders": {
+      "diffs": {
+        "type": "String"
+      }
+    }
+  },
+  "capitalCityTitle": "현청 소재지",
+  "areaTitle": "면적",
+  "bossStatsLine": "HP {hp} / 공격 {attack} / 스킬 「{skill}」",
+  "@bossStatsLine": {
+    "placeholders": {
+      "hp": {
+        "type": "int"
+      },
+      "attack": {
+        "type": "int"
+      },
+      "skill": {
+        "type": "String"
+      }
+    }
+  },
+  "startDefenseButton": "방어 시작",
+  "exclusiveFacilityLabel": "한정 시설",
+  "industryBonusLine": "{label} 시설 강화 +{pct}% (비용 감소・위력 증가)",
+  "@industryBonusLine": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "geographySea": "바다・연안",
+  "geographyMountain": "산악",
+  "geographyUrban": "도시",
+  "geographyAgriculture": "농업",
+  "geographyMixed": "복합",
+  "facilityDescDairyFarm": "적의 속도를 -20%하는 낙농 시설",
+  "facilityDescAlpineWatch": "장거리 공격과 슬로우 효과를 가진 감시소",
+  "facilityDescToyotaFactory": "고속 공격 + 추가 코인 생성",
+  "facilityDescKiyomizuTemple": "적에게 주는 피해 +40%",
+  "facilityDescPeaceShrine": "적에게 실드를 부여해 약화시킴",
+  "facilityDescShisaGuardian": "40% 확률로 1초간 스턴",
+  "facilityDescUmeSakeBrewery": "50% 확률로 슬로우 부여",
+  "facilityDescUdonShop": "초저비용・고속 공격",
+  "facilityDescDefault": "이 도도부현 한정 특수 시설",
+  "searchByPrefNameHint": "현 이름으로 검색",
+  "difficultyDescriptionEasy": "적 HP -20%\n웨이브 -1\n점수 ×0.8",
+  "difficultyDescriptionNormal": "표준 난이도\n적 HP ±0%\n웨이브 ±0",
+  "difficultyDescriptionHard": "적 HP +15%\n웨이브 +2\n점수 ×1.5",
+  "minSecFormat": "{m}분 {s}초",
+  "@minSecFormat": {
+    "placeholders": {
+      "m": {
+        "type": "int"
+      },
+      "s": {
+        "type": "int"
+      }
+    }
+  },
+  "secFormat": "{s}초",
+  "@secFormat": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      }
+    }
+  },
+  "victoryTitle": "클리어!",
+  "statTime": "시간",
+  "statMistakes": "실수",
+  "learnAboutPrefHeader": "📚 {name}에 대해 알아보자!",
+  "@learnAboutPrefHeader": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "geographySectionTitle": "지리",
+  "industryPopSectionTitle": "산업・인구",
+  "populationTitle": "인구",
+  "specialtiesTitle": "특산품",
+  "populationApprox": "약 {population}명",
+  "@populationApprox": {
+    "placeholders": {
+      "population": {
+        "type": "String"
+      }
+    }
+  },
+  "companionJoinedMessage": "{name}이(가) 동료가 되었습니다!",
+  "@companionJoinedMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "badgesEarnedHeader": "획득한 배지",
+  "bossDefeatedLine": "{name}을(를) 격파했습니다!",
+  "@bossDefeatedLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "regionConqueredLine": "{name} 지역을 제압했습니다",
+  "@regionConqueredLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stageClearedLine": "{name} 클리어!",
+  "@stageClearedLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "historyMasterAchievedBanner": "🏆 올클리어 달성! 역사의 수호자로 인정!",
+  "retryButton": "다시하기",
+  "backToMapButton": "지도로 돌아가기",
+  "waveClearShopTitle": "웨이브 {wave} 클리어! 상점",
+  "@waveClearShopTitle": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "chooseOneItemHint": "아이템을 1개 선택하세요",
+  "freeLabel": "무료",
+  "skipButton": "건너뛰기",
+  "cannotPlaceFacility": "시설을 배치할 수 없습니다",
+  "notEnoughCoins": "코인이 부족합니다",
+  "blocksPath": "이 위치는 길을 막습니다",
+  "tileOccupied": "이미 시설이 있습니다",
+  "notEnoughCoinsNeeded": "🪙 코인이 부족합니다 (필요: {cost}, 보유: {coins})",
+  "@notEnoughCoinsNeeded": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      },
+      "coins": {
+        "type": "int"
+      }
+    }
+  },
+  "blocksPathDetailed": "🛤️ 이 타일은 길을 막습니다",
+  "tileOccupiedDetailed": "⚠️ 이미 시설이 있습니다",
+  "selectWaveSkillButton": "웨이브 스킬 선택",
+  "effectAppliesNextWaveHint": "효과는 다음 웨이브부터 적용됩니다",
+  "statAttack": "공격력",
+  "statRange": "사거리",
+  "statSpeed": "속도",
+  "facilityUpgradeButton": "업그레이드 🪙{cost}",
+  "@facilityUpgradeButton": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "notEnoughCoinsSimple": "코인 부족 (필요: {cost})",
+  "@notEnoughCoinsSimple": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "sellForButton": "판매 (+{amount}🪙)",
+  "@sellForButton": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "quitConfirmTitle": "전투를 중단하시겠습니까?",
+  "quitConfirmBody": "이 전투를 중단하고 처음 화면으로 돌아가시겠습니까?",
+  "continueButton": "계속하기",
+  "abortButton": "중단",
+  "historyBattleWaveBadge": "역사 결전 {waves}웨이브",
+  "@historyBattleWaveBadge": {
+    "placeholders": {
+      "waves": {
+        "type": "int"
+      }
+    }
+  },
+  "regionBattleWaveBadge": "지역 결전 7웨이브",
+  "skillSelectedStatus": "스킬이 선택되었습니다",
+  "secondsUntilNextWave": "다음 웨이브까지 {seconds}초",
+  "@secondsUntilNextWave": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "startNowButton": "지금 시작",
+  "answerQuizPrompt": "퀴즈에 답해 보자!",
+  "gameStartButton": "시작!",
+  "waveCounter": "웨이브 {current}/{total}",
+  "@waveCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "remainingEnemies": "{count}마리 남음",
+  "@remainingEnemies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nextWavePreviewLabel": "다음 W{wave}:",
+  "@nextWavePreviewLabel": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "enemyCountSuffix": "{count}마리  ",
+  "@enemyCountSuffix": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ultimateReadyLabel": "필살기 발동 가능! 탭하세요!",
+  "ultimateButtonLabel": "필살・영토 방어",
+  "placeFacilitiesHint": "시설을 배치하고\n「시작!」을 눌러주세요",
+  "clearedOfTotal": "{cleared} / {total}",
+  "@clearedOfTotal": {
+    "placeholders": {
+      "cleared": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "conquestPercent": "{percent}% 제압 완료",
+  "@conquestPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "facilityNameFarm": "농업",
+  "facilityNameFishery": "어업",
+  "facilityNameFactory": "공업",
+  "facilityNameMine": "광업",
+  "facilityNameCastle": "성",
+  "facilityNameShrine": "신사",
+  "facilityNameDairyFarm": "낙농 시설",
+  "facilityNameAlpineWatch": "고산 감시소",
+  "facilityNameToyotaFactory": "토요타 공장",
+  "facilityNameKiyomizuTemple": "기요미즈데라",
+  "facilityNamePeaceShrine": "평화 기념비",
+  "facilityNameShisaGuardian": "시사 수호상",
+  "facilityNameUmeSakeBrewery": "기슈 매실주 양조장",
+  "facilityNameUdonShop": "우동 가게",
+  "prefectureName01": "홋카이도",
+  "prefectureName02": "아오모리현",
+  "prefectureName03": "이와테현",
+  "prefectureName04": "미야기현",
+  "prefectureName05": "아키타현",
+  "prefectureName06": "야마가타현",
+  "prefectureName07": "후쿠시마현",
+  "prefectureName08": "이바라키현",
+  "prefectureName09": "도치기현",
+  "prefectureName10": "군마현",
+  "prefectureName11": "사이타마현",
+  "prefectureName12": "지바현",
+  "prefectureName13": "도쿄도",
+  "prefectureName14": "가나가와현",
+  "prefectureName15": "니가타현",
+  "prefectureName16": "도야마현",
+  "prefectureName17": "이시카와현",
+  "prefectureName18": "후쿠이현",
+  "prefectureName19": "야마나시현",
+  "prefectureName20": "나가노현",
+  "prefectureName21": "기후현",
+  "prefectureName22": "시즈오카현",
+  "prefectureName23": "아이치현",
+  "prefectureName24": "미에현",
+  "prefectureName25": "시가현",
+  "prefectureName26": "교토부",
+  "prefectureName27": "오사카부",
+  "prefectureName28": "효고현",
+  "prefectureName29": "나라현",
+  "prefectureName30": "와카야마현",
+  "prefectureName31": "돗토리현",
+  "prefectureName32": "시마네현",
+  "prefectureName33": "오카야마현",
+  "prefectureName34": "히로시마현",
+  "prefectureName35": "야마구치현",
+  "prefectureName36": "도쿠시마현",
+  "prefectureName37": "가가와현",
+  "prefectureName38": "에히메현",
+  "prefectureName39": "고치현",
+  "prefectureName40": "후쿠오카현",
+  "prefectureName41": "사가현",
+  "prefectureName42": "나가사키현",
+  "prefectureName43": "구마모토현",
+  "prefectureName44": "오이타현",
+  "prefectureName45": "미야자키현",
+  "prefectureName46": "가고시마현",
+  "prefectureName47": "오키나와현"
+}

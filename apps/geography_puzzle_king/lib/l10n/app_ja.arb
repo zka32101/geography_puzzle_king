@@ -40,6 +40,8 @@
   "profile": "プロフィール",
   "japanese": "日本語",
   "english": "English",
+  "chinese": "中国語",
+  "korean": "韓国語",
   "difficulty": "難易度",
   "easy": "イージー",
   "normal": "ノーマル",
@@ -85,7 +87,9 @@
   "removeAdsDescription": "{price} — ゲーム内の広告表示がすべて非表示になります",
   "@removeAdsDescription": {
     "placeholders": {
-      "price": {"type": "String"}
+      "price": {
+        "type": "String"
+      }
     }
   },
   "unlockMap": "全都道府県マップを解放",
@@ -94,14 +98,18 @@
   "unlockMapDescription": "{price} — 全47都道府県・地方決戦・歴史決戦が解放されます",
   "@unlockMapDescription": {
     "placeholders": {
-      "price": {"type": "String"}
+      "price": {
+        "type": "String"
+      }
     }
   },
   "stageLockedTitle": "🔒 この都道府県はロック中",
   "stageLockedBody": "無料でプレイできるのは最初の{count}都道府県までです。\n「全都道府県マップを解放」を購入すると全47都道府県がプレイできます。",
   "@stageLockedBody": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "goToPurchaseButton": "購入画面へ",
@@ -110,19 +118,31 @@
   "rankingTabPrefecture": "都道府県対抗",
   "rankingClearedCount": "クリア県: {cleared} / 47",
   "@rankingClearedCount": {
-    "placeholders": { "cleared": {"type": "int"} }
+    "placeholders": {
+      "cleared": {
+        "type": "int"
+      }
+    }
   },
   "pointsSuffix": "pts",
   "rankingPlayerCount": "プレイヤー: {count} 人",
   "@rankingPlayerCount": {
-    "placeholders": { "count": {"type": "int"} }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "territoryMapTitle": "日本統一マップ",
   "japanMapLabel": "日本地図",
   "mapDataAttribution": "地図データ: 「地球地図日本」国土地理院",
   "genericErrorPrefix": "エラー: {error}",
   "@genericErrorPrefix": {
-    "placeholders": { "error": {"type": "String"} }
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
   "territoryUnificationLabel": "日本統一度",
   "statsSectionTitle": "📊 統計情報",
@@ -131,7 +151,11 @@
   "statHighScore": "最高スコア",
   "timesSuffix": "{count} 回",
   "@timesSuffix": {
-    "placeholders": { "count": {"type": "int"} }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "pokedexTitle": "図鑑",
   "pokedexTabCleared": "クリア県",
@@ -140,14 +164,25 @@
   "clearProgressLabel": "クリア進捗",
   "percentComplete": "{percent}% 完成",
   "@percentComplete": {
-    "placeholders": { "percent": {"type": "String"} }
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
   },
   "learningStatsTitle": "学習統計",
   "statClearedPrefCount": "クリア県数",
   "statTotalPlayTime": "総プレイ時間",
   "hoursMinutesFormat": "{hours} 時間 {minutes} 分",
   "@hoursMinutesFormat": {
-    "placeholders": { "hours": {"type": "int"}, "minutes": {"type": "int"} }
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
   },
   "statTotalScore": "総スコア",
   "statTotalGamesPlayed": "総プレイ回数",
@@ -157,12 +192,20 @@
   "capitalCityLabel": "県庁: ",
   "populationLabel": "人口: 約{population}人",
   "@populationLabel": {
-    "placeholders": { "population": {"type": "String"} }
+    "placeholders": {
+      "population": {
+        "type": "String"
+      }
+    }
   },
   "areaLabel": "面積: ",
   "bestScoreLabel": "ベストスコア: {score} pts",
   "@bestScoreLabel": {
-    "placeholders": { "score": {"type": "String"} }
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
   },
   "clearedDifficultiesLabel": "クリア難度: ",
   "specialtiesLabel": "特産品: ",
@@ -171,16 +214,31 @@
   "researchPointsHint": "都道府県クリアで獲得",
   "levelFraction": "Lv.{level} / {max}",
   "@levelFraction": {
-    "placeholders": { "level": {"type": "int"}, "max": {"type": "int"} }
+    "placeholders": {
+      "level": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
   },
   "currentEffectLabel": "現在の効果: {effect}",
   "@currentEffectLabel": {
-    "placeholders": { "effect": {"type": "String"} }
+    "placeholders": {
+      "effect": {
+        "type": "String"
+      }
+    }
   },
   "maxLabel": "MAX",
   "upgradeForCostButton": "🔬{cost} で強化",
   "@upgradeForCostButton": {
-    "placeholders": { "cost": {"type": "int"} }
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
   },
   "hqTrackAttackTitle": "⚔️ 兵器開発",
   "hqTrackCoinTitle": "💰 経済政策",
@@ -196,35 +254,66 @@
   "regionAll": "全国",
   "countSuffix": "{count} 件",
   "@countSuffix": {
-    "placeholders": { "count": {"type": "int"} }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "legendConquered": "制圧済",
   "legendDifficulty": "難易度",
   "regionUnlockHint": "地方内の全都道府県をいずれかの難度でクリアすると解放されます",
   "bossLabel": "ボス: {name}",
   "@bossLabel": {
-    "placeholders": { "name": {"type": "String"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "clearedOfTotalPref": "{cleared}/{total}県",
   "@clearedOfTotalPref": {
-    "placeholders": { "cleared": {"type": "int"}, "total": {"type": "int"} }
+    "placeholders": {
+      "cleared": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "regionBattleHeader": "{name}地方 決戦",
   "@regionBattleHeader": {
-    "placeholders": { "name": {"type": "String"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "regionBattleSubheader": "WAVE {waves}  ／  地方統一への道",
   "@regionBattleSubheader": {
-    "placeholders": { "waves": {"type": "int"} }
+    "placeholders": {
+      "waves": {
+        "type": "int"
+      }
+    }
   },
   "conqueredBanner": "制圧済み！",
   "bossSkillLabel": "スキル「{skill}」",
   "@bossSkillLabel": {
-    "placeholders": { "skill": {"type": "String"} }
+    "placeholders": {
+      "skill": {
+        "type": "String"
+      }
+    }
   },
   "targetPrefecturesHeader": "対象都道府県（{count}県）",
   "@targetPrefecturesHeader": {
-    "placeholders": { "count": {"type": "int"} }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "selectDifficultyLabel": "難度を選択",
   "startRegionBattleButton": "地方決戦 開始",
@@ -233,19 +322,34 @@
   "historyUnlockHint": "全47都道府県をハード難度でクリアすると\n「神代の決戦」が解放されます",
   "hardClearedProgress": "{count} / 47 県 ハードクリア済み",
   "@hardClearedProgress": {
-    "placeholders": { "count": {"type": "int"} }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "conqueredBadge": "制覇",
   "bossWaveCount": "{name}  •  {waves}波",
   "@bossWaveCount": {
-    "placeholders": { "name": {"type": "String"}, "waves": {"type": "int"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "waves": {
+        "type": "int"
+      }
+    }
   },
   "historyLockReason1": "全国ハードクリアで解放",
   "historyLockReason2": "前の歴史ステージをクリアで解放",
   "historyConqueredBanner": "歴史決戦 制覇済み！",
   "wavesUltraHard": "{waves}波・超高難度",
   "@wavesUltraHard": {
-    "placeholders": { "waves": {"type": "int"} }
+    "placeholders": {
+      "waves": {
+        "type": "int"
+      }
+    }
   },
   "startHistoryBattleButton": "歴史決戦 開始！",
   "exclusiveBadge": "限定",
@@ -254,19 +358,40 @@
   "notConqueredLabel": "未制圧",
   "conqueredDifficultiesLabel": "制圧難度: {diffs}",
   "@conqueredDifficultiesLabel": {
-    "placeholders": { "diffs": {"type": "String"} }
+    "placeholders": {
+      "diffs": {
+        "type": "String"
+      }
+    }
   },
   "capitalCityTitle": "県庁",
   "areaTitle": "面積",
   "bossStatsLine": "HP {hp} / 攻撃 {attack} / スキル「{skill}」",
   "@bossStatsLine": {
-    "placeholders": { "hp": {"type": "int"}, "attack": {"type": "int"}, "skill": {"type": "String"} }
+    "placeholders": {
+      "hp": {
+        "type": "int"
+      },
+      "attack": {
+        "type": "int"
+      },
+      "skill": {
+        "type": "String"
+      }
+    }
   },
   "startDefenseButton": "防衛開始",
   "exclusiveFacilityLabel": "限定施設",
   "industryBonusLine": "{label}施設 強化 +{pct}%（コスト減・威力増）",
   "@industryBonusLine": {
-    "placeholders": { "label": {"type": "String"}, "pct": {"type": "int"} }
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "int"
+      }
+    }
   },
   "geographySea": "海・沿岸",
   "geographyMountain": "山岳",
@@ -288,18 +413,33 @@
   "difficultyDescriptionHard": "敵HP +15%\n波数 +2\nスコア ×1.5",
   "minSecFormat": "{m}分{s}秒",
   "@minSecFormat": {
-    "placeholders": { "m": {"type": "int"}, "s": {"type": "int"} }
+    "placeholders": {
+      "m": {
+        "type": "int"
+      },
+      "s": {
+        "type": "int"
+      }
+    }
   },
   "secFormat": "{s}秒",
   "@secFormat": {
-    "placeholders": { "s": {"type": "int"} }
+    "placeholders": {
+      "s": {
+        "type": "int"
+      }
+    }
   },
   "victoryTitle": "クリア！",
   "statTime": "時間",
   "statMistakes": "ミス",
   "learnAboutPrefHeader": "📚 {name} を学ぼう！",
   "@learnAboutPrefHeader": {
-    "placeholders": { "name": {"type": "String"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "geographySectionTitle": "地理",
   "industryPopSectionTitle": "産業・人口",
@@ -307,31 +447,55 @@
   "specialtiesTitle": "特産品",
   "populationApprox": "約 {population} 人",
   "@populationApprox": {
-    "placeholders": { "population": {"type": "String"} }
+    "placeholders": {
+      "population": {
+        "type": "String"
+      }
+    }
   },
   "companionJoinedMessage": "{name} が仲間になった！",
   "@companionJoinedMessage": {
-    "placeholders": { "name": {"type": "String"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "badgesEarnedHeader": "獲得バッジ",
   "bossDefeatedLine": "{name} を撃破！",
   "@bossDefeatedLine": {
-    "placeholders": { "name": {"type": "String"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "regionConqueredLine": "{name}地方を制圧しました",
   "@regionConqueredLine": {
-    "placeholders": { "name": {"type": "String"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "stageClearedLine": "{name} クリア！",
   "@stageClearedLine": {
-    "placeholders": { "name": {"type": "String"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "historyMasterAchievedBanner": "🏆 やりこみ達成！歴史の守護者に認定！",
   "retryButton": "もう一度",
   "backToMapButton": "マップへ",
   "waveClearShopTitle": "ウェーブ{wave}クリア！ショップ",
   "@waveClearShopTitle": {
-    "placeholders": { "wave": {"type": "int"} }
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
   },
   "chooseOneItemHint": "アイテムを1つ選んでください",
   "freeLabel": "無料",
@@ -342,7 +506,14 @@
   "tileOccupied": "すでに施設があります",
   "notEnoughCoinsNeeded": "🪙 金貨が足りません (必要: {cost}, 保持: {coins})",
   "@notEnoughCoinsNeeded": {
-    "placeholders": { "cost": {"type": "int"}, "coins": {"type": "int"} }
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      },
+      "coins": {
+        "type": "int"
+      }
+    }
   },
   "blocksPathDetailed": "🛤️ この場所は道を塞ぎます",
   "tileOccupiedDetailed": "⚠️ この場所には既に施設があります",
@@ -353,15 +524,27 @@
   "statSpeed": "速度",
   "facilityUpgradeButton": "アップグレード 🪙{cost}",
   "@facilityUpgradeButton": {
-    "placeholders": { "cost": {"type": "int"} }
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
   },
   "notEnoughCoinsSimple": "コイン不足 (必要: {cost})",
   "@notEnoughCoinsSimple": {
-    "placeholders": { "cost": {"type": "int"} }
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
   },
   "sellForButton": "売却 (+{amount}🪙)",
   "@sellForButton": {
-    "placeholders": { "amount": {"type": "int"} }
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
   },
   "quitConfirmTitle": "中断しますか？",
   "quitConfirmBody": "ゲームを中断してトップに戻りますか？",
@@ -369,32 +552,59 @@
   "abortButton": "中断",
   "historyBattleWaveBadge": "歴史決戦 {waves}波",
   "@historyBattleWaveBadge": {
-    "placeholders": { "waves": {"type": "int"} }
+    "placeholders": {
+      "waves": {
+        "type": "int"
+      }
+    }
   },
   "regionBattleWaveBadge": "地方決戦 7波",
   "skillSelectedStatus": "スキルが選択されました",
   "secondsUntilNextWave": "次のウェーブまで {seconds} 秒",
   "@secondsUntilNextWave": {
-    "placeholders": { "seconds": {"type": "int"} }
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
   },
   "startNowButton": "今すぐ開始",
   "answerQuizPrompt": "クイズに答えよう！",
   "gameStartButton": "開始!",
   "waveCounter": "ウェーブ {current}/{total}",
   "@waveCounter": {
-    "placeholders": { "current": {"type": "int"}, "total": {"type": "int"} }
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "remainingEnemies": "残り {count} 体",
   "@remainingEnemies": {
-    "placeholders": { "count": {"type": "int"} }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "nextWavePreviewLabel": "次 W{wave}:",
   "@nextWavePreviewLabel": {
-    "placeholders": { "wave": {"type": "int"} }
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
   },
   "enemyCountSuffix": "{count}体  ",
   "@enemyCountSuffix": {
-    "placeholders": { "count": {"type": "int"} }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "ultimateReadyLabel": "必殺技 発動可能！タップ！",
   "ultimateButtonLabel": "必殺・領土防衛",
@@ -409,18 +619,87 @@
   },
   "@commanderName": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "@clearedOfTotal": {
     "placeholders": {
-      "cleared": {"type": "int"},
-      "total": {"type": "int"}
+      "cleared": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "@conquestPercent": {
     "placeholders": {
-      "percent": {"type": "String"}
+      "percent": {
+        "type": "String"
+      }
     }
-  }
+  },
+  "facilityNameFarm": "農業",
+  "facilityNameFishery": "漁業",
+  "facilityNameFactory": "工業",
+  "facilityNameMine": "鉱業",
+  "facilityNameCastle": "城",
+  "facilityNameShrine": "神社",
+  "facilityNameDairyFarm": "酪農施設",
+  "facilityNameAlpineWatch": "高山見張所",
+  "facilityNameToyotaFactory": "トヨタ工場",
+  "facilityNameKiyomizuTemple": "清水寺",
+  "facilityNamePeaceShrine": "平和記念碑",
+  "facilityNameShisaGuardian": "シーサー守り",
+  "facilityNameUmeSakeBrewery": "紀州梅酒醸造所",
+  "facilityNameUdonShop": "うどん店",
+  "prefectureName01": "北海道",
+  "prefectureName02": "青森県",
+  "prefectureName03": "岩手県",
+  "prefectureName04": "宮城県",
+  "prefectureName05": "秋田県",
+  "prefectureName06": "山形県",
+  "prefectureName07": "福島県",
+  "prefectureName08": "茨城県",
+  "prefectureName09": "栃木県",
+  "prefectureName10": "群馬県",
+  "prefectureName11": "埼玉県",
+  "prefectureName12": "千葉県",
+  "prefectureName13": "東京都",
+  "prefectureName14": "神奈川県",
+  "prefectureName15": "新潟県",
+  "prefectureName16": "富山県",
+  "prefectureName17": "石川県",
+  "prefectureName18": "福井県",
+  "prefectureName19": "山梨県",
+  "prefectureName20": "長野県",
+  "prefectureName21": "岐阜県",
+  "prefectureName22": "静岡県",
+  "prefectureName23": "愛知県",
+  "prefectureName24": "三重県",
+  "prefectureName25": "滋賀県",
+  "prefectureName26": "京都府",
+  "prefectureName27": "大阪府",
+  "prefectureName28": "兵庫県",
+  "prefectureName29": "奈良県",
+  "prefectureName30": "和歌山県",
+  "prefectureName31": "鳥取県",
+  "prefectureName32": "島根県",
+  "prefectureName33": "岡山県",
+  "prefectureName34": "広島県",
+  "prefectureName35": "山口県",
+  "prefectureName36": "徳島県",
+  "prefectureName37": "香川県",
+  "prefectureName38": "愛媛県",
+  "prefectureName39": "高知県",
+  "prefectureName40": "福岡県",
+  "prefectureName41": "佐賀県",
+  "prefectureName42": "長崎県",
+  "prefectureName43": "熊本県",
+  "prefectureName44": "大分県",
+  "prefectureName45": "宮崎県",
+  "prefectureName46": "鹿児島県",
+  "prefectureName47": "沖縄県"
 }

@@ -132,6 +132,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get english => 'English';
 
   @override
+  String get chinese => 'Chinese';
+
+  @override
+  String get korean => 'Korean';
+
+  @override
   String get difficulty => 'Difficulty';
 
   @override
@@ -283,7 +289,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String stageLockedBody(int count) {
-    return 'Only the first $count prefectures are free to play.\nPurchase \"Unlock All Prefectures\" to play all 47.';
+    return 'Only the first $count prefectures are free to play.\nPurchase "Unlock All Prefectures" to play all 47.';
   }
 
   @override
@@ -376,7 +382,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String hoursMinutesFormat(int hours, int minutes) {
-    return '${hours}h ${minutes}m';
+    return '$hoursh $minutesm';
   }
 
   @override
@@ -518,7 +524,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String bossSkillLabel(String skill) {
-    return 'Skill: \"$skill\"';
+    return 'Skill: "$skill"';
   }
 
   @override
@@ -539,7 +545,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get postgameSectionLabel => '⚔️ Post-Game Content';
 
   @override
-  String get historyUnlockHint => 'Clear all 47 prefectures on Hard difficulty to unlock\n\"Age of the Gods\"';
+  String get historyUnlockHint => 'Clear all 47 prefectures on Hard difficulty to unlock\n"Age of the Gods"';
 
   @override
   String hardClearedProgress(int count) {
@@ -596,7 +602,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String bossStatsLine(int hp, int attack, String skill) {
-    return 'HP $hp / ATK $attack / Skill: \"$skill\"';
+    return 'HP $hp / ATK $attack / Skill: "$skill"';
   }
 
   @override
@@ -666,12 +672,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String minSecFormat(int m, int s) {
-    return '${m}m ${s}s';
+    return '$mm $ss';
   }
 
   @override
   String secFormat(int s) {
-    return '${s}s';
+    return '$ss';
   }
 
   @override
@@ -829,7 +835,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String secondsUntilNextWave(int seconds) {
-    return 'Next wave in ${seconds}s';
+    return 'Next wave in $secondss';
   }
 
   @override
@@ -868,7 +874,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ultimateButtonLabel => 'Ultimate: Territory Defense';
 
   @override
-  String get placeFacilitiesHint => 'Place facilities and\npress \"Start!\"';
+  String get placeFacilitiesHint => 'Place facilities and\npress "Start!"';
 
   @override
   String clearedOfTotal(int cleared, int total) {
@@ -879,4 +885,188 @@ class AppLocalizationsEn extends AppLocalizations {
   String conquestPercent(String percent) {
     return '$percent% Complete';
   }
+
+  @override
+  String get facilityNameFarm => 'Farm';
+
+  @override
+  String get facilityNameFishery => 'Fishery';
+
+  @override
+  String get facilityNameFactory => 'Factory';
+
+  @override
+  String get facilityNameMine => 'Mine';
+
+  @override
+  String get facilityNameCastle => 'Castle';
+
+  @override
+  String get facilityNameShrine => 'Shrine';
+
+  @override
+  String get facilityNameDairyFarm => 'Dairy Farm';
+
+  @override
+  String get facilityNameAlpineWatch => 'Alpine Watchtower';
+
+  @override
+  String get facilityNameToyotaFactory => 'Toyota Factory';
+
+  @override
+  String get facilityNameKiyomizuTemple => 'Kiyomizu Temple';
+
+  @override
+  String get facilityNamePeaceShrine => 'Peace Memorial';
+
+  @override
+  String get facilityNameShisaGuardian => 'Shisa Guardian';
+
+  @override
+  String get facilityNameUmeSakeBrewery => 'Ume Sake Brewery';
+
+  @override
+  String get facilityNameUdonShop => 'Udon Shop';
+
+  @override
+  String get prefectureName01 => 'Hokkaido';
+
+  @override
+  String get prefectureName02 => 'Aomori';
+
+  @override
+  String get prefectureName03 => 'Iwate';
+
+  @override
+  String get prefectureName04 => 'Miyagi';
+
+  @override
+  String get prefectureName05 => 'Akita';
+
+  @override
+  String get prefectureName06 => 'Yamagata';
+
+  @override
+  String get prefectureName07 => 'Fukushima';
+
+  @override
+  String get prefectureName08 => 'Ibaraki';
+
+  @override
+  String get prefectureName09 => 'Tochigi';
+
+  @override
+  String get prefectureName10 => 'Gunma';
+
+  @override
+  String get prefectureName11 => 'Saitama';
+
+  @override
+  String get prefectureName12 => 'Chiba';
+
+  @override
+  String get prefectureName13 => 'Tokyo';
+
+  @override
+  String get prefectureName14 => 'Kanagawa';
+
+  @override
+  String get prefectureName15 => 'Niigata';
+
+  @override
+  String get prefectureName16 => 'Toyama';
+
+  @override
+  String get prefectureName17 => 'Ishikawa';
+
+  @override
+  String get prefectureName18 => 'Fukui';
+
+  @override
+  String get prefectureName19 => 'Yamanashi';
+
+  @override
+  String get prefectureName20 => 'Nagano';
+
+  @override
+  String get prefectureName21 => 'Gifu';
+
+  @override
+  String get prefectureName22 => 'Shizuoka';
+
+  @override
+  String get prefectureName23 => 'Aichi';
+
+  @override
+  String get prefectureName24 => 'Mie';
+
+  @override
+  String get prefectureName25 => 'Shiga';
+
+  @override
+  String get prefectureName26 => 'Kyoto';
+
+  @override
+  String get prefectureName27 => 'Osaka';
+
+  @override
+  String get prefectureName28 => 'Hyogo';
+
+  @override
+  String get prefectureName29 => 'Nara';
+
+  @override
+  String get prefectureName30 => 'Wakayama';
+
+  @override
+  String get prefectureName31 => 'Tottori';
+
+  @override
+  String get prefectureName32 => 'Shimane';
+
+  @override
+  String get prefectureName33 => 'Okayama';
+
+  @override
+  String get prefectureName34 => 'Hiroshima';
+
+  @override
+  String get prefectureName35 => 'Yamaguchi';
+
+  @override
+  String get prefectureName36 => 'Tokushima';
+
+  @override
+  String get prefectureName37 => 'Kagawa';
+
+  @override
+  String get prefectureName38 => 'Ehime';
+
+  @override
+  String get prefectureName39 => 'Kochi';
+
+  @override
+  String get prefectureName40 => 'Fukuoka';
+
+  @override
+  String get prefectureName41 => 'Saga';
+
+  @override
+  String get prefectureName42 => 'Nagasaki';
+
+  @override
+  String get prefectureName43 => 'Kumamoto';
+
+  @override
+  String get prefectureName44 => 'Oita';
+
+  @override
+  String get prefectureName45 => 'Miyazaki';
+
+  @override
+  String get prefectureName46 => 'Kagoshima';
+
+  @override
+  String get prefectureName47 => 'Okinawa';
+
 }

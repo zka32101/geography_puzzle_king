@@ -40,6 +40,8 @@
   "profile": "Profile",
   "japanese": "Japanese",
   "english": "English",
+  "chinese": "Chinese",
+  "korean": "Korean",
   "difficulty": "Difficulty",
   "easy": "Easy",
   "normal": "Normal",
@@ -85,7 +87,9 @@
   "removeAdsDescription": "{price} — removes all in-game ads",
   "@removeAdsDescription": {
     "placeholders": {
-      "price": {"type": "String"}
+      "price": {
+        "type": "String"
+      }
     }
   },
   "unlockMap": "Unlock All Prefectures",
@@ -94,14 +98,18 @@
   "unlockMapDescription": "{price} — unlocks all 47 prefectures, region battles & history stages",
   "@unlockMapDescription": {
     "placeholders": {
-      "price": {"type": "String"}
+      "price": {
+        "type": "String"
+      }
     }
   },
   "stageLockedTitle": "🔒 This Prefecture Is Locked",
   "stageLockedBody": "Only the first {count} prefectures are free to play.\nPurchase \"Unlock All Prefectures\" to play all 47.",
   "@stageLockedBody": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "goToPurchaseButton": "Go to Purchase",
@@ -110,19 +118,31 @@
   "rankingTabPrefecture": "Prefecture Rivalry",
   "rankingClearedCount": "Cleared: {cleared} / 47",
   "@rankingClearedCount": {
-    "placeholders": { "cleared": {"type": "int"} }
+    "placeholders": {
+      "cleared": {
+        "type": "int"
+      }
+    }
   },
   "pointsSuffix": "pts",
   "rankingPlayerCount": "Players: {count}",
   "@rankingPlayerCount": {
-    "placeholders": { "count": {"type": "int"} }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "territoryMapTitle": "Japan Unification Map",
   "japanMapLabel": "Japan Map",
   "mapDataAttribution": "Map data: Global Map Japan, GSI",
   "genericErrorPrefix": "Error: {error}",
   "@genericErrorPrefix": {
-    "placeholders": { "error": {"type": "String"} }
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
   "territoryUnificationLabel": "National Unification",
   "statsSectionTitle": "📊 Statistics",
@@ -131,7 +151,11 @@
   "statHighScore": "High Score",
   "timesSuffix": "{count} times",
   "@timesSuffix": {
-    "placeholders": { "count": {"type": "int"} }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "pokedexTitle": "Pokedex",
   "pokedexTabCleared": "Cleared",
@@ -140,14 +164,25 @@
   "clearProgressLabel": "Clear Progress",
   "percentComplete": "{percent}% Complete",
   "@percentComplete": {
-    "placeholders": { "percent": {"type": "String"} }
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
   },
   "learningStatsTitle": "Learning Stats",
   "statClearedPrefCount": "Prefectures Cleared",
   "statTotalPlayTime": "Total Play Time",
   "hoursMinutesFormat": "{hours}h {minutes}m",
   "@hoursMinutesFormat": {
-    "placeholders": { "hours": {"type": "int"}, "minutes": {"type": "int"} }
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
   },
   "statTotalScore": "Total Score",
   "statTotalGamesPlayed": "Total Games Played",
@@ -157,12 +192,20 @@
   "capitalCityLabel": "Capital: ",
   "populationLabel": "Population: approx. {population}",
   "@populationLabel": {
-    "placeholders": { "population": {"type": "String"} }
+    "placeholders": {
+      "population": {
+        "type": "String"
+      }
+    }
   },
   "areaLabel": "Area: ",
   "bestScoreLabel": "Best Score: {score} pts",
   "@bestScoreLabel": {
-    "placeholders": { "score": {"type": "String"} }
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
   },
   "clearedDifficultiesLabel": "Cleared Difficulties: ",
   "specialtiesLabel": "Specialties: ",
@@ -171,16 +214,31 @@
   "researchPointsHint": "Earned by clearing prefectures",
   "levelFraction": "Lv.{level} / {max}",
   "@levelFraction": {
-    "placeholders": { "level": {"type": "int"}, "max": {"type": "int"} }
+    "placeholders": {
+      "level": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
   },
   "currentEffectLabel": "Current effect: {effect}",
   "@currentEffectLabel": {
-    "placeholders": { "effect": {"type": "String"} }
+    "placeholders": {
+      "effect": {
+        "type": "String"
+      }
+    }
   },
   "maxLabel": "MAX",
   "upgradeForCostButton": "🔬{cost} Upgrade",
   "@upgradeForCostButton": {
-    "placeholders": { "cost": {"type": "int"} }
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
   },
   "hqTrackAttackTitle": "⚔️ Weapons Development",
   "hqTrackCoinTitle": "💰 Economic Policy",
@@ -196,35 +254,66 @@
   "regionAll": "All",
   "countSuffix": "{count}",
   "@countSuffix": {
-    "placeholders": { "count": {"type": "int"} }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "legendConquered": "Conquered",
   "legendDifficulty": "Difficulty",
   "regionUnlockHint": "Clear every prefecture in a region at any difficulty to unlock it",
   "bossLabel": "Boss: {name}",
   "@bossLabel": {
-    "placeholders": { "name": {"type": "String"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "clearedOfTotalPref": "{cleared}/{total} prefectures",
   "@clearedOfTotalPref": {
-    "placeholders": { "cleared": {"type": "int"}, "total": {"type": "int"} }
+    "placeholders": {
+      "cleared": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "regionBattleHeader": "{name} Region Battle",
   "@regionBattleHeader": {
-    "placeholders": { "name": {"type": "String"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "regionBattleSubheader": "WAVE {waves}  ／  Path to Regional Unity",
   "@regionBattleSubheader": {
-    "placeholders": { "waves": {"type": "int"} }
+    "placeholders": {
+      "waves": {
+        "type": "int"
+      }
+    }
   },
   "conqueredBanner": "Conquered!",
   "bossSkillLabel": "Skill: \"{skill}\"",
   "@bossSkillLabel": {
-    "placeholders": { "skill": {"type": "String"} }
+    "placeholders": {
+      "skill": {
+        "type": "String"
+      }
+    }
   },
   "targetPrefecturesHeader": "Target Prefectures ({count})",
   "@targetPrefecturesHeader": {
-    "placeholders": { "count": {"type": "int"} }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "selectDifficultyLabel": "Select Difficulty",
   "startRegionBattleButton": "Start Region Battle",
@@ -233,19 +322,34 @@
   "historyUnlockHint": "Clear all 47 prefectures on Hard difficulty to unlock\n\"Age of the Gods\"",
   "hardClearedProgress": "{count} / 47 prefectures cleared on Hard",
   "@hardClearedProgress": {
-    "placeholders": { "count": {"type": "int"} }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "conqueredBadge": "Cleared",
   "bossWaveCount": "{name}  •  {waves} waves",
   "@bossWaveCount": {
-    "placeholders": { "name": {"type": "String"}, "waves": {"type": "int"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "waves": {
+        "type": "int"
+      }
+    }
   },
   "historyLockReason1": "Unlocks after clearing all prefectures on Hard",
   "historyLockReason2": "Unlocks after clearing the previous history stage",
   "historyConqueredBanner": "History Battle Conquered!",
   "wavesUltraHard": "{waves} waves ・ Ultra Hard",
   "@wavesUltraHard": {
-    "placeholders": { "waves": {"type": "int"} }
+    "placeholders": {
+      "waves": {
+        "type": "int"
+      }
+    }
   },
   "startHistoryBattleButton": "Start History Battle!",
   "exclusiveBadge": "Exclusive",
@@ -254,19 +358,40 @@
   "notConqueredLabel": "Not Conquered",
   "conqueredDifficultiesLabel": "Cleared: {diffs}",
   "@conqueredDifficultiesLabel": {
-    "placeholders": { "diffs": {"type": "String"} }
+    "placeholders": {
+      "diffs": {
+        "type": "String"
+      }
+    }
   },
   "capitalCityTitle": "Capital",
   "areaTitle": "Area",
   "bossStatsLine": "HP {hp} / ATK {attack} / Skill: \"{skill}\"",
   "@bossStatsLine": {
-    "placeholders": { "hp": {"type": "int"}, "attack": {"type": "int"}, "skill": {"type": "String"} }
+    "placeholders": {
+      "hp": {
+        "type": "int"
+      },
+      "attack": {
+        "type": "int"
+      },
+      "skill": {
+        "type": "String"
+      }
+    }
   },
   "startDefenseButton": "Start Defense",
   "exclusiveFacilityLabel": "Exclusive Facility",
   "industryBonusLine": "{label} facilities boosted +{pct}% (lower cost, higher power)",
   "@industryBonusLine": {
-    "placeholders": { "label": {"type": "String"}, "pct": {"type": "int"} }
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "int"
+      }
+    }
   },
   "geographySea": "Sea / Coast",
   "geographyMountain": "Mountain",
@@ -288,18 +413,33 @@
   "difficultyDescriptionHard": "Enemy HP +15%\nWaves +2\nScore ×1.5",
   "minSecFormat": "{m}m {s}s",
   "@minSecFormat": {
-    "placeholders": { "m": {"type": "int"}, "s": {"type": "int"} }
+    "placeholders": {
+      "m": {
+        "type": "int"
+      },
+      "s": {
+        "type": "int"
+      }
+    }
   },
   "secFormat": "{s}s",
   "@secFormat": {
-    "placeholders": { "s": {"type": "int"} }
+    "placeholders": {
+      "s": {
+        "type": "int"
+      }
+    }
   },
   "victoryTitle": "Cleared!",
   "statTime": "Time",
   "statMistakes": "Mistakes",
   "learnAboutPrefHeader": "📚 Learn about {name}!",
   "@learnAboutPrefHeader": {
-    "placeholders": { "name": {"type": "String"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "geographySectionTitle": "Geography",
   "industryPopSectionTitle": "Industry & Population",
@@ -307,31 +447,55 @@
   "specialtiesTitle": "Specialties",
   "populationApprox": "approx. {population}",
   "@populationApprox": {
-    "placeholders": { "population": {"type": "String"} }
+    "placeholders": {
+      "population": {
+        "type": "String"
+      }
+    }
   },
   "companionJoinedMessage": "{name} joined your team!",
   "@companionJoinedMessage": {
-    "placeholders": { "name": {"type": "String"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "badgesEarnedHeader": "Badges Earned",
   "bossDefeatedLine": "Defeated {name}!",
   "@bossDefeatedLine": {
-    "placeholders": { "name": {"type": "String"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "regionConqueredLine": "Conquered the {name} region",
   "@regionConqueredLine": {
-    "placeholders": { "name": {"type": "String"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "stageClearedLine": "{name} Cleared!",
   "@stageClearedLine": {
-    "placeholders": { "name": {"type": "String"} }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "historyMasterAchievedBanner": "🏆 Full Completion! Certified as Guardian of History!",
   "retryButton": "Retry",
   "backToMapButton": "Back to Map",
   "waveClearShopTitle": "Wave {wave} Clear! Shop",
   "@waveClearShopTitle": {
-    "placeholders": { "wave": {"type": "int"} }
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
   },
   "chooseOneItemHint": "Choose one item",
   "freeLabel": "Free",
@@ -342,7 +506,14 @@
   "tileOccupied": "A facility is already here",
   "notEnoughCoinsNeeded": "🪙 Not enough coins (need: {cost}, have: {coins})",
   "@notEnoughCoinsNeeded": {
-    "placeholders": { "cost": {"type": "int"}, "coins": {"type": "int"} }
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      },
+      "coins": {
+        "type": "int"
+      }
+    }
   },
   "blocksPathDetailed": "🛤️ This tile blocks the path",
   "tileOccupiedDetailed": "⚠️ A facility is already here",
@@ -353,15 +524,27 @@
   "statSpeed": "Speed",
   "facilityUpgradeButton": "Upgrade 🪙{cost}",
   "@facilityUpgradeButton": {
-    "placeholders": { "cost": {"type": "int"} }
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
   },
   "notEnoughCoinsSimple": "Not enough coins (need: {cost})",
   "@notEnoughCoinsSimple": {
-    "placeholders": { "cost": {"type": "int"} }
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
   },
   "sellForButton": "Sell (+{amount}🪙)",
   "@sellForButton": {
-    "placeholders": { "amount": {"type": "int"} }
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
   },
   "quitConfirmTitle": "Quit Battle?",
   "quitConfirmBody": "Quit this battle and return to the top screen?",
@@ -369,32 +552,59 @@
   "abortButton": "Quit",
   "historyBattleWaveBadge": "History Battle {waves} waves",
   "@historyBattleWaveBadge": {
-    "placeholders": { "waves": {"type": "int"} }
+    "placeholders": {
+      "waves": {
+        "type": "int"
+      }
+    }
   },
   "regionBattleWaveBadge": "Region Battle 7 waves",
   "skillSelectedStatus": "Skill Selected",
   "secondsUntilNextWave": "Next wave in {seconds}s",
   "@secondsUntilNextWave": {
-    "placeholders": { "seconds": {"type": "int"} }
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
   },
   "startNowButton": "Start Now",
   "answerQuizPrompt": "Answer the quiz!",
   "gameStartButton": "Start!",
   "waveCounter": "Wave {current}/{total}",
   "@waveCounter": {
-    "placeholders": { "current": {"type": "int"}, "total": {"type": "int"} }
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "remainingEnemies": "{count} remaining",
   "@remainingEnemies": {
-    "placeholders": { "count": {"type": "int"} }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "nextWavePreviewLabel": "Next W{wave}:",
   "@nextWavePreviewLabel": {
-    "placeholders": { "wave": {"type": "int"} }
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
   },
   "enemyCountSuffix": "{count}  ",
   "@enemyCountSuffix": {
-    "placeholders": { "count": {"type": "int"} }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "ultimateReadyLabel": "Ultimate Ready! Tap!",
   "ultimateButtonLabel": "Ultimate: Territory Defense",
@@ -409,18 +619,87 @@
   },
   "@commanderName": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "@clearedOfTotal": {
     "placeholders": {
-      "cleared": {"type": "int"},
-      "total": {"type": "int"}
+      "cleared": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "@conquestPercent": {
     "placeholders": {
-      "percent": {"type": "String"}
+      "percent": {
+        "type": "String"
+      }
     }
-  }
+  },
+  "facilityNameFarm": "Farm",
+  "facilityNameFishery": "Fishery",
+  "facilityNameFactory": "Factory",
+  "facilityNameMine": "Mine",
+  "facilityNameCastle": "Castle",
+  "facilityNameShrine": "Shrine",
+  "facilityNameDairyFarm": "Dairy Farm",
+  "facilityNameAlpineWatch": "Alpine Watchtower",
+  "facilityNameToyotaFactory": "Toyota Factory",
+  "facilityNameKiyomizuTemple": "Kiyomizu Temple",
+  "facilityNamePeaceShrine": "Peace Memorial",
+  "facilityNameShisaGuardian": "Shisa Guardian",
+  "facilityNameUmeSakeBrewery": "Ume Sake Brewery",
+  "facilityNameUdonShop": "Udon Shop",
+  "prefectureName01": "Hokkaido",
+  "prefectureName02": "Aomori",
+  "prefectureName03": "Iwate",
+  "prefectureName04": "Miyagi",
+  "prefectureName05": "Akita",
+  "prefectureName06": "Yamagata",
+  "prefectureName07": "Fukushima",
+  "prefectureName08": "Ibaraki",
+  "prefectureName09": "Tochigi",
+  "prefectureName10": "Gunma",
+  "prefectureName11": "Saitama",
+  "prefectureName12": "Chiba",
+  "prefectureName13": "Tokyo",
+  "prefectureName14": "Kanagawa",
+  "prefectureName15": "Niigata",
+  "prefectureName16": "Toyama",
+  "prefectureName17": "Ishikawa",
+  "prefectureName18": "Fukui",
+  "prefectureName19": "Yamanashi",
+  "prefectureName20": "Nagano",
+  "prefectureName21": "Gifu",
+  "prefectureName22": "Shizuoka",
+  "prefectureName23": "Aichi",
+  "prefectureName24": "Mie",
+  "prefectureName25": "Shiga",
+  "prefectureName26": "Kyoto",
+  "prefectureName27": "Osaka",
+  "prefectureName28": "Hyogo",
+  "prefectureName29": "Nara",
+  "prefectureName30": "Wakayama",
+  "prefectureName31": "Tottori",
+  "prefectureName32": "Shimane",
+  "prefectureName33": "Okayama",
+  "prefectureName34": "Hiroshima",
+  "prefectureName35": "Yamaguchi",
+  "prefectureName36": "Tokushima",
+  "prefectureName37": "Kagawa",
+  "prefectureName38": "Ehime",
+  "prefectureName39": "Kochi",
+  "prefectureName40": "Fukuoka",
+  "prefectureName41": "Saga",
+  "prefectureName42": "Nagasaki",
+  "prefectureName43": "Kumamoto",
+  "prefectureName44": "Oita",
+  "prefectureName45": "Miyazaki",
+  "prefectureName46": "Kagoshima",
+  "prefectureName47": "Okinawa"
 }

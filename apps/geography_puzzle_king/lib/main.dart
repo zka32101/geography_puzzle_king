@@ -93,6 +93,8 @@ class MyApp extends ConsumerWidget {
       supportedLocales: const [
         Locale('ja'),
         Locale('en'),
+        Locale('zh'),
+        Locale('ko'),
       ],
       theme: ThemeData(
         useMaterial3: true,
