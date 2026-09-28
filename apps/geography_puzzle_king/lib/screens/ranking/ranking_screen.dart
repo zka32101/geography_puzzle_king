@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 class RankingScreen extends StatefulWidget {
   const RankingScreen({Key? key}) : super(key: key);
@@ -93,14 +94,15 @@ class _RankingScreenState extends State<RankingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Row(
+        title: Row(
           children: [
-            Text('🏆', style: TextStyle(fontSize: 20)),
-            SizedBox(width: AppSpacing.sm),
-            Text('ランキング'),
+            const Text('🏆', style: TextStyle(fontSize: 20)),
+            const SizedBox(width: AppSpacing.sm),
+            Text(l10n.rankingTitle),
           ],
         ),
         backgroundColor: Colors.transparent,
@@ -121,23 +123,23 @@ class _RankingScreenState extends State<RankingScreen>
           unselectedLabelColor: Colors.white70,
           indicatorColor: AppColors.accent,
           indicatorWeight: 3,
-          tabs: const [
-            Tab(text: 'グローバル'),
-            Tab(text: '都道府県対抗'),
+          tabs: [
+            Tab(text: l10n.rankingTabGlobal),
+            Tab(text: l10n.rankingTabPrefecture),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildGlobalRankingTab(),
-          _buildPrefectureRankingTab(),
+          _buildGlobalRankingTab(l10n),
+          _buildPrefectureRankingTab(l10n),
         ],
       ),
     );
   }
 
-  Widget _buildGlobalRankingTab() {
+  Widget _buildGlobalRankingTab(AppLocalizations l10n) {
     return ListView.builder(
       padding: const EdgeInsets.all(AppSpacing.md),
       itemCount: globalRanking.length,
@@ -200,7 +202,7 @@ class _RankingScreenState extends State<RankingScreen>
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        'クリア県: ${entry.clearedPrefectures} / 47',
+                        l10n.rankingClearedCount(entry.clearedPrefectures),
                         style: AppTextStyles.bodySmall,
                       ),
                     ],
@@ -216,8 +218,8 @@ class _RankingScreenState extends State<RankingScreen>
                         color: isMedal ? _getMedalColor(entry.rank) : null,
                       ),
                     ),
-                    const Text(
-                      'pts',
+                    Text(
+                      l10n.pointsSuffix,
                       style: AppTextStyles.bodySmall,
                     ),
                   ],
@@ -230,7 +232,7 @@ class _RankingScreenState extends State<RankingScreen>
     );
   }
 
-  Widget _buildPrefectureRankingTab() {
+  Widget _buildPrefectureRankingTab(AppLocalizations l10n) {
     return ListView.builder(
       padding: const EdgeInsets.all(AppSpacing.md),
       itemCount: prefectureRanking.length,
@@ -279,7 +281,7 @@ class _RankingScreenState extends State<RankingScreen>
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        'プレイヤー: ${entry.playerCount} 人',
+                        l10n.rankingPlayerCount(entry.playerCount),
                         style: AppTextStyles.bodySmall,
                       ),
                     ],
@@ -293,8 +295,8 @@ class _RankingScreenState extends State<RankingScreen>
                       '${entry.score}',
                       style: AppTextStyles.subtitle1,
                     ),
-                    const Text(
-                      'pts',
+                    Text(
+                      l10n.pointsSuffix,
                       style: AppTextStyles.bodySmall,
                     ),
                   ],

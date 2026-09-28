@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:geography_puzzle_king/config/app_config.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/providers/monetization_provider.dart';
+import 'package:geography_puzzle_king/services/purchase_service.dart';
 import 'package:geography_puzzle_king/providers/localization_provider.dart';
 import 'package:geography_puzzle_king/services/audio_service.dart';
 import 'package:geography_puzzle_king/config/legal_content.dart';
@@ -248,7 +250,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       _buildSection(
                         title: l10n.adsAndPurchases,
-                        children: [_buildRemoveAdsTile()],
+                        children: [
+                          _buildRemoveAdsTile(),
+                          _buildUnlockMapTile(),
+                        ],
                       ),
                       // TODO: cross_promo_kit連携（別セッションで進行中）はpubspec.yamlの依存が
                       // 未整備のため一時的に無効化。パッケージ配置後にCrossPromoSectionを復元すること。
@@ -307,54 +312,89 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Widget _buildRemoveAdsTile() {
     final l10n = AppLocalizations.of(context)!;
-    final adsRemoved = ref.watch(premiumUnlockedProvider);
-    if (adsRemoved) {
+    return _buildIapTile(
+      purchased: ref.watch(adsRemovedProvider),
+      productAsync: ref.watch(removeAdsProductProvider),
+      notPurchasedTitle: l10n.removeAds,
+      purchasedTitle: l10n.removeAdsPurchased,
+      purchasedSubtitle: l10n.purchaseThankYou,
+      describeProduct: (price) => l10n.removeAdsDescription(price),
+      onBuy: (service, product) => service.buyNonConsumable(product),
+      showDivider: true,
+    );
+  }
+
+  Widget _buildUnlockMapTile() {
+    final l10n = AppLocalizations.of(context)!;
+    return _buildIapTile(
+      purchased: ref.watch(mapUnlockedProvider),
+      productAsync: ref.watch(unlockMapProductProvider),
+      notPurchasedTitle: l10n.unlockMap,
+      purchasedTitle: l10n.unlockMapPurchased,
+      purchasedSubtitle: l10n.unlockMapThankYou,
+      describeProduct: (price) => l10n.unlockMapDescription(price),
+      onBuy: (service, product) => service.buyNonConsumable(product),
+      showDivider: false,
+    );
+  }
+
+  Widget _buildIapTile({
+    required bool purchased,
+    required AsyncValue<ProductDetails?> productAsync,
+    required String notPurchasedTitle,
+    required String purchasedTitle,
+    required String purchasedSubtitle,
+    required String Function(String price) describeProduct,
+    required Future<void> Function(PurchaseService service, ProductDetails product) onBuy,
+    required bool showDivider,
+  }) {
+    final l10n = AppLocalizations.of(context)!;
+    if (purchased) {
       return _tileShell(
         icon: Icons.check_circle,
         iconColor: AppColors.success,
-        title: l10n.removeAdsPurchased,
-        subtitle: l10n.purchaseThankYou,
-        showDivider: false,
+        title: purchasedTitle,
+        subtitle: purchasedSubtitle,
+        showDivider: showDivider,
       );
     }
 
-    final productAsync = ref.watch(removeAdsProductProvider);
     return productAsync.when(
       loading: () => _tileShell(
         icon: Icons.block,
-        title: l10n.removeAds,
+        title: notPurchasedTitle,
         trailing: const SizedBox(
           width: 20,
           height: 20,
           child: CircularProgressIndicator(strokeWidth: 2),
         ),
-        showDivider: false,
+        showDivider: showDivider,
       ),
       error: (_, __) => _tileShell(
         icon: Icons.block,
-        title: l10n.removeAds,
+        title: notPurchasedTitle,
         subtitle: l10n.storeConnectionError,
-        showDivider: false,
+        showDivider: showDivider,
       ),
       data: (product) {
         if (product == null) {
           return _tileShell(
             icon: Icons.block,
-            title: l10n.removeAds,
+            title: notPurchasedTitle,
             subtitle: l10n.notAvailableNow,
-            showDivider: false,
+            showDivider: showDivider,
           );
         }
         return _tileShell(
           icon: Icons.block,
-          title: l10n.removeAds,
-          subtitle: l10n.removeAdsDescription(product.price),
-          showDivider: false,
+          title: notPurchasedTitle,
+          subtitle: describeProduct(product.price),
+          showDivider: showDivider,
           trailing: FilledButton(
             onPressed: () async {
               final service = ref.read(purchaseServiceProvider);
               if (service == null) return;
-              await service.buyRemoveAds(product);
+              await onBuy(service, product);
             },
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.primary,

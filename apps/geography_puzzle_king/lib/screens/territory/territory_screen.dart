@@ -4,6 +4,7 @@ import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/models/prefecture_record.dart';
 import 'package:geography_puzzle_king/providers/prefecture_records_provider.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 import 'japan_map_widget.dart';
 import 'prefecture_detail.dart';
 
@@ -13,10 +14,11 @@ class TerritoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final recordsAsync = ref.watch(prefectureRecordsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('日本統一マップ'),
+        title: Text(l10n.territoryMapTitle),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -41,7 +43,7 @@ class TerritoryScreen extends ConsumerWidget {
             ),
           ),
           child: Center(
-            child: Text('エラー: $error'),
+            child: Text(l10n.genericErrorPrefix(error.toString())),
           ),
         ),
       ),
@@ -99,6 +101,7 @@ class TerritoryScreen extends ConsumerWidget {
   }
 
   Widget _buildProgressCard(BuildContext context, int cleared, int total, String percent) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.large),
@@ -113,7 +116,7 @@ class TerritoryScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '日本統一度',
+                  l10n.territoryUnificationLabel,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 Text(
@@ -151,6 +154,7 @@ class TerritoryScreen extends ConsumerWidget {
   }
 
   Widget _buildStatsCard(BuildContext context, Map<String, PrefectureRecord> records) {
+    final l10n = AppLocalizations.of(context)!;
     final totalClears = records.values.fold(0, (sum, record) => sum + record.totalClears);
     final avgLevel = records.isEmpty
         ? 0.0
@@ -170,15 +174,15 @@ class TerritoryScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '📊 統計情報',
+              l10n.statsSectionTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
-            _buildStatRow('総クリア回数', '$totalClears 回'),
-            _buildStatRow('平均レベル', avgLevel.toStringAsFixed(1)),
-            _buildStatRow('最高スコア', highScore.toString()),
+            _buildStatRow(l10n.statTotalClears, l10n.timesSuffix(totalClears)),
+            _buildStatRow(l10n.statAverageLevel, avgLevel.toStringAsFixed(1)),
+            _buildStatRow(l10n.statHighScore, highScore.toString()),
           ],
         ),
       ),

@@ -7,6 +7,7 @@ import 'package:geography_puzzle_king/utils/badge_data.dart';
 import 'package:geography_puzzle_king/utils/history_stage_data.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/utils/region_data.dart';
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 class ResultScreen extends ConsumerStatefulWidget {
   final String prefectureCode;
@@ -40,17 +41,24 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   HistoryStageData? get _historyStage =>
       widget.regionCode.startsWith('h') ? getHistoryStageByCode(widget.regionCode) : null;
 
+  String _formatNumber(int n) =>
+      n.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},');
+
   String get _timeString {
+    final l10n = AppLocalizations.of(context)!;
     final m = widget.clearTime ~/ 60;
     final s = widget.clearTime % 60;
-    return m > 0 ? '$m分${s}秒' : '$s秒';
+    return m > 0 ? l10n.minSecFormat(m, s) : l10n.secFormat(s);
   }
 
-  String get _diffLabel => switch (widget.difficulty) {
-    'easy' => 'イージー',
-    'hard' => 'ハード',
-    _ => 'ノーマル',
-  };
+  String get _diffLabel {
+    final l10n = AppLocalizations.of(context)!;
+    return switch (widget.difficulty) {
+      'easy' => l10n.easy,
+      'hard' => l10n.hard,
+      _ => l10n.normal,
+    };
+  }
 
   @override
   void initState() {
@@ -118,7 +126,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 ),
               ] else if (_region != null) ...[
                 Text(
-                  '${_region!.emoji} ${_region!.name}地方 決戦',
+                  '${_region!.emoji} ${AppLocalizations.of(context)!.regionBattleHeader(_region!.name)}',
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 18,
@@ -190,6 +198,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   }
 
   Widget _buildResultBanner() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         Text(
@@ -198,7 +207,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         ),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          widget.isCleared ? 'クリア！' : 'ゲームオーバー',
+          widget.isCleared ? l10n.victoryTitle : l10n.gameOver,
           style: TextStyle(
             color: widget.isCleared ? Colors.amber : Colors.redAccent.shade100,
             fontSize: 32,
@@ -213,6 +222,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   }
 
   Widget _buildScoreCard() {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       color: Colors.white12,
       shape: RoundedRectangleBorder(
@@ -230,16 +240,16 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const Text(
-              'pts',
-              style: TextStyle(color: Colors.white54, fontSize: 14),
+            Text(
+              l10n.pointsSuffix,
+              style: const TextStyle(color: Colors.white54, fontSize: 14),
             ),
             const Divider(color: Colors.white24, height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildStat('⏱ 時間', _timeString),
-                _buildStat('💥 ミス', '${widget.mistakes} 回'),
+                _buildStat('⏱ ${l10n.statTime}', _timeString),
+                _buildStat('💥 ${l10n.statMistakes}', l10n.timesSuffix(widget.mistakes)),
               ],
             ),
           ],
@@ -267,6 +277,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   // ── 小学コレ！スタイル学習カード ──────────────────────────────────────────
 
   Widget _buildKolegaLearningCard(PrefectureData pref) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       color: Colors.white.withOpacity(0.07),
       shape: RoundedRectangleBorder(
@@ -290,7 +301,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                     style: const TextStyle(fontSize: 22)),
                 const SizedBox(width: 8),
                 Text(
-                  '📚 ${pref.name} を学ぼう！',
+                  l10n.learnAboutPrefHeader(pref.name),
                   style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -306,23 +317,23 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 // 地理情報セクション
                 _buildLearningSection(
                   icon: '🗾',
-                  title: '地理',
+                  title: l10n.geographySectionTitle,
                   color: Colors.teal,
                   rows: [
-                    ('🏛️ 県庁所在地', pref.capitalCity),
-                    ('📐 面積', '${pref.area} km²'),
-                    ('${pref.geographyIcon} 地形', pref.geographyName),
+                    ('🏛️ ${l10n.capitalCityTitle}', pref.capitalCity),
+                    ('📐 ${l10n.areaTitle}', '${pref.area} km²'),
+                    ('${pref.geographyIcon} ${l10n.terrainLabel}', pref.geographyName),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 // 産業・人口セクション
                 _buildLearningSection(
                   icon: '👥',
-                  title: '産業・人口',
+                  title: l10n.industryPopSectionTitle,
                   color: Colors.deepOrange,
                   rows: [
-                    ('👥 人口', '約 ${(pref.population / 10000).round()} 万人'),
-                    ('🍽 特産品', pref.specialties.take(3).join('・')),
+                    ('👥 ${l10n.populationTitle}', l10n.populationApprox(_formatNumber(pref.population))),
+                    ('🍽 ${l10n.specialtiesTitle}', pref.specialties.take(3).join('・')),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -370,7 +381,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${pref.companion.name} が仲間になった！',
+                              l10n.companionJoinedMessage(pref.companion.name),
                               style: const TextStyle(
                                   color: Colors.amber,
                                   fontWeight: FontWeight.bold,
@@ -460,6 +471,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   }
 
   Widget _buildEarnedBadgesSection(Set<String> earnedIds) {
+    final l10n = AppLocalizations.of(context)!;
     final newBadges = allBadges.where((b) => earnedIds.contains(b.id)).toList();
     if (newBadges.isEmpty) return const SizedBox.shrink();
     return Card(
@@ -471,7 +483,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('🏅 獲得バッジ',
+            Text('🏅 ${l10n.badgesEarnedHeader}',
                 style: TextStyle(
                     color: Colors.amber,
                     fontWeight: FontWeight.bold,
@@ -598,6 +610,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   }
 
   Widget _buildRegionClearCard(RegionData region) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       color: Colors.white10,
       shape: RoundedRectangleBorder(
@@ -614,12 +627,12 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${region.bossName} を撃破！',
+                    Text(l10n.bossDefeatedLine(region.bossName),
                         style: const TextStyle(
                             color: Colors.amber,
                             fontWeight: FontWeight.bold,
                             fontSize: 14)),
-                    Text('${region.name}地方を制圧しました',
+                    Text(l10n.regionConqueredLine(region.name),
                         style: const TextStyle(
                             color: Colors.white70, fontSize: 12)),
                   ],
@@ -633,6 +646,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   }
 
   Widget _buildHistoryClearCard(HistoryStageData stage) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       color: Colors.white10,
       shape: RoundedRectangleBorder(
@@ -655,14 +669,14 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${stage.bossName} を撃破！',
+                        l10n.bossDefeatedLine(stage.bossName),
                         style: TextStyle(
                             color: stage.color,
                             fontWeight: FontWeight.bold,
                             fontSize: 14),
                       ),
                       Text(
-                        '${stage.name} クリア！',
+                        l10n.stageClearedLine(stage.name),
                         style: const TextStyle(
                             color: Colors.white70, fontSize: 12),
                       ),
@@ -680,7 +694,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 borderRadius: BorderRadius.circular(AppRadius.medium),
               ),
               child: Text(
-                '🏆 やりこみ達成！歴史の守護者に認定！',
+                l10n.historyMasterAchievedBanner,
                 style: const TextStyle(
                     color: Colors.amber,
                     fontSize: 12,
@@ -715,6 +729,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   }
 
   Widget _buildButtons(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         SizedBox(
@@ -723,8 +738,8 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           child: ElevatedButton.icon(
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(Icons.replay),
-            label: const Text('もう一度',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            label: Text(l10n.retryButton,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white24,
               foregroundColor: Colors.white,
@@ -744,8 +759,8 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               Navigator.of(context).pushReplacementNamed('/map');
             },
             icon: const Icon(Icons.map),
-            label: const Text('マップへ',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            label: Text(l10n.backToMapButton,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
