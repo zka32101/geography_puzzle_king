@@ -11,6 +11,7 @@ import 'package:geography_puzzle_king/providers/game_provider.dart' show sharedP
 import 'package:geography_puzzle_king/providers/localization_provider.dart';
 import 'package:geography_puzzle_king/providers/monetization_provider.dart';
 import 'package:geography_puzzle_king/services/ad_service.dart';
+import 'package:geography_puzzle_king/services/purchase_service.dart' show kRemoveAdsProductId, kUnlockMapProductId;
 import 'package:geography_puzzle_king/screens/auth/splash_screen.dart';
 import 'package:geography_puzzle_king/screens/auth/login_screen.dart';
 import 'package:geography_puzzle_king/screens/home/home_screen.dart';
@@ -50,12 +51,19 @@ void main() async {
 
   await AdService.initialize();
 
-  // 「広告除去」の購入状態をアプリ全体で共有するため、ProviderContainerを
-  // 明示的に作成して起動前にSharedPreferencesの読み込みと購入監視を開始する。
+  // 「広告除去」「マップ解放」の購入状態をアプリ全体で共有するため、
+  // ProviderContainerを明示的に作成して起動前にSharedPreferencesの読み込みと
+  // 購入監視を開始する。
   final container = ProviderContainer();
   await container.read(sharedPreferencesProvider.future);
   container.read(purchaseServiceProvider)?.startListening(
-        onPurchased: () => container.read(premiumUnlockedProvider.notifier).markPurchased(),
+        onPurchased: (productId) {
+          if (productId == kRemoveAdsProductId) {
+            container.read(adsRemovedProvider.notifier).markPurchased();
+          } else if (productId == kUnlockMapProductId) {
+            container.read(mapUnlockedProvider.notifier).markPurchased();
+          }
+        },
       );
 
   runApp(

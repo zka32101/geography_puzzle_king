@@ -21,7 +21,7 @@ class _BannerAdBarState extends ConsumerState<BannerAdBar> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 既に購入済みなら広告リクエスト自体を行わない（無駄な通信を避ける）。
-      if (mounted && !ref.read(premiumUnlockedProvider)) {
+      if (mounted && !ref.read(adsRemovedProvider)) {
         _loadAd();
       }
     });
@@ -49,9 +49,9 @@ class _BannerAdBarState extends ConsumerState<BannerAdBar> {
 
   @override
   Widget build(BuildContext context) {
-    final premiumUnlocked = ref.watch(premiumUnlockedProvider);
+    final adsRemoved = ref.watch(adsRemovedProvider);
     // load()呼び出し後に購入された場合に備え、build時にも非表示条件を再確認する。
-    if (premiumUnlocked || _failed || !_loaded || _bannerAd == null) {
+    if (adsRemoved || _failed || !_loaded || _bannerAd == null) {
       return const SizedBox.shrink();
     }
     return SafeArea(

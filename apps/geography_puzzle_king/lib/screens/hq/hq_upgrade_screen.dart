@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/models/hq_upgrade_model.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 /// 本部強化画面: クリアで貯まる研究ポイントを使い、全プレイ共通の永続強化を購入する
 class HqUpgradeScreen extends ConsumerWidget {
@@ -11,14 +12,15 @@ class HqUpgradeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hq = ref.watch(hqUpgradeProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F1620),
       appBar: AppBar(
         backgroundColor: const Color(0xFF0F1620),
         elevation: 0,
-        title: const Text('🏛️ 本部強化',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text('🏛️ ${l10n.hqUpgrade}',
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SafeArea(
@@ -41,8 +43,8 @@ class HqUpgradeScreen extends ConsumerWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('研究ポイント',
-                          style: TextStyle(color: Colors.white70, fontSize: 12)),
+                      Text(l10n.researchPointsLabel,
+                          style: const TextStyle(color: Colors.white70, fontSize: 12)),
                       Text('${hq.researchPoints}',
                           style: const TextStyle(
                               color: Colors.white,
@@ -51,8 +53,8 @@ class HqUpgradeScreen extends ConsumerWidget {
                     ],
                   ),
                   const Spacer(),
-                  const Text('都道府県クリアで獲得',
-                      style: TextStyle(color: Colors.white54, fontSize: 11)),
+                  Text(l10n.researchPointsHint,
+                      style: const TextStyle(color: Colors.white54, fontSize: 11)),
                 ],
               ),
             ),
@@ -60,7 +62,7 @@ class HqUpgradeScreen extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: HqUpgradeTrack.values
-                    .map((t) => _buildTrackCard(context, ref, hq, t))
+                    .map((t) => _buildTrackCard(context, ref, hq, t, l10n))
                     .toList(),
               ),
             ),
@@ -70,8 +72,8 @@ class HqUpgradeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildTrackCard(
-      BuildContext context, WidgetRef ref, HqUpgradeState hq, HqUpgradeTrack track) {
+  Widget _buildTrackCard(BuildContext context, WidgetRef ref, HqUpgradeState hq,
+      HqUpgradeTrack track, AppLocalizations l10n) {
     final level = hq.levelOf(track);
     final maxed = level >= HqUpgradeTrackX.maxLevel;
     final cost = maxed ? 0 : track.costForLevel(level);
@@ -96,7 +98,7 @@ class HqUpgradeScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Text(track.title,
+              Text(track.title(l10n),
                   style: const TextStyle(
                       color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
               const Spacer(),
@@ -106,13 +108,13 @@ class HqUpgradeScreen extends ConsumerWidget {
                   color: Colors.amberAccent.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text('Lv.$level / ${HqUpgradeTrackX.maxLevel}',
+                child: Text(l10n.levelFraction(level, HqUpgradeTrackX.maxLevel),
                     style: const TextStyle(color: Colors.amberAccent, fontSize: 11)),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          Text(track.description,
+          Text(track.description(l10n),
               style: const TextStyle(color: Colors.white54, fontSize: 12)),
           const SizedBox(height: 8),
           ClipRRect(
@@ -127,7 +129,7 @@ class HqUpgradeScreen extends ConsumerWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              Text('現在の効果: $currentEffect',
+              Text(l10n.currentEffectLabel(currentEffect),
                   style: const TextStyle(color: Colors.greenAccent, fontSize: 12)),
               const Spacer(),
               SizedBox(
@@ -154,7 +156,7 @@ class HqUpgradeScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(8)),
                   ),
                   child: Text(
-                    maxed ? 'MAX' : '🔬$cost で強化',
+                    maxed ? l10n.maxLabel : l10n.upgradeForCostButton(cost),
                     style: TextStyle(
                       color: maxed
                           ? Colors.white38

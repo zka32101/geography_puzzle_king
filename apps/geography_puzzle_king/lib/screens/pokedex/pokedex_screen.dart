@@ -4,6 +4,7 @@ import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/models/achievement_model.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 class PokedexScreen extends ConsumerStatefulWidget {
   const PokedexScreen({Key? key}) : super(key: key);
@@ -30,14 +31,15 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Row(
+        title: Row(
           children: [
-            Text('📖', style: TextStyle(fontSize: 20)),
-            SizedBox(width: AppSpacing.sm),
-            Text('図鑑'),
+            const Text('📖', style: TextStyle(fontSize: 20)),
+            const SizedBox(width: AppSpacing.sm),
+            Text(l10n.pokedexTitle),
           ],
         ),
         backgroundColor: Colors.transparent,
@@ -58,25 +60,25 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
           unselectedLabelColor: Colors.white70,
           indicatorColor: AppColors.accent,
           indicatorWeight: 3,
-          tabs: const [
-            Tab(text: 'クリア県'),
-            Tab(text: '統計'),
-            Tab(text: '実績'),
+          tabs: [
+            Tab(text: l10n.pokedexTabCleared),
+            Tab(text: l10n.pokedexTabStats),
+            Tab(text: l10n.pokedexTabAchievements),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildClearedPrefecturesTab(),
-          _buildStatisticsTab(),
-          _buildAchievementsTab(),
+          _buildClearedPrefecturesTab(l10n),
+          _buildStatisticsTab(l10n),
+          _buildAchievementsTab(l10n),
         ],
       ),
     );
   }
 
-  Widget _buildClearedPrefecturesTab() {
+  Widget _buildClearedPrefecturesTab(AppLocalizations l10n) {
     final gameService = ref.read(gameServiceProvider);
     final cleared = allPrefectures
         .where((p) => gameService.isPrefectureClearedAny(p.code))
@@ -97,8 +99,8 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'クリア進捗',
+                    Text(
+                      l10n.clearProgressLabel,
                       style: AppTextStyles.subtitle1,
                     ),
                     Text(
@@ -121,7 +123,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  '${(progress * 100).toStringAsFixed(1)}% 完成',
+                  l10n.percentComplete((progress * 100).toStringAsFixed(1)),
                   style: AppTextStyles.bodySmall,
                 ),
               ],
@@ -157,7 +159,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
     );
   }
 
-  Widget _buildStatisticsTab() {
+  Widget _buildStatisticsTab(AppLocalizations l10n) {
     final stats = ref.watch(gameStatsProvider);
     final hours = stats.totalPlayTime ~/ 60;
     final minutes = stats.totalPlayTime % 60;
@@ -167,37 +169,37 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('学習統計', style: AppTextStyles.headline3),
+          Text(l10n.learningStatsTitle, style: AppTextStyles.headline3),
           const SizedBox(height: AppSpacing.lg),
           _buildStatCard(
             icon: Icons.location_on,
-            title: 'クリア県数',
+            title: l10n.statClearedPrefCount,
             value: '${stats.totalClearedPrefectures} / ${allPrefectures.length}',
             color: AppColors.primary,
           ),
           const SizedBox(height: AppSpacing.md),
           _buildStatCard(
             icon: Icons.timer,
-            title: '総プレイ時間',
-            value: '$hours 時間 $minutes 分',
+            title: l10n.statTotalPlayTime,
+            value: l10n.hoursMinutesFormat(hours, minutes),
             color: AppColors.secondary,
           ),
           const SizedBox(height: AppSpacing.md),
           _buildStatCard(
             icon: Icons.grade,
-            title: '総スコア',
+            title: l10n.statTotalScore,
             value: _formatNumber(stats.totalScore),
             color: AppColors.accent,
           ),
           const SizedBox(height: AppSpacing.md),
           _buildStatCard(
             icon: Icons.games,
-            title: '総プレイ回数',
-            value: '${stats.totalGamesPlayed} 回',
+            title: l10n.statTotalGamesPlayed,
+            value: l10n.timesSuffix(stats.totalGamesPlayed),
             color: Colors.purple,
           ),
           const SizedBox(height: AppSpacing.lg),
-          const Text('難度別クリア数', style: AppTextStyles.subtitle1),
+          Text(l10n.clearsByDifficultyLabel, style: AppTextStyles.subtitle1),
           const SizedBox(height: AppSpacing.md),
           Row(
             children: [
@@ -285,7 +287,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
     );
   }
 
-  Widget _buildAchievementsTab() {
+  Widget _buildAchievementsTab(AppLocalizations l10n) {
     final achievements = ref.watch(achievementsProvider);
     final unlocked = achievements.where((a) => a.isUnlocked).length;
     return Column(
@@ -295,7 +297,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('実績', style: AppTextStyles.headline3),
+              Text(l10n.achievementsTitle, style: AppTextStyles.headline3),
               Text(
                 '$unlocked / ${achievements.length}',
                 style: AppTextStyles.subtitle1,
@@ -415,6 +417,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
   }
 
   void _showPrefectureDetail(PrefectureData prefecture, GameService gameService) {
+    final l10n = AppLocalizations.of(context)!;
     final diffs = gameService.getClearedDifficulties(prefecture.code);
     final best  = gameService.getBestScoreForPrefecture(prefecture.code);
 
@@ -426,17 +429,17 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('かな: ${prefecture.kana}'),
+            Text('${l10n.kanaLabel}${prefecture.kana}'),
             const SizedBox(height: AppSpacing.sm),
-            Text('県庁: ${prefecture.capitalCity}'),
-            Text('人口: 約 ${(prefecture.population / 10000).round()} 万人'),
-            Text('面積: ${prefecture.area} km²'),
+            Text('${l10n.capitalCityLabel}${prefecture.capitalCity}'),
+            Text(l10n.populationLabel(_formatNumber(prefecture.population))),
+            Text('${l10n.areaLabel}${prefecture.area} km²'),
             const Divider(height: 20),
-            if (best != null) Text('ベストスコア: ${_formatNumber(best)} pts',
+            if (best != null) Text(l10n.bestScoreLabel(_formatNumber(best)),
                 style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Row(children: [
-              const Text('クリア難度: '),
+              Text(l10n.clearedDifficultiesLabel),
               ...['easy', 'normal', 'hard'].map((d) {
                 final labels = {'easy': 'E', 'normal': 'N', 'hard': 'H'};
                 final colors = {'easy': Colors.green, 'normal': Colors.blue, 'hard': Colors.red};
@@ -447,14 +450,14 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
               }),
             ]),
             const SizedBox(height: 8),
-            Text('特産品: ${prefecture.specialties.take(3).join('・')}',
+            Text('${l10n.specialtiesLabel}${prefecture.specialties.take(3).join('・')}',
                 style: const TextStyle(fontSize: 12)),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('閉じる'),
+            child: Text(l10n.closeButton),
           ),
         ],
       ),

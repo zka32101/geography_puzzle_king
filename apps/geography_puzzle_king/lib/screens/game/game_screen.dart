@@ -13,6 +13,7 @@ import 'package:geography_puzzle_king/utils/game_assets.dart';
 import 'package:geography_puzzle_king/utils/history_stage_data.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/utils/region_data.dart';
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 // ─── ビジュアルエフェクト データクラス ───────────────────────────────────
 
@@ -284,7 +285,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   @override
   void initState() {
     super.initState();
-    if (!ref.read(premiumUnlockedProvider)) {
+    if (!ref.read(adsRemovedProvider)) {
       ref.read(adServiceProvider).preloadInterstitial();
     }
     final hq = ref.read(hqUpgradeProvider);
@@ -888,6 +889,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
   void _openShop(int waveNumber) {
     if (!mounted || _shopOpen) return;
+    final l10n = AppLocalizations.of(context)!;
     _ticker.stop();
     final shuffled = List<_ShopItem>.from(_allShopItems)..shuffle(_rng);
     setState(() {
@@ -911,15 +913,15 @@ class _GameScreenState extends ConsumerState<GameScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'ウェーブ$waveNumberクリア！ショップ',
+                  l10n.waveClearShopTitle(waveNumber),
                   style: const TextStyle(
                       color: Colors.amber,
                       fontSize: 17,
                       fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                const Text('アイテムを1つ選んでください',
-                    style: TextStyle(color: Colors.white54, fontSize: 12)),
+                Text(l10n.chooseOneItemHint,
+                    style: const TextStyle(color: Colors.white54, fontSize: 12)),
                 const SizedBox(height: 12),
                 ..._currentShopItems.map((item) {
                   final canAfford = _gameState.coins >= item.cost || item.cost == 0;
@@ -972,7 +974,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                               ),
                             ),
                             Text(
-                              item.cost == 0 ? '無料' : '🪙${item.cost}',
+                              item.cost == 0 ? l10n.freeLabel : '🪙${item.cost}',
                               style: TextStyle(
                                   color: canAfford
                                       ? Colors.amberAccent
@@ -993,8 +995,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     setState(() => _shopOpen = false);
                     _ticker.start();
                   },
-                  child: const Text('スキップ',
-                      style: TextStyle(color: Colors.white54, fontSize: 13)),
+                  child: Text(l10n.skipButton,
+                      style: const TextStyle(color: Colors.white54, fontSize: 13)),
                 ),
               ],
             ),
@@ -1137,7 +1139,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       );
     }
 
-    final showAd = !ref.read(premiumUnlockedProvider);
+    final showAd = !ref.read(adsRemovedProvider);
     final adService = ref.read(adServiceProvider);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -1175,6 +1177,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   // ─── タップ処理 ──────────────────────────────────────────────────────
 
   void _handleTap(GridPos pos) {
+    final l10n = AppLocalizations.of(context)!;
     // 既存施設をタップ → アップグレードシート
     if (_gameState.facilities.containsKey(pos)) {
       _showUpgradeSheet(pos);
@@ -1225,13 +1228,13 @@ class _GameScreenState extends ConsumerState<GameScreen>
           }
         } else {
           // 配置失敗 → 理由をユーザーに表示
-          String reason = '施設を配置できません';
+          String reason = l10n.cannotPlaceFacility;
           if (_gameState.coins < _selectedFacility.cost) {
-            reason = '金貨が足りません';
+            reason = l10n.notEnoughCoins;
           } else if (_gameState.pathSet.contains(pos)) {
-            reason = '道を塞いでます';
+            reason = l10n.blocksPath;
           } else if (_gameState.facilities.containsKey(pos)) {
-            reason = 'すでに施設があります';
+            reason = l10n.tileOccupied;
           }
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1254,13 +1257,13 @@ class _GameScreenState extends ConsumerState<GameScreen>
         if (canPlace) {
           setState(() => _previewPos = pos);
         } else {
-          String reason = '施設を配置できません';
+          String reason = l10n.cannotPlaceFacility;
           if (_gameState.coins < _selectedFacility.cost) {
-            reason = '🪙 金貨が足りません (必要: ${_selectedFacility.cost}, 保持: ${_gameState.coins})';
+            reason = l10n.notEnoughCoinsNeeded(_selectedFacility.cost, _gameState.coins);
           } else if (_gameState.pathSet.contains(pos)) {
-            reason = '🛤️ この場所は道を塞ぎます';
+            reason = l10n.blocksPathDetailed;
           } else if (_gameState.facilities.containsKey(pos)) {
-            reason = '⚠️ この場所には既に施設があります';
+            reason = l10n.tileOccupiedDetailed;
           }
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1290,6 +1293,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (BuildContext context) {
+        final l10n = AppLocalizations.of(context)!;
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -1298,7 +1302,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
               children: [
                 // ヘッダー
                 Text(
-                  '⭐ ウェーブスキルを選択',
+                  '⭐ ${l10n.selectWaveSkillButton}',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -1307,7 +1311,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '次のウェーブで効果が適用されます',
+                  l10n.effectAppliesNextWaveHint,
                   style: const TextStyle(color: Colors.white54, fontSize: 12),
                 ),
                 const SizedBox(height: 16),
@@ -1382,6 +1386,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   void _showUpgradeSheet(GridPos pos) {
+    final l10n = AppLocalizations.of(context)!;
     final f = _gameState.facilities[pos];
     if (f == null) return;
     final fColor = _facilityColors[f.type] ?? Colors.white;
@@ -1447,9 +1452,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _statItem('⚔️', '攻撃力', '${current.damage}'),
-                      _statItem('🎯', '射程', '${current.range.toStringAsFixed(1)}'),
-                      _statItem('⚡', '速度', '${current.type.attackSpeed.toStringAsFixed(1)}/s'),
+                      _statItem('⚔️', l10n.statAttack, '${current.damage}'),
+                      _statItem('🎯', l10n.statRange, '${current.range.toStringAsFixed(1)}'),
+                      _statItem('⚡', l10n.statSpeed, '${current.type.attackSpeed.toStringAsFixed(1)}/s'),
                     ],
                   ),
                 ),
@@ -1475,8 +1480,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   ),
                   child: Text(
                     canUpgrade
-                        ? 'アップグレード 🪙${current.upgradeCost}'
-                        : 'コイン不足 (必要: ${current.upgradeCost})',
+                        ? l10n.facilityUpgradeButton(current.upgradeCost)
+                        : l10n.notEnoughCoinsSimple(current.upgradeCost),
                     style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -1498,7 +1503,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                         borderRadius: BorderRadius.circular(10)),
                   ),
                   child: Text(
-                    '売却 (+${(current.type.cost / 2).round()}🪙)',
+                    l10n.sellForButton((current.type.cost / 2).round()),
                     style: const TextStyle(
                         color: Colors.redAccent, fontWeight: FontWeight.bold),
                   ),
@@ -1599,22 +1604,23 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   Future<bool> _onBackPressed() async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFF1A2332),
-        title: const Text('中断しますか？',
-            style: TextStyle(color: Colors.white)),
-        content: const Text('ゲームを中断してトップに戻りますか？',
-            style: TextStyle(color: Colors.white70)),
+        title: Text(l10n.quitConfirmTitle,
+            style: const TextStyle(color: Colors.white)),
+        content: Text(l10n.quitConfirmBody,
+            style: const TextStyle(color: Colors.white70)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('続ける', style: TextStyle(color: Colors.white54)),
+            child: Text(l10n.continueButton, style: const TextStyle(color: Colors.white54)),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('中断', style: TextStyle(color: Colors.redAccent)),
+            child: Text(l10n.abortButton, style: const TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
@@ -1623,6 +1629,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   Widget _buildTopBar(PrefectureData? pref) {
+    final l10n = AppLocalizations.of(context)!;
     final region = _region;
     final history = _historyStage;
     final diffColor = history != null
@@ -1678,7 +1685,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                       history != null
                           ? history.name
                           : region != null
-                              ? '${region.name}地方 決戦'
+                              ? l10n.regionBattleHeader(region.name)
                               : pref?.name ?? '',
                       style: const TextStyle(
                           color: Colors.white,
@@ -1694,7 +1701,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          '歴史決戦 ${history.totalWaves}波',
+                          l10n.historyBattleWaveBadge(history.totalWaves),
                           style: TextStyle(
                             color: history.color,
                             fontSize: 8,
@@ -1710,7 +1717,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          '地方決戦 7波',
+                          l10n.regionBattleWaveBadge,
                           style: TextStyle(
                             color: region.color,
                             fontSize: 8,
@@ -1842,6 +1849,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   Widget _buildGameField() {
+    final l10n = AppLocalizations.of(context)!;
     return LayoutBuilder(builder: (context, constraints) {
       final cellSize = min(
         constraints.maxWidth / TdEngine.cols,
@@ -1897,6 +1905,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     prefectureCode: widget.prefectureCode,
                     geography: _prefecture?.geography ?? 'mixed',
                     weather: _prefecture?.weather ?? 'clear',
+                    placeFacilitiesHint: l10n.placeFacilitiesHint,
                   ),
                 ),
                 // 敵の画像レイヤー
@@ -2192,6 +2201,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   Widget _buildControlPanel() {
+    final l10n = AppLocalizations.of(context)!;
     final isWave = _gameState.phase == GamePhase.wave;
     final isWaveEnd = _gameState.phase == GamePhase.waveEnd;
     final totalEnemies = isWave
@@ -2284,9 +2294,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Text(
-                    '⭐ ウェーブスキルを選択',
-                    style: TextStyle(
+                  child: Text(
+                    '⭐ ${l10n.selectWaveSkillButton}',
+                    style: const TextStyle(
                         color: Colors.purpleAccent,
                         fontWeight: FontWeight.bold,
                         fontSize: 13),
@@ -2306,9 +2316,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     width: 1.5,
                   ),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    '✓ スキルが選択されました',
+                    '✓ ${l10n.skillSelectedStatus}',
                     style: TextStyle(
                       color: Colors.purpleAccent,
                       fontWeight: FontWeight.bold,
@@ -2322,7 +2332,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '次のウェーブまで ${_gameState.waveTimer.ceil()} 秒',
+                  l10n.secondsUntilNextWave(_gameState.waveTimer.ceil()),
                   style: const TextStyle(color: Colors.white54, fontSize: 11),
                 ),
                 ElevatedButton(
@@ -2340,8 +2350,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Text(
-                    '今すぐ開始',
+                  child: Text(
+                    l10n.startNowButton,
                     style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -2379,7 +2389,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                         borderRadius: BorderRadius.circular(8)),
                   ),
                   child: Text(
-                    quizPending ? 'クイズに答えよう！' : '開始!',
+                    quizPending ? l10n.answerQuizPrompt : l10n.gameStartButton,
                     style: TextStyle(
                         color: quizPending ? Colors.white54 : Colors.black,
                         fontWeight: FontWeight.bold,
@@ -2395,6 +2405,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   Widget _buildWaveProgressBar(int remaining, int total) {
+    final l10n = AppLocalizations.of(context)!;
     final progress = total > 0 ? 1.0 - (remaining / total) : 1.0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2403,11 +2414,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'ウェーブ ${_gameState.currentWave}/${_gameState.totalWaves}',
+              l10n.waveCounter(_gameState.currentWave, _gameState.totalWaves),
               style: const TextStyle(color: Colors.white54, fontSize: 10),
             ),
             Text(
-              '残り $remaining 体',
+              l10n.remainingEnemies(remaining),
               style: const TextStyle(color: Colors.white54, fontSize: 10),
             ),
           ],
@@ -2561,6 +2572,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   Widget _buildNextWavePreview() {
+    final l10n = AppLocalizations.of(context)!;
     final nextWave = _gameState.currentWave + 1;
     if (nextWave > _gameState.totalWaves) return const SizedBox.shrink();
     final List<WaveDefinition> waves;
@@ -2586,12 +2598,12 @@ class _GameScreenState extends ConsumerState<GameScreen>
       child: Row(
         children: [
           Text(
-            '次 W$nextWave:',
+            l10n.nextWavePreviewLabel(nextWave),
             style: const TextStyle(color: Colors.white38, fontSize: 11),
           ),
           const SizedBox(width: 6),
           Text(
-            '${waveDef.enemyCount}体  ',
+            l10n.enemyCountSuffix(waveDef.enemyCount),
             style: const TextStyle(color: Colors.white60, fontSize: 11),
           ),
           ...typeCount.entries.map((e) => Padding(
@@ -2730,6 +2742,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   Widget _buildUltimateBar() {
+    final l10n = AppLocalizations.of(context)!;
     final ready = _ultimateCharge >= 1.0;
     // 満タン時は脈動するグロー
     final pulse = ready ? (0.5 + 0.5 * sin(_gameTime * 8)) : 0.0;
@@ -2771,7 +2784,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    ready ? '必殺技 発動可能！タップ！' : '必殺・領土防衛',
+                    ready ? l10n.ultimateReadyLabel : l10n.ultimateButtonLabel,
                     style: TextStyle(
                       color: ready ? Colors.orangeAccent : Colors.white54,
                       fontSize: 11,
@@ -2868,6 +2881,7 @@ class _GameFieldPainter extends CustomPainter {
   final String? prefectureCode;
   final String? geography;
   final String weather;
+  final String placeFacilitiesHint;
 
   _GameFieldPainter({
     required this.state,
@@ -2884,6 +2898,7 @@ class _GameFieldPainter extends CustomPainter {
     this.prefectureCode,
     this.geography = 'mixed',
     this.weather = 'clear',
+    required this.placeFacilitiesHint,
   });
 
   @override
@@ -3468,7 +3483,7 @@ class _GameFieldPainter extends CustomPainter {
   void _drawOverlay(Canvas canvas, Size size) {
     if (state.phase == GamePhase.prep) {
       _drawCenteredText(
-          canvas, size, '施設を配置して\n「開始!」を押してください',
+          canvas, size, placeFacilitiesHint,
           Colors.white54, 13);
     }
     // victory / defeat は ResultScreen へ遷移するので不要

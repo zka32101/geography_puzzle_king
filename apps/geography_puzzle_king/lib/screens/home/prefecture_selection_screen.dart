@@ -9,6 +9,7 @@ import 'package:geography_puzzle_king/providers/monetization_provider.dart';
 import 'package:geography_puzzle_king/screens/game/game_screen.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/widgets/stage_locked_dialog.dart';
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 class PrefectureSelectionScreen extends ConsumerStatefulWidget {
   const PrefectureSelectionScreen({Key? key}) : super(key: key);
@@ -33,10 +34,11 @@ class _PrefectureSelectionScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('都道府県を選択'),
+        title: Text(l10n.selectPrefectureTitle),
         centerTitle: true,
         backgroundColor: AppColors.surface,
         elevation: 2,
@@ -52,13 +54,14 @@ class _PrefectureSelectionScreenState
   }
 
   Widget _buildSearchBar() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       color: AppColors.surface,
       child: TextField(
         onChanged: (val) => setState(() => _searchQuery = val),
         decoration: InputDecoration(
-          hintText: '県名で検索',
+          hintText: l10n.searchByPrefNameHint,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
@@ -75,8 +78,9 @@ class _PrefectureSelectionScreenState
   }
 
   Widget _buildRegionFilter() {
-    const regions = [
-      ('', '全国'),
+    final l10n = AppLocalizations.of(context)!;
+    final regions = [
+      ('', l10n.regionAll),
       ('hokkaido', '北海道'),
       ('tohoku', '東北'),
       ('kanto', '関東'),
@@ -112,7 +116,7 @@ class _PrefectureSelectionScreenState
   Widget _buildPrefectureGrid() {
     final prefs = _filteredPrefectures;
     final gameService = ref.read(gameServiceProvider);
-    final premiumUnlocked = ref.watch(premiumUnlockedProvider);
+    final mapUnlocked = ref.watch(mapUnlockedProvider);
 
     return GridView.builder(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -127,7 +131,7 @@ class _PrefectureSelectionScreenState
         final pref = prefs[idx];
         final isCleared = gameService.isPrefectureClearedAny(pref.code);
         final clearedDiffs = gameService.getClearedDifficulties(pref.code);
-        final isLocked = !premiumUnlocked && !isPrefectureFree(pref.code);
+        final isLocked = !mapUnlocked && !isPrefectureFree(pref.code);
 
         return GestureDetector(
           onTap: () {
@@ -225,6 +229,7 @@ class _PrefectureSelectionScreenState
   }
 
   Widget _buildDifficultySheet(BuildContext context, PrefectureData pref) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
@@ -251,7 +256,7 @@ class _PrefectureSelectionScreenState
                 _buildBossImage(pref),
                 const SizedBox(height: 12),
                 Text(
-                  'ボス: ${pref.boss.name}',
+                  l10n.bossLabel(pref.boss.name),
                   style: const TextStyle(fontSize: 14),
                 ),
               ],
@@ -260,9 +265,9 @@ class _PrefectureSelectionScreenState
           const SizedBox(height: AppSpacing.lg),
 
           // 難度選択ボタン
-          const Text(
-            '難易度を選択',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          Text(
+            l10n.selectDifficultyLabel,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -273,6 +278,7 @@ class _PrefectureSelectionScreenState
   }
 
   List<Widget> _buildDifficultyButtons(BuildContext context, PrefectureData pref) {
+    final l10n = AppLocalizations.of(context)!;
     // 県ごとの選択可能難易度（暫定：全て可能）
     // TODO: 各県の難易度制限を設定可能にする
     final availableDifficulties = ['easy', 'normal', 'hard'];
@@ -298,7 +304,7 @@ class _PrefectureSelectionScreenState
             child: Column(
               children: [
                 Text(
-                  getDifficultyLabel(difficulty),
+                  getDifficultyLabel(difficulty, l10n),
                   style: TextStyle(
                     color: isAvailable ? Colors.white : Colors.white54,
                     fontSize: 16,
@@ -307,7 +313,7 @@ class _PrefectureSelectionScreenState
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  modifier.description,
+                  getDifficultyDescription(difficulty, l10n),
                   style: TextStyle(
                     color: isAvailable ? Colors.white : Colors.white54,
                     fontSize: 10,

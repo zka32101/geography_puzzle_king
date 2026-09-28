@@ -12,6 +12,7 @@ import 'package:geography_puzzle_king/utils/history_stage_data.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/utils/region_data.dart';
 import 'package:geography_puzzle_king/widgets/stage_locked_dialog.dart';
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 class PrefectureMapScreen extends ConsumerStatefulWidget {
   const PrefectureMapScreen({Key? key}) : super(key: key);
@@ -37,19 +38,20 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: const Text('都道府県を選択'),
+          title: Text(l10n.selectPrefectureTitle),
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
-          bottom: const TabBar(
+          bottom: TabBar(
             tabs: [
-              Tab(text: '都道府県'),
-              Tab(text: '🏆 地方決戦'),
-              Tab(text: '⚔️ 歴史決戦'),
+              Tab(text: l10n.tabPrefectures),
+              Tab(text: '🏆 ${l10n.tabRegionBattle}'),
+              Tab(text: '⚔️ ${l10n.tabHistoryBattle}'),
             ],
             indicatorColor: Colors.white,
             labelColor: Colors.white,
@@ -68,6 +70,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
   }
 
   Widget _buildPrefectureTab() {
+    final l10n = AppLocalizations.of(context)!;
     final earnedIds = ref.watch(gameServiceProvider).getEarnedBadgeIds();
     return Column(
       children: [
@@ -82,7 +85,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
           child: TextField(
             onChanged: (v) => setState(() => _searchQuery = v),
             decoration: InputDecoration(
-              hintText: '県名・かなで検索',
+              hintText: l10n.searchByNameHint,
               prefixIcon: const Icon(Icons.search),
               suffixIcon: _searchQuery.isNotEmpty
                   ? IconButton(
@@ -107,7 +110,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
             children: [
-              _buildRegionChip(null, '全国'),
+              _buildRegionChip(null, l10n.regionAll),
               ...regionNames.entries.map(
                 (e) => _buildRegionChip(e.key, e.value),
               ),
@@ -120,15 +123,15 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
           child: Row(
             children: [
-              Text('${_filteredPrefectures.length} 件',
+              Text(l10n.countSuffix(_filteredPrefectures.length),
                   style: AppTextStyles.bodySmall),
               const Spacer(),
               const Icon(Icons.check_circle, size: 14, color: AppColors.success),
               const SizedBox(width: 2),
-              const Text('制圧済', style: AppTextStyles.bodySmall),
+              Text(l10n.legendConquered, style: AppTextStyles.bodySmall),
               const SizedBox(width: AppSpacing.sm),
               const Text('⭐', style: TextStyle(fontSize: 11)),
-              const Text('難易度', style: AppTextStyles.bodySmall),
+              Text(l10n.legendDifficulty, style: AppTextStyles.bodySmall),
             ],
           ),
         ),
@@ -196,6 +199,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
   }
 
   Widget _buildRegionBattleTab() {
+    final l10n = AppLocalizations.of(context)!;
     final gameService = ref.watch(gameServiceProvider);
     return ListView.builder(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -211,13 +215,13 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                 borderRadius: BorderRadius.circular(AppRadius.medium),
                 border: Border.all(color: AppColors.primary.withOpacity(0.3)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Text('🗺️', style: TextStyle(fontSize: 20)),
-                  SizedBox(width: AppSpacing.sm),
+                  const Text('🗺️', style: TextStyle(fontSize: 20)),
+                  const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      '地方内の全都道府県をいずれかの難度でクリアすると解放されます',
+                      l10n.regionUnlockHint,
                       style: AppTextStyles.bodySmall,
                     ),
                   ),
@@ -239,6 +243,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
   }
 
   Widget _buildRegionBattleCard(RegionData region, bool unlocked, bool cleared, int clearedCount) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       color: AppColors.surface,
@@ -285,7 +290,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${region.bossEmoji} ボス: ${region.bossName}',
+                      '${region.bossEmoji} ${l10n.bossLabel(region.bossName)}',
                       style: TextStyle(
                         color: unlocked ? AppColors.textSecondary : AppColors.textSecondary.withOpacity(0.5),
                         fontSize: 12,
@@ -312,7 +317,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          '$clearedCount/${region.prefectureCodes.length}県',
+                          l10n.clearedOfTotalPref(clearedCount, region.prefectureCodes.length),
                           style: TextStyle(
                             color: unlocked ? region.color : AppColors.textSecondary,
                             fontSize: 10,
@@ -349,6 +354,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
   }
 
   Widget _buildRegionBattleDetailSheet(RegionData region) {
+    final l10n = AppLocalizations.of(context)!;
     final gameService = ref.read(gameServiceProvider);
     final regionCleared = gameService.isRegionCleared(region.code);
     return DraggableScrollableSheet(
@@ -379,8 +385,8 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                   children: [
                     Text(region.emoji, style: const TextStyle(fontSize: 48)),
                     const SizedBox(height: AppSpacing.xs),
-                    Text('${region.name}地方 決戦', style: AppTextStyles.headline2),
-                    Text('WAVE ${TdEngine.regionTotalWaves}  ／  地方統一への道',
+                    Text(l10n.regionBattleHeader(region.name), style: AppTextStyles.headline2),
+                    Text(l10n.regionBattleSubheader(TdEngine.regionTotalWaves),
                         style: AppTextStyles.subtitle2),
                   ],
                 ),
@@ -399,7 +405,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     children: [
                       const Icon(Icons.military_tech, color: AppColors.success),
                       const SizedBox(width: AppSpacing.sm),
-                      Text('制圧済み！', style: AppTextStyles.subtitle2.copyWith(color: AppColors.success)),
+                      Text(l10n.conqueredBanner, style: AppTextStyles.subtitle2.copyWith(color: AppColors.success)),
                     ],
                   ),
                 ),
@@ -419,8 +425,8 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('ボス: ${region.bossName}', style: AppTextStyles.subtitle1),
-                          Text('スキル「${region.bossSkill}」', style: AppTextStyles.bodySmall),
+                          Text(l10n.bossLabel(region.bossName), style: AppTextStyles.subtitle1),
+                          Text(l10n.bossSkillLabel(region.bossSkill), style: AppTextStyles.bodySmall),
                         ],
                       ),
                     ),
@@ -429,7 +435,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
               // 対象都道府県
-              Text('対象都道府県（${region.prefectureCodes.length}県）', style: AppTextStyles.subtitle2),
+              Text(l10n.targetPrefecturesHeader(region.prefectureCodes.length), style: AppTextStyles.subtitle2),
               const SizedBox(height: AppSpacing.sm),
               Wrap(
                 spacing: 4,
@@ -465,15 +471,15 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               ),
               const SizedBox(height: AppSpacing.lg),
               // 難度選択
-              const Text('難度を選択', style: AppTextStyles.subtitle1),
+              Text(l10n.selectDifficultyLabel, style: AppTextStyles.subtitle1),
               const SizedBox(height: AppSpacing.sm),
               Row(
                 children: [
-                  _buildDifficultyButton(label: 'イージー', value: 'easy', color: Colors.green),
+                  _buildDifficultyButton(label: l10n.easy, value: 'easy', color: Colors.green),
                   const SizedBox(width: AppSpacing.md),
-                  _buildDifficultyButton(label: 'ノーマル', value: 'normal', color: Colors.blue),
+                  _buildDifficultyButton(label: l10n.normal, value: 'normal', color: Colors.blue),
                   const SizedBox(width: AppSpacing.md),
-                  _buildDifficultyButton(label: 'ハード', value: 'hard', color: Colors.red),
+                  _buildDifficultyButton(label: l10n.hard, value: 'hard', color: Colors.red),
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
@@ -495,7 +501,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     );
                   },
                   icon: const Text('⚔️', style: TextStyle(fontSize: 18)),
-                  label: const Text('地方決戦 開始', style: AppTextStyles.button),
+                  label: Text(l10n.startRegionBattleButton, style: AppTextStyles.button),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: region.color,
                     shape: RoundedRectangleBorder(
@@ -517,6 +523,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildHistoryStageTab() {
+    final l10n = AppLocalizations.of(context)!;
     final gameService = ref.read(gameServiceProvider);
     final hardCount = gameService.hardClearedPrefCount();
     final allHardDone = hardCount >= 47;
@@ -541,7 +548,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
           child: Column(
             children: [
               Text(
-                allHardDone ? '🏆 全国ハード制覇達成！歴史決戦解放！' : '⚔️ やりこみ要素',
+                allHardDone ? l10n.historyUnlockedBanner : l10n.postgameSectionLabel,
                 style: TextStyle(
                   color: allHardDone ? const Color(0xFFB39DDB) : Colors.white70,
                   fontSize: 14,
@@ -551,7 +558,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               const SizedBox(height: AppSpacing.sm),
               if (!allHardDone) ...[
                 Text(
-                  '全47都道府県をハード難度でクリアすると\n「神代の決戦」が解放されます',
+                  l10n.historyUnlockHint,
                   style: const TextStyle(
                       color: Colors.white60, fontSize: 12, height: 1.4),
                   textAlign: TextAlign.center,
@@ -569,7 +576,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '$hardCount / 47 県 ハードクリア済み',
+                  l10n.hardClearedProgress(hardCount),
                   style: const TextStyle(color: Colors.white54, fontSize: 11),
                 ),
               ],
@@ -584,6 +591,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
   }
 
   Widget _buildHistoryStageCard(HistoryStageData stage) {
+    final l10n = AppLocalizations.of(context)!;
     final gameService = ref.read(gameServiceProvider);
     final isUnlocked = gameService.isHistoryStageUnlocked(stage.code);
     final isCleared = gameService.isHistoryStageCleared(stage.code);
@@ -646,8 +654,8 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                               color: AppColors.success.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Text('制覇',
-                                style: TextStyle(
+                            child: Text(l10n.conqueredBadge,
+                                style: const TextStyle(
                                     color: AppColors.success,
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold)),
@@ -667,7 +675,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                               style: const TextStyle(fontSize: 14)),
                           const SizedBox(width: 4),
                           Text(
-                            '${stage.bossName}  •  ${stage.totalWaves}波',
+                            l10n.bossWaveCount(stage.bossName, stage.totalWaves),
                             style: const TextStyle(
                                 color: Colors.white38, fontSize: 11),
                           ),
@@ -676,8 +684,8 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     ] else
                       Text(
                         stage.code == 'h01'
-                            ? '全国ハードクリアで解放'
-                            : '前の歴史ステージをクリアで解放',
+                            ? l10n.historyLockReason1
+                            : l10n.historyLockReason2,
                         style: const TextStyle(
                             color: Colors.white38, fontSize: 12),
                       ),
@@ -706,6 +714,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
   }
 
   Widget _buildHistoryStageDetailSheet(HistoryStageData stage) {
+    final l10n = AppLocalizations.of(context)!;
     final gameService = ref.read(gameServiceProvider);
     final isCleared = gameService.isHistoryStageCleared(stage.code);
     return DraggableScrollableSheet(
@@ -753,7 +762,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     children: [
                       const Icon(Icons.military_tech, color: AppColors.success),
                       const SizedBox(width: AppSpacing.sm),
-                      Text('歴史決戦 制覇済み！',
+                      Text(l10n.historyConqueredBanner,
                           style: AppTextStyles.subtitle2
                               .copyWith(color: AppColors.success)),
                     ],
@@ -791,11 +800,11 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('ボス: ${stage.bossName}',
+                          Text(l10n.bossLabel(stage.bossName),
                               style: AppTextStyles.subtitle1),
-                          Text('スキル「${stage.bossSkill}」',
+                          Text(l10n.bossSkillLabel(stage.bossSkill),
                               style: AppTextStyles.bodySmall),
-                          Text('${stage.totalWaves}波・超高難度',
+                          Text(l10n.wavesUltraHard(stage.totalWaves),
                               style: AppTextStyles.bodySmall),
                         ],
                       ),
@@ -804,18 +813,18 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
-              const Text('難度を選択', style: AppTextStyles.subtitle1),
+              Text(l10n.selectDifficultyLabel, style: AppTextStyles.subtitle1),
               const SizedBox(height: AppSpacing.sm),
               Row(
                 children: [
                   _buildDifficultyButton(
-                      label: 'イージー', value: 'easy', color: Colors.green),
+                      label: l10n.easy, value: 'easy', color: Colors.green),
                   const SizedBox(width: AppSpacing.md),
                   _buildDifficultyButton(
-                      label: 'ノーマル', value: 'normal', color: Colors.blue),
+                      label: l10n.normal, value: 'normal', color: Colors.blue),
                   const SizedBox(width: AppSpacing.md),
                   _buildDifficultyButton(
-                      label: 'ハード', value: 'hard', color: Colors.red),
+                      label: l10n.hard, value: 'hard', color: Colors.red),
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
@@ -836,7 +845,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     );
                   },
                   icon: Text(stage.emoji, style: const TextStyle(fontSize: 18)),
-                  label: const Text('歴史決戦 開始！', style: AppTextStyles.button),
+                  label: Text(l10n.startHistoryBattleButton, style: AppTextStyles.button),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: stage.color,
                     shape: RoundedRectangleBorder(
@@ -854,6 +863,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
   }
 
   Widget _buildPrefectureCard(PrefectureData pref) {
+    final l10n = AppLocalizations.of(context)!;
     final gameService = ref.read(gameServiceProvider);
     final isCleared = gameService.isPrefectureClearedAny(pref.code);
     final isSelected = _selectedPrefectureCode == pref.code;
@@ -861,8 +871,8 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
     final diffColor = AppColors.difficulty(pref.difficultyRating);
     final hasExclusive =
         TdEngine.exclusiveFacilityForPrefecture(pref.code) != null;
-    final premiumUnlocked = ref.watch(premiumUnlockedProvider);
-    final isLocked = !premiumUnlocked && !isPrefectureFree(pref.code);
+    final mapUnlocked = ref.watch(mapUnlockedProvider);
+    final isLocked = !mapUnlocked && !isPrefectureFree(pref.code);
 
     return GestureDetector(
       onTap: () {
@@ -923,8 +933,8 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                       color: AppColors.accent.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Text('限定',
-                        style: TextStyle(
+                    child: Text(l10n.exclusiveBadge,
+                        style: const TextStyle(
                             fontSize: 8,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87)),
@@ -1042,6 +1052,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
   }
 
   Widget _buildPrefectureDetailSheet(PrefectureData pref) {
+    final l10n = AppLocalizations.of(context)!;
     final gameService = ref.read(gameServiceProvider);
     final clearedDiffs = gameService.getClearedDifficulties(pref.code);
     final best = gameService.getBestScoreForPrefecture(pref.code);
@@ -1099,7 +1110,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('難易度', style: AppTextStyles.bodySmall),
+                          Text(l10n.difficultyLabel, style: AppTextStyles.bodySmall),
                           const SizedBox(height: 2),
                           Text(pref.difficultyStars,
                               style: const TextStyle(fontSize: 14)),
@@ -1119,9 +1130,9 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.only(left: AppSpacing.md),
-                            child: Text('地形', style: AppTextStyles.bodySmall),
+                          Padding(
+                            padding: const EdgeInsets.only(left: AppSpacing.md),
+                            child: Text(l10n.terrainLabel, style: AppTextStyles.bodySmall),
                           ),
                           const SizedBox(height: 2),
                           Padding(
@@ -1158,13 +1169,14 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                           children: [
                             Text(
                               clearedDiffs.isEmpty
-                                  ? '未制圧'
-                                  : '制圧難度: ${clearedDiffs.map(_diffJa).join('・')}',
+                                  ? l10n.notConqueredLabel
+                                  : l10n.conqueredDifficultiesLabel(
+                                      clearedDiffs.map((d) => _diffLabel(d, l10n)).join('・')),
                               style: AppTextStyles.subtitle2.copyWith(
                                   color: AppColors.textPrimary),
                             ),
                             if (best != null)
-                              Text('ベスト: ${_formatNumber(best)} pts',
+                              Text(l10n.bestScoreLabel(_formatNumber(best)),
                                   style: AppTextStyles.bodySmall),
                           ],
                         ),
@@ -1188,8 +1200,8 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               // 基本情報
               Row(
                 children: [
-                  Expanded(child: _infoTile(Icons.location_city, '県庁', pref.capitalCity)),
-                  Expanded(child: _infoTile(Icons.map, '面積', '${pref.area}km²')),
+                  Expanded(child: _infoTile(Icons.location_city, l10n.capitalCityTitle, pref.capitalCity)),
+                  Expanded(child: _infoTile(Icons.map, l10n.areaTitle, '${pref.area}km²')),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
@@ -1208,13 +1220,13 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     Row(
                       children: [
                         const Text('👹 ', style: TextStyle(fontSize: 16)),
-                        Text('ボス: ${pref.boss.name}',
+                        Text(l10n.bossLabel(pref.boss.name),
                             style: AppTextStyles.subtitle1),
                       ],
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'HP ${pref.boss.baseHp} / 攻撃 ${pref.boss.baseAttack} / スキル「${pref.boss.skill}」',
+                      l10n.bossStatsLine(pref.boss.baseHp, pref.boss.baseAttack, pref.boss.skill),
                       style: AppTextStyles.bodySmall,
                     ),
                   ],
@@ -1223,15 +1235,15 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               const SizedBox(height: AppSpacing.lg),
 
               // 難度選択
-              const Text('難度を選択', style: AppTextStyles.subtitle1),
+              Text(l10n.selectDifficultyLabel, style: AppTextStyles.subtitle1),
               const SizedBox(height: AppSpacing.sm),
               Row(
                 children: [
-                  _buildDifficultyButton(label: 'イージー', value: 'easy', color: Colors.green),
+                  _buildDifficultyButton(label: l10n.easy, value: 'easy', color: Colors.green),
                   const SizedBox(width: AppSpacing.md),
-                  _buildDifficultyButton(label: 'ノーマル', value: 'normal', color: Colors.blue),
+                  _buildDifficultyButton(label: l10n.normal, value: 'normal', color: Colors.blue),
                   const SizedBox(width: AppSpacing.md),
-                  _buildDifficultyButton(label: 'ハード', value: 'hard', color: Colors.red),
+                  _buildDifficultyButton(label: l10n.hard, value: 'hard', color: Colors.red),
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
@@ -1253,7 +1265,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     );
                   },
                   icon: const Text('⚔️', style: TextStyle(fontSize: 18)),
-                  label: const Text('防衛開始', style: AppTextStyles.button),
+                  label: Text(l10n.startDefenseButton, style: AppTextStyles.button),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
@@ -1271,6 +1283,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
   }
 
   Widget _buildExclusiveCard(FacilityType type) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -1291,12 +1304,12 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               children: [
                 Row(
                   children: [
-                    const Text('🏠 限定施設', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.warning)),
+                    Text('🏠 ${l10n.exclusiveFacilityLabel}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.warning)),
                   ],
                 ),
                 const SizedBox(height: 2),
                 Text(type.label, style: AppTextStyles.subtitle1),
-                Text(_exclusiveDescription(type), style: AppTextStyles.bodySmall),
+                Text(_exclusiveDescription(type, l10n), style: AppTextStyles.bodySmall),
               ],
             ),
           ),
@@ -1306,6 +1319,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
   }
 
   Widget _buildBonusCard(PrefectureData pref) {
+    final l10n = AppLocalizations.of(context)!;
     final type = pref.primaryIndustry!;
     final pct = ((pref.industryBonus - 1.0) * 100).round();
     return Container(
@@ -1321,7 +1335,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Text(
-              '${type.label}施設 強化 +$pct%（コスト減・威力増）',
+              l10n.industryBonusLine(type.label, pct),
               style: AppTextStyles.bodyMedium,
             ),
           ),
@@ -1377,55 +1391,56 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
   }
 
   String _geographyName(String g) {
+    final l10n = AppLocalizations.of(context)!;
     switch (g) {
       case 'sea':
-        return '海・沿岸';
+        return l10n.geographySea;
       case 'mountain':
-        return '山岳';
+        return l10n.geographyMountain;
       case 'urban':
-        return '都市';
+        return l10n.geographyUrban;
       case 'agriculture':
-        return '農業';
+        return l10n.geographyAgriculture;
       case 'mixed':
-        return '複合';
+        return l10n.geographyMixed;
       default:
         return '—';
     }
   }
 
-  String _diffJa(String d) {
+  String _diffLabel(String d, AppLocalizations l10n) {
     switch (d) {
       case 'easy':
-        return 'イージー';
+        return l10n.easy;
       case 'normal':
-        return 'ノーマル';
+        return l10n.normal;
       case 'hard':
-        return 'ハード';
+        return l10n.hard;
       default:
         return d;
     }
   }
 
-  String _exclusiveDescription(FacilityType type) {
+  String _exclusiveDescription(FacilityType type, AppLocalizations l10n) {
     switch (type) {
       case FacilityType.dairyFarm:
-        return '敵の速度を-20%する酪農施設';
+        return l10n.facilityDescDairyFarm;
       case FacilityType.alpineWatch:
-        return '長射程＋スロー付与の見張所';
+        return l10n.facilityDescAlpineWatch;
       case FacilityType.toyotaFactory:
-        return '高速攻撃＋コイン生成';
+        return l10n.facilityDescToyotaFactory;
       case FacilityType.kiyomizuTemple:
-        return '敵への被ダメージ+40%';
+        return l10n.facilityDescKiyomizuTemple;
       case FacilityType.peaceShrine:
-        return '敵にシールドを付与し弱体化';
+        return l10n.facilityDescPeaceShrine;
       case FacilityType.shisaGuardian:
-        return '40%でスタン（1秒）';
+        return l10n.facilityDescShisaGuardian;
       case FacilityType.umeSakeBrewery:
-        return '50%でスロー付与';
+        return l10n.facilityDescUmeSakeBrewery;
       case FacilityType.udonShop:
-        return '超低コスト・高速攻撃';
+        return l10n.facilityDescUdonShop;
       default:
-        return '都道府県限定の特殊施設';
+        return l10n.facilityDescDefault;
     }
   }
 
