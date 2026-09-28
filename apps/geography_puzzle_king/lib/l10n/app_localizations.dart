@@ -683,6 +683,18 @@ abstract class AppLocalizations {
   /// **'Japan Unification Map'**
   String get territoryMapTitle;
 
+  /// No description provided for @japanMapLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Japan Map'**
+  String get japanMapLabel;
+
+  /// No description provided for @mapDataAttribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Map data: Global Map Japan, GSI'**
+  String get mapDataAttribution;
+
   /// No description provided for @genericErrorPrefix.
   ///
   /// In en, this message translates to:
