@@ -1393,7 +1393,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          current.type.label,
+                          current.type.localizedLabel(l10n),
                           style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -2603,6 +2603,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   Widget _buildFacilityBtnFixed(FacilityType type) {
+    final l10n = AppLocalizations.of(context)!;
     final isSelected = _selectedFacility == type;
     final canAfford = _gameState.coins >= type.cost;
     final fColor = _facilityColors[type] ?? Colors.white;
@@ -2643,7 +2644,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
           children: [
             Text(type.emoji, style: const TextStyle(fontSize: 20)),
             Text(
-              type.label,
+              type.localizedLabel(l10n),
               style: TextStyle(
                 color: canAfford ? Colors.white : Colors.white30,
                 fontSize: 9,
@@ -2666,6 +2667,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   }
 
   Widget _buildFacilityBtn(FacilityType type) {
+    final l10n = AppLocalizations.of(context)!;
     final isSelected = _selectedFacility == type;
     final canAfford = _gameState.coins >= type.cost;
     final fColor = _facilityColors[type] ?? Colors.white;
@@ -2693,7 +2695,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
             children: [
               Text(type.emoji, style: const TextStyle(fontSize: 18)),
               Text(
-                type.label,
+                type.localizedLabel(l10n),
                 style: TextStyle(
                   color: canAfford ? Colors.white : Colors.white30,
                   fontSize: 9,

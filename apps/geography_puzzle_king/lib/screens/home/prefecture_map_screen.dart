@@ -458,7 +458,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                         if (cleared) const Icon(Icons.check, size: 10, color: AppColors.success),
                         if (cleared) const SizedBox(width: 2),
                         Text(
-                          pref?.name ?? code,
+                          pref?.localizedName(l10n) ?? code,
                           style: TextStyle(
                             color: cleared ? AppColors.success : AppColors.textSecondary,
                             fontSize: 11,
@@ -957,7 +957,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                         style: const TextStyle(fontSize: 24)),
                     const SizedBox(height: 2),
                     Text(
-                      pref.name,
+                      pref.localizedName(l10n),
                       style: AppTextStyles.bodySmall.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppColors.textPrimary,
@@ -1089,7 +1089,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                   children: [
                     Text(pref.geographyIcon, style: const TextStyle(fontSize: 40)),
                     const SizedBox(height: AppSpacing.xs),
-                    Text(pref.name, style: AppTextStyles.headline2),
+                    Text(pref.localizedName(l10n), style: AppTextStyles.headline2),
                     Text(pref.kana, style: AppTextStyles.subtitle2),
                   ],
                 ),
