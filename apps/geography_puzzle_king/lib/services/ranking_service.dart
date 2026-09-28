@@ -1,199 +1,190 @@
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:geography_puzzle_king/models/ranking_model.dart';
-import 'package:geography_puzzle_king/models/game_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// オンラインランキング（Firestore）サービス。
+///
+/// # 想定するFirestoreセキュリティルール（コード管理外・Firebase Console側で設定）
+/// ```
+/// rules_version = '2';
+/// service cloud.firestore {
+///   match /databases/{database}/documents {
+///     // グローバルランキング: 認証済みユーザーは自分のuidのドキュメントのみ
+///     // 作成・更新可能。読み取りは誰でも可能（ランキング一覧表示用）。
+///     match /rankings/{uid} {
+///       allow read: if true;
+///       allow write: if request.auth != null && request.auth.uid == uid;
+///     }
+///     // 都道府県別ランキング: サブコレクションでuid配下に保存。
+///     // 読み取りは誰でも可能、書き込みは本人のみ。
+///     match /prefecture_rankings/{prefectureCode}/entries/{uid} {
+///       allow read: if true;
+///       allow write: if request.auth != null && request.auth.uid == uid;
+///     }
+///   }
+/// }
+/// ```
+///
+/// 注意: このアプリの現行の認証(`lib/providers/auth_provider.dart`)は
+/// Firebase Authを実際には使わないローカル疑似認証（`User.uid`は
+/// `local_xxx`形式のローカル生成ID）。pubspec.yamlにfirebase_authの
+/// 依存はあるが、ログイン画面からのFirebase Auth連携は未実装のため、
+/// このサービスは暫定的に [User.uid] / [User.nickname] をそのまま
+/// Firestoreドキュメントのキー・表示名として利用する。将来的に
+/// Firebase Authへ移行する場合は、上記ルールの`request.auth.uid`と
+/// 実際に送信する`uid`が一致するよう認証フローを接続すること。
 class RankingService {
-  final SharedPreferences _prefs;
+  RankingService({FirebaseFirestore? firestore})
+      : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  RankingService(this._prefs);
+  final FirebaseFirestore _firestore;
 
-  static const _keyGlobalRanking = 'global_ranking_v1';
-  static const _maxGlobalEntries = 100;
-  static const _maxPrefEntries = 50;
+  CollectionReference<Map<String, dynamic>> get _globalRankingRef =>
+      _firestore.collection('rankings');
 
-  // ─── グローバルランキング ───────────────────────────────────────
+  CollectionReference<Map<String, dynamic>> _prefectureRankingRef(
+    String prefectureCode,
+  ) =>
+      _firestore
+          .collection('prefecture_rankings')
+          .doc(prefectureCode)
+          .collection('entries');
 
-  List<RankingEntry> getGlobalRanking({int limit = 50}) {
-    final json = _prefs.getString(_keyGlobalRanking);
-    if (json == null || json.isEmpty) return [];
-
-    try {
-      final list = jsonDecode(json) as List;
-      return list
-          .map((e) => RankingEntry.fromJson(e as Map<String, dynamic>))
-          .toList()
-          .take(limit)
-          .toList();
-    } catch (_) {
-      return [];
-    }
-  }
-
-  Future<void> updateRankingData({
-    required String userId,
-    required int totalScore,
-    required int clearedCount,
-    required int playTime,
-  }) async {
-    final now = DateTime.now();
-    final newEntry = RankingEntry(
-      rank: 0,
-      userId: userId,
-      totalScore: totalScore,
-      clearedPrefectures: clearedCount,
-      playTime: playTime,
-      recordedAt: now,
-    );
-
-    // グローバルランキング更新
-    var ranking = getGlobalRanking(limit: _maxGlobalEntries);
-
-    // 既存ユーザーのエントリを削除（新しいスコアでリランク）
-    ranking.removeWhere((e) => e.userId == userId);
-
-    // 新しいエントリを追加
-    ranking.add(newEntry);
-
-    // スコアの降順でソート
-    ranking.sort((a, b) => b.totalScore.compareTo(a.totalScore));
-
-    // ランクを再付与
-    ranking = ranking
-        .asMap()
-        .entries
-        .map((e) => e.value.copyWith(rank: e.key + 1))
-        .toList();
-
-    // 上位100件のみ保持
-    if (ranking.length > _maxGlobalEntries) {
-      ranking = ranking.take(_maxGlobalEntries).toList();
-    }
-
-    final json = jsonEncode(ranking.map((e) => e.toJson()).toList());
-    await _prefs.setString(_keyGlobalRanking, json);
-  }
-
-  // ─── 都道府県別ランキング ────────────────────────────────────────
-
-  String _prefRankingKey(String prefCode, String difficulty) =>
-      'pref_ranking_${prefCode}_${difficulty}_v1';
-
-  List<PrefectureRankingEntry> getPrefectureRanking(
-    String prefCode,
-    String difficulty,
-  ) {
-    final key = _prefRankingKey(prefCode, difficulty);
-    final json = _prefs.getString(key);
-    if (json == null || json.isEmpty) return [];
-
-    try {
-      final list = jsonDecode(json) as List;
-      return list
-          .map((e) => PrefectureRankingEntry.fromJson(e as Map<String, dynamic>))
-          .toList();
-    } catch (_) {
-      return [];
-    }
-  }
-
-  Future<void> recordPrefectureScore({
-    required String userId,
-    required String prefCode,
-    required String difficulty,
+  /// グローバルランキングへスコアを送信する。
+  ///
+  /// 既存のベストスコアより高い場合のみ更新する（低いスコアで上書きしない）。
+  /// オフライン・通信エラー時は例外を握りつぶし、呼び出し元（ゲームプレイ）に
+  /// 影響を与えないようにする。
+  Future<void> submitGlobalScore({
+    required String uid,
+    required String nickname,
     required int score,
-    required int clearTime,
+    required int clearedPrefectures,
   }) async {
-    final key = _prefRankingKey(prefCode, difficulty);
-    var ranking = getPrefectureRanking(prefCode, difficulty);
+    try {
+      final docRef = _globalRankingRef.doc(uid);
+      await _firestore.runTransaction((tx) async {
+        final snapshot = await tx.get(docRef);
+        final currentBest = (snapshot.data()?['score'] as num?)?.toInt() ?? 0;
+        if (score < currentBest) {
+          // ベストスコアを下回る場合は上書きしない。
+          return;
+        }
+        tx.set(docRef, {
+          'nickname': nickname,
+          'score': score,
+          'clearedPrefectures': clearedPrefectures,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      });
+    } catch (e) {
+      // オフライン・権限エラー等はゲーム進行に影響させず握りつぶす。
+      // ignore: avoid_print
+      print('RankingService.submitGlobalScore failed: $e');
+    }
+  }
 
-    // 既存エントリを更新or新規作成
-    final existingIndex =
-        ranking.indexWhere((e) => e.prefectureCode == prefCode);
+  /// 都道府県別ランキングへスコアを送信する。
+  Future<void> submitPrefectureScore({
+    required String prefectureCode,
+    required String prefectureName,
+    required String uid,
+    required int score,
+  }) async {
+    try {
+      final docRef = _prefectureRankingRef(prefectureCode).doc(uid);
+      await _firestore.runTransaction((tx) async {
+        final snapshot = await tx.get(docRef);
+        final currentBest = (snapshot.data()?['score'] as num?)?.toInt() ?? 0;
+        if (score < currentBest) return;
+        tx.set(docRef, {
+          'prefectureName': prefectureName,
+          'score': score,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      });
+    } catch (e) {
+      // ignore: avoid_print
+      print('RankingService.submitPrefectureScore failed: $e');
+    }
+  }
 
-    if (existingIndex >= 0) {
-      final existing = ranking[existingIndex];
-      ranking[existingIndex] = existing.copyWith(
-        bestScore: score > existing.bestScore ? score : existing.bestScore,
-        fastestClearTime: clearTime < existing.fastestClearTime
-            ? clearTime
-            : existing.fastestClearTime,
-        playCount: existing.playCount + 1,
-        lastClearedAt: DateTime.now(),
-      );
-    } else {
-      ranking.add(PrefectureRankingEntry(
-        prefectureCode: prefCode,
-        difficulty: difficulty,
+  /// グローバルランキング上位を取得する。通信エラー時は空リストを返す。
+  Future<List<GlobalRankingEntry>> fetchGlobalRanking({int limit = 50}) async {
+    try {
+      final snapshot = await _globalRankingRef
+          .orderBy('score', descending: true)
+          .limit(limit)
+          .get();
+      var rank = 0;
+      return snapshot.docs.map((doc) {
+        rank++;
+        final data = doc.data();
+        return GlobalRankingEntry(
+          rank: rank,
+          uid: doc.id,
+          nickname: (data['nickname'] as String?) ?? '名無しの探検家',
+          score: (data['score'] as num?)?.toInt() ?? 0,
+          clearedPrefectures: (data['clearedPrefectures'] as num?)?.toInt() ?? 0,
+        );
+      }).toList();
+    } catch (e) {
+      // ignore: avoid_print
+      print('RankingService.fetchGlobalRanking failed: $e');
+      return [];
+    }
+  }
+
+  /// 単一都道府県のトップランキング（上位1件のスコア・プレイヤー数）を取得する。
+  Future<PrefectureRankingEntry?> fetchTopForPrefecture({
+    required String prefectureCode,
+    required String prefectureName,
+  }) async {
+    try {
+      final collection = _prefectureRankingRef(prefectureCode);
+      final countSnapshot = await collection.count().get();
+      final topSnapshot =
+          await collection.orderBy('score', descending: true).limit(1).get();
+      if (topSnapshot.docs.isEmpty) return null;
+      final topScore = (topSnapshot.docs.first.data()['score'] as num?)?.toInt() ?? 0;
+      return PrefectureRankingEntry(
         rank: 0,
-        bestScore: score,
-        fastestClearTime: clearTime,
-        playCount: 1,
-        lastClearedAt: DateTime.now(),
-      ));
-    }
-
-    // スコアの降順でソート
-    ranking.sort((a, b) => b.bestScore.compareTo(a.bestScore));
-
-    // ランクを再付与
-    ranking = ranking
-        .asMap()
-        .entries
-        .map((e) => e.value.copyWith(rank: e.key + 1))
-        .toList();
-
-    // 上位50件のみ保持
-    if (ranking.length > _maxPrefEntries) {
-      ranking = ranking.take(_maxPrefEntries).toList();
-    }
-
-    final json = jsonEncode(ranking.map((e) => e.toJson()).toList());
-    await _prefs.setString(key, json);
-  }
-
-  // ─── ユーザー統計 ───────────────────────────────────────────────
-
-  UserRankingStats? getUserStats(String userId) {
-    final ranking = getGlobalRanking(limit: _maxGlobalEntries);
-    final userEntry = ranking
-        .where((e) => e.userId == userId)
-        .isEmpty
-        ? null
-        : ranking.firstWhere((e) => e.userId == userId);
-
-    if (userEntry == null) return null;
-
-    // 都道府県別ランクマップを構築
-    final prefRanks = <String, int>{};
-    for (var i = 1; i <= 47; i++) {
-      final code = i.toString().padLeft(2, '0');
-      for (final diff in ['easy', 'normal', 'hard']) {
-        final key = '$code\_$diff';
-        final pref = getPrefectureRanking(code, diff);
-        final rank = pref.indexWhere((e) => e.prefectureCode == code) + 1;
-        if (rank > 0) prefRanks[key] = rank;
-      }
-    }
-
-    return UserRankingStats(
-      globalRank: userEntry.rank,
-      totalScore: userEntry.totalScore,
-      clearedCount: userEntry.clearedPrefectures,
-      prefectureRanks: prefRanks,
-      lastUpdated: userEntry.recordedAt,
-    );
-  }
-
-  // ─── ユーティリティ ─────────────────────────────────────────────
-
-  Future<void> clearAllRankings() async {
-    await _prefs.remove(_keyGlobalRanking);
-    for (var i = 1; i <= 47; i++) {
-      final code = i.toString().padLeft(2, '0');
-      for (final diff in ['easy', 'normal', 'hard']) {
-        await _prefs.remove(_prefRankingKey(code, diff));
-      }
+        prefectureName: prefectureName,
+        score: topScore,
+        playerCount: countSnapshot.count ?? 0,
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('RankingService.fetchTopForPrefecture failed: $e');
+      return null;
     }
   }
+}
+
+class GlobalRankingEntry {
+  final int rank;
+  final String uid;
+  final String nickname;
+  final int score;
+  final int clearedPrefectures;
+
+  GlobalRankingEntry({
+    required this.rank,
+    required this.uid,
+    required this.nickname,
+    required this.score,
+    required this.clearedPrefectures,
+  });
+}
+
+class PrefectureRankingEntry {
+  final int rank;
+  final String prefectureName;
+  final int score;
+  final int playerCount;
+
+  PrefectureRankingEntry({
+    required this.rank,
+    required this.prefectureName,
+    required this.score,
+    required this.playerCount,
+  });
 }

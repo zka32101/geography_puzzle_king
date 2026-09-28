@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
+import 'package:geography_puzzle_king/services/ranking_service.dart';
+import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 
 class RankingScreen extends StatefulWidget {
   const RankingScreen({Key? key}) : super(key: key);
@@ -12,78 +14,60 @@ class RankingScreen extends StatefulWidget {
 class _RankingScreenState extends State<RankingScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final RankingService _rankingService = RankingService();
 
-  // ダミーランキングデータ
-  final List<RankingEntry> globalRanking = [
-    RankingEntry(
-      rank: 1,
-      nickname: '太郎くん',
-      score: 12450,
-      clearedPrefectures: 42,
-    ),
-    RankingEntry(
-      rank: 2,
-      nickname: '花子さん',
-      score: 11980,
-      clearedPrefectures: 40,
-    ),
-    RankingEntry(
-      rank: 3,
-      nickname: '次郎くん',
-      score: 11450,
-      clearedPrefectures: 38,
-    ),
-    RankingEntry(
-      rank: 4,
-      nickname: '美咲さん',
-      score: 10980,
-      clearedPrefectures: 36,
-    ),
-    RankingEntry(
-      rank: 5,
-      nickname: 'ケンくん',
-      score: 10450,
-      clearedPrefectures: 35,
-    ),
-  ];
-
-  final List<PrefectureRanking> prefectureRanking = [
-    PrefectureRanking(
-      rank: 1,
-      prefectureName: '北海道',
-      score: 450000,
-      playerCount: 125,
-    ),
-    PrefectureRanking(
-      rank: 2,
-      prefectureName: '東京都',
-      score: 380000,
-      playerCount: 456,
-    ),
-    PrefectureRanking(
-      rank: 3,
-      prefectureName: '大阪府',
-      score: 320000,
-      playerCount: 289,
-    ),
-    PrefectureRanking(
-      rank: 4,
-      prefectureName: '神奈川県',
-      score: 310000,
-      playerCount: 234,
-    ),
-    PrefectureRanking(
-      rank: 5,
-      prefectureName: '福岡県',
-      score: 280000,
-      playerCount: 198,
-    ),
-  ];
+  late Future<List<RankingEntry>> _globalRankingFuture;
+  late Future<List<PrefectureRanking>> _prefectureRankingFuture;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _globalRankingFuture = _loadGlobalRanking();
+    _prefectureRankingFuture = _loadPrefectureRanking();
+  }
+
+  // Firestoreから取得。通信エラー・未接続時はRankingService側で例外を
+  // 握りつぶして空リストを返すため、ここでは追加のtry/catchは不要。
+  Future<List<RankingEntry>> _loadGlobalRanking() async {
+    final entries = await _rankingService.fetchGlobalRanking(limit: 20);
+    return entries
+        .map((e) => RankingEntry(
+              rank: e.rank,
+              nickname: e.nickname,
+              score: e.score,
+              clearedPrefectures: e.clearedPrefectures,
+            ))
+        .toList();
+  }
+
+  // 都道府県ごとのトップスコアをまとめて取得し、スコア降順に並べ替える。
+  Future<List<PrefectureRanking>> _loadPrefectureRanking() async {
+    final results = <PrefectureRanking>[];
+    for (final pref in allPrefectures) {
+      final top = await _rankingService.fetchTopForPrefecture(
+        prefectureCode: pref.code,
+        prefectureName: pref.name,
+      );
+      if (top != null) {
+        results.add(PrefectureRanking(
+          rank: 0,
+          prefectureName: top.prefectureName,
+          score: top.score,
+          playerCount: top.playerCount,
+        ));
+      }
+    }
+    results.sort((a, b) => b.score.compareTo(a.score));
+    for (var i = 0; i < results.length; i++) {
+      results[i] = PrefectureRanking(
+        rank: i + 1,
+        prefectureName: results[i].prefectureName,
+        score: results[i].score,
+        playerCount: results[i].playerCount,
+      );
+    }
+    return results;
   }
 
   @override
@@ -140,12 +124,31 @@ class _RankingScreenState extends State<RankingScreen>
   }
 
   Widget _buildGlobalRankingTab(AppLocalizations l10n) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      itemCount: globalRanking.length,
-      itemBuilder: (context, index) {
-        final entry = globalRanking[index];
-        final isMedal = entry.rank <= 3;
+    return FutureBuilder<List<RankingEntry>>(
+      future: _globalRankingFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final globalRanking = snapshot.data ?? const <RankingEntry>[];
+        if (globalRanking.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Text(
+                'まだランキングデータがありません。ゲームをクリアして最初のランカーになろう！',
+                style: AppTextStyles.bodySmall,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        }
+        return ListView.builder(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          itemCount: globalRanking.length,
+          itemBuilder: (context, index) {
+            final entry = globalRanking[index];
+            final isMedal = entry.rank <= 3;
 
         return Card(
           elevation: 2,
@@ -228,18 +231,39 @@ class _RankingScreenState extends State<RankingScreen>
             ),
           ),
         );
+          },
+        );
       },
     );
   }
 
   Widget _buildPrefectureRankingTab(AppLocalizations l10n) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      itemCount: prefectureRanking.length,
-      itemBuilder: (context, index) {
-        final entry = prefectureRanking[index];
+    return FutureBuilder<List<PrefectureRanking>>(
+      future: _prefectureRankingFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final prefectureRanking = snapshot.data ?? const <PrefectureRanking>[];
+        if (prefectureRanking.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Text(
+                'まだランキングデータがありません。',
+                style: AppTextStyles.bodySmall,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        }
+        return ListView.builder(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          itemCount: prefectureRanking.length,
+          itemBuilder: (context, index) {
+            final entry = prefectureRanking[index];
 
-        return Card(
+            return Card(
           elevation: 2,
           margin: const EdgeInsets.only(bottom: AppSpacing.md),
           shape: RoundedRectangleBorder(
@@ -304,6 +328,8 @@ class _RankingScreenState extends State<RankingScreen>
               ],
             ),
           ),
+        );
+          },
         );
       },
     );

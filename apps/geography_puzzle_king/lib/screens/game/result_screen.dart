@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
+import 'package:geography_puzzle_king/providers/auth_provider.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
 import 'package:geography_puzzle_king/providers/prefecture_records_provider.dart';
+import 'package:geography_puzzle_king/services/ranking_service.dart';
 import 'package:geography_puzzle_king/utils/badge_data.dart';
 import 'package:geography_puzzle_king/utils/history_stage_data.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
@@ -79,6 +81,33 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         }).catchError((e) {
           print('Error recording clear: $e');
         });
+      });
+    }
+
+    // オンラインランキングへスコアを送信（クリア時のみ）。
+    // ネットワーク未接続・未認証時はRankingService側で例外を握りつぶし、
+    // 結果画面の表示・進行には一切影響しない。
+    if (widget.isCleared) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final user = ref.read(currentUserProvider);
+        if (user == null) return;
+        final service = RankingService();
+        service.submitGlobalScore(
+          uid: user.uid,
+          nickname: user.nickname,
+          score: widget.score,
+          clearedPrefectures:
+              ref.read(prefectureRecordsProvider).valueOrNull?.length ?? 0,
+        );
+        final pref = _prefecture;
+        if (pref != null) {
+          service.submitPrefectureScore(
+            prefectureCode: pref.code,
+            prefectureName: pref.name,
+            uid: user.uid,
+            score: widget.score,
+          );
+        }
       });
     }
   }
