@@ -95,29 +95,71 @@ abstract class AppLocalizations {
     Locale('ja')
   ];
 
-  /// No description provided for @gameTitle.
+  /// App title
   ///
   /// In en, this message translates to:
-  /// **'Geography Puzzle King'**
-  String get gameTitle;
+  /// **'Prefectures Game'**
+  String get appTitle;
 
-  /// No description provided for @gameSubtitle.
+  /// No description provided for @appSubtitle.
   ///
   /// In en, this message translates to:
   /// **'Learn Prefectures Through Games'**
-  String get gameSubtitle;
+  String get appSubtitle;
 
-  /// No description provided for @startGame.
+  /// Game description
   ///
   /// In en, this message translates to:
-  /// **'Start Game'**
-  String get startGame;
+  /// **'Master all 47 prefectures!'**
+  String get gameDescription;
 
-  /// No description provided for @settings.
+  /// No description provided for @nickname.
   ///
   /// In en, this message translates to:
-  /// **'Settings'**
-  String get settings;
+  /// **'Enter Nickname'**
+  String get nickname;
+
+  /// No description provided for @nicknameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'tankenkka'**
+  String get nicknameHint;
+
+  /// No description provided for @nicknameInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter in Hiragana or Katakana'**
+  String get nicknameInstruction;
+
+  /// No description provided for @startButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Start!'**
+  String get startButton;
+
+  /// No description provided for @errorInvalidNickname.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a nickname'**
+  String get errorInvalidNickname;
+
+  /// No description provided for @home.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get home;
+
+  /// No description provided for @game.
+  ///
+  /// In en, this message translates to:
+  /// **'Game'**
+  String get game;
+
+  /// No description provided for @map.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get map;
 
   /// No description provided for @ranking.
   ///
@@ -125,17 +167,167 @@ abstract class AppLocalizations {
   /// **'Ranking'**
   String get ranking;
 
-  /// No description provided for @profile.
+  /// No description provided for @settings.
   ///
   /// In en, this message translates to:
-  /// **'Profile'**
-  String get profile;
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @territory.
+  ///
+  /// In en, this message translates to:
+  /// **'Japan Unification Map'**
+  String get territory;
+
+  /// No description provided for @unificationProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get unificationProgress;
+
+  /// No description provided for @prefectures.
+  ///
+  /// In en, this message translates to:
+  /// **'Prefectures'**
+  String get prefectures;
+
+  /// No description provided for @globalRanking.
+  ///
+  /// In en, this message translates to:
+  /// **'Global'**
+  String get globalRanking;
+
+  /// No description provided for @prefectureVersus.
+  ///
+  /// In en, this message translates to:
+  /// **'Prefecture Rivalry'**
+  String get prefectureVersus;
+
+  /// No description provided for @userInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'User Info'**
+  String get userInfo;
+
+  /// No description provided for @playerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Player Name'**
+  String get playerName;
+
+  /// No description provided for @notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifications;
+
+  /// No description provided for @pushNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Push Notifications'**
+  String get pushNotifications;
+
+  /// No description provided for @dailyEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Events & Battle Notifications'**
+  String get dailyEvents;
+
+  /// No description provided for @soundSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound Settings'**
+  String get soundSettings;
+
+  /// No description provided for @bgm.
+  ///
+  /// In en, this message translates to:
+  /// **'BGM'**
+  String get bgm;
+
+  /// No description provided for @backgroundMusic.
+  ///
+  /// In en, this message translates to:
+  /// **'Background Music'**
+  String get backgroundMusic;
+
+  /// No description provided for @sfx.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound Effects'**
+  String get sfx;
+
+  /// No description provided for @sfxDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable in-game sound effects'**
+  String get sfxDescription;
 
   /// No description provided for @language.
   ///
   /// In en, this message translates to:
   /// **'Language'**
   String get language;
+
+  /// No description provided for @languageSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Language'**
+  String get languageSelect;
+
+  /// No description provided for @privacySettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & Other'**
+  String get privacySettings;
+
+  /// No description provided for @rankingDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Ranking Display'**
+  String get rankingDisplay;
+
+  /// No description provided for @hideFromRanking.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get hideFromRanking;
+
+  /// No description provided for @showInRanking.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Player Name'**
+  String get showInRanking;
+
+  /// No description provided for @clearedPrefectures.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleared'**
+  String get clearedPrefectures;
+
+  /// No description provided for @totalPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Players'**
+  String get totalPlayers;
+
+  /// No description provided for @gameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Geography Puzzle King'**
+  String get gameTitle;
+
+  /// No description provided for @startGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Game'**
+  String get startGame;
+
+  /// No description provided for @profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
 
   /// No description provided for @japanese.
   ///
@@ -245,39 +437,179 @@ abstract class AppLocalizations {
   /// **'Try Again'**
   String get tryAgain;
 
-  String get appTitle;
-  String get appSubtitle;
-  String get gameDescription;
-  String get nickname;
-  String get nicknameHint;
-  String get nicknameInstruction;
-  String get startButton;
-  String get errorInvalidNickname;
-  String get home;
-  String get game;
-  String get map;
-  String get territory;
-  String get unificationProgress;
-  String get prefectures;
-  String get globalRanking;
-  String get prefectureVersus;
-  String get userInfo;
-  String get playerName;
-  String get notifications;
-  String get pushNotifications;
-  String get dailyEvents;
-  String get soundSettings;
-  String get bgm;
-  String get backgroundMusic;
-  String get sfx;
-  String get sfxDescription;
-  String get languageSelect;
-  String get privacySettings;
-  String get rankingDisplay;
-  String get hideFromRanking;
-  String get showInRanking;
-  String get clearedPrefectures;
-  String get totalPlayers;
+  /// No description provided for @menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get menu;
+
+  /// No description provided for @pokedex.
+  ///
+  /// In en, this message translates to:
+  /// **'Pokedex'**
+  String get pokedex;
+
+  /// No description provided for @hqUpgrade.
+  ///
+  /// In en, this message translates to:
+  /// **'HQ Upgrade'**
+  String get hqUpgrade;
+
+  /// No description provided for @nationalConquest.
+  ///
+  /// In en, this message translates to:
+  /// **'National Conquest'**
+  String get nationalConquest;
+
+  /// No description provided for @deploy.
+  ///
+  /// In en, this message translates to:
+  /// **'Deploy'**
+  String get deploy;
+
+  /// No description provided for @deploySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a prefecture to start defending'**
+  String get deploySubtitle;
+
+  /// No description provided for @conqueredCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Conquered'**
+  String get conqueredCount;
+
+  /// No description provided for @totalScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Score'**
+  String get totalScore;
+
+  /// No description provided for @achievements.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get achievements;
+
+  /// No description provided for @commanderName.
+  ///
+  /// In en, this message translates to:
+  /// **'Commander {name}'**
+  String commanderName(String name);
+
+  /// No description provided for @appInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'App Info'**
+  String get appInfo;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get version;
+
+  /// No description provided for @buildNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Build Number'**
+  String get buildNumber;
+
+  /// No description provided for @adsAndPurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Ads & Purchases'**
+  String get adsAndPurchases;
+
+  /// No description provided for @privacyPolicyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicyTitle;
+
+  /// No description provided for @termsOfServiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get termsOfServiceTitle;
+
+  /// No description provided for @removeAds.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Ads'**
+  String get removeAds;
+
+  /// No description provided for @removeAdsPurchased.
+  ///
+  /// In en, this message translates to:
+  /// **'Ads Removed (Purchased)'**
+  String get removeAdsPurchased;
+
+  /// No description provided for @purchaseThankYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your purchase'**
+  String get purchaseThankYou;
+
+  /// No description provided for @storeConnectionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not connect to the store'**
+  String get storeConnectionError;
+
+  /// No description provided for @notAvailableNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available right now'**
+  String get notAvailableNow;
+
+  /// No description provided for @purchaseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase'**
+  String get purchaseButton;
+
+  /// No description provided for @guestPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest Player'**
+  String get guestPlayer;
+
+  /// No description provided for @changePlayerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Player Name'**
+  String get changePlayerName;
+
+  /// No description provided for @personalInfoWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Please don\'t enter personal information (real name, address, etc.). It may be shown to other players.'**
+  String get personalInfoWarning;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @removeAdsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} — removes all in-game ads'**
+  String removeAdsDescription(String price);
+
+  /// No description provided for @clearedOfTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{cleared} / {total}'**
+  String clearedOfTotal(int cleared, int total);
+
+  /// No description provided for @conquestPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% Complete'**
+  String conquestPercent(String percent);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

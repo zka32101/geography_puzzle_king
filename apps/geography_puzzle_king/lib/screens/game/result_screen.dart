@@ -342,7 +342,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          pref.trivia,
+                          pref.funFact,
                           style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,

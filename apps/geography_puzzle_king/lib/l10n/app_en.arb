@@ -56,10 +56,60 @@
   "loading": "Loading...",
   "error": "Error",
   "tryAgain": "Try Again",
+  "menu": "Menu",
+  "pokedex": "Pokedex",
+  "hqUpgrade": "HQ Upgrade",
+  "nationalConquest": "National Conquest",
+  "deploy": "Deploy",
+  "deploySubtitle": "Choose a prefecture to start defending",
+  "conqueredCount": "Conquered",
+  "totalScore": "Total Score",
+  "achievements": "Achievements",
+  "commanderName": "Commander {name}",
+  "appInfo": "App Info",
+  "version": "Version",
+  "buildNumber": "Build Number",
+  "adsAndPurchases": "Ads & Purchases",
+  "privacyPolicyTitle": "Privacy Policy",
+  "termsOfServiceTitle": "Terms of Service",
+  "removeAds": "Remove Ads",
+  "removeAdsPurchased": "Ads Removed (Purchased)",
+  "purchaseThankYou": "Thank you for your purchase",
+  "storeConnectionError": "Could not connect to the store",
+  "notAvailableNow": "Not available right now",
+  "purchaseButton": "Purchase",
+  "guestPlayer": "Guest Player",
+  "changePlayerName": "Change Player Name",
+  "personalInfoWarning": "Please don't enter personal information (real name, address, etc.). It may be shown to other players.",
+  "save": "Save",
+  "removeAdsDescription": "{price} — removes all in-game ads",
+  "@removeAdsDescription": {
+    "placeholders": {
+      "price": {"type": "String"}
+    }
+  },
+  "clearedOfTotal": "{cleared} / {total}",
+  "conquestPercent": "{percent}% Complete",
   "@appTitle": {
     "description": "App title"
   },
   "@gameDescription": {
     "description": "Game description"
+  },
+  "@commanderName": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "@clearedOfTotal": {
+    "placeholders": {
+      "cleared": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "@conquestPercent": {
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
   }
 }
