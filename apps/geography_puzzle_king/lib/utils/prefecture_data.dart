@@ -18,6 +18,12 @@ class PrefectureData {
   final int difficultyRating; // 1-5 stars
   final String? specialFacility; // 'airport', 'base', or null
 
+  /// クリア画面で表示する、この県ならではの学習豆知識（世界遺産・歴史・
+  /// 地理的特徴・全国一/最初の記録など）。capitalCity/population/area/
+  /// specialties から自動生成される [trivia] getter とは異なり、
+  /// 手書きで用意した固有の内容。
+  final String funFact;
+
   const PrefectureData({
     required this.code,
     required this.name,
@@ -35,6 +41,7 @@ class PrefectureData {
     required this.geography,
     required this.difficultyRating,
     this.specialFacility,
+    required this.funFact,
   });
 }
 
@@ -158,6 +165,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.25,
     geography: 'agriculture', difficultyRating: 2,
     specialFacility: 'airport',
+    funFact: '日本で面積が一番広い都道府県。冬の「さっぽろ雪まつり」には世界中から観光客が訪れるよ。',
   ),
 
   // ── 東北 ──────────────────────────────
@@ -171,6 +179,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.20,
     geography: 'sea', difficultyRating: 2,
     specialFacility: null,
+    funFact: 'りんごの生産量が日本一。夏の「ねぶた祭」では大きな灯籠を担いで街を練り歩くんだ。',
   ),
   PrefectureData(
     code: '03', name: '岩手県', kana: 'いわてけん',
@@ -182,6 +191,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.20,
     geography: 'mountain', difficultyRating: 3,
     specialFacility: null,
+    funFact: '面積は北海道に次いで全国2位の広さ。世界遺産「平泉」には金色に輝く中尊寺金色堂があるよ。',
   ),
   PrefectureData(
     code: '04', name: '宮城県', kana: 'みやぎけん',
@@ -193,6 +203,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.20,
     geography: 'mixed', difficultyRating: 3,
     specialFacility: null,
+    funFact: '東北で人口が一番多い都市・仙台市がある。日本三景のひとつ「松島」も宮城県だよ。',
   ),
   PrefectureData(
     code: '05', name: '秋田県', kana: 'あきたけん',
@@ -204,6 +215,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.20,
     geography: 'mountain', difficultyRating: 2,
     specialFacility: null,
+    funFact: '秋田犬のふるさと。「なまはげ」が家々を回って新しい年の幸せを願う伝統行事があるんだ。',
   ),
   PrefectureData(
     code: '06', name: '山形県', kana: 'やまがたけん',
@@ -215,6 +227,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.20,
     geography: 'mountain', difficultyRating: 2,
     specialFacility: null,
+    funFact: 'さくらんぼの生産量が日本一。将棋の駒作りでも有名な天童市があるよ。',
   ),
   PrefectureData(
     code: '07', name: '福島県', kana: 'ふくしまけん',
@@ -226,6 +239,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.20,
     geography: 'agriculture', difficultyRating: 2,
     specialFacility: null,
+    funFact: '猪苗代湖など大きな湖がある。桃の生産量も全国有数なんだ。',
   ),
 
   // ── 関東 ──────────────────────────────
@@ -239,6 +253,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.factory, industryBonus: 1.18,
     geography: 'agriculture', difficultyRating: 2,
     specialFacility: null,
+    funFact: '納豆の生産・消費量が全国トップクラス。偕楽園は日本三名園のひとつだよ。',
   ),
   PrefectureData(
     code: '09', name: '栃木県', kana: 'とちぎけん',
@@ -250,6 +265,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.18,
     geography: 'agriculture', difficultyRating: 2,
     specialFacility: null,
+    funFact: '世界遺産「日光東照宮」がある。いちごの生産量が日本一なんだ。',
   ),
   PrefectureData(
     code: '10', name: '群馬県', kana: 'ぐんまけん',
@@ -261,6 +277,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.factory, industryBonus: 1.18,
     geography: 'mixed', difficultyRating: 2,
     specialFacility: null,
+    funFact: '世界遺産「富岡製糸場」がある。だるまの生産量も全国トップクラスだよ。',
   ),
   PrefectureData(
     code: '11', name: '埼玉県', kana: 'さいたまけん',
@@ -272,6 +289,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.17,
     geography: 'urban', difficultyRating: 3,
     specialFacility: null,
+    funFact: '川越は江戸時代の街並みが残り「小江戸」と呼ばれる人気の観光地なんだ。',
   ),
   PrefectureData(
     code: '12', name: '千葉県', kana: 'ちばけん',
@@ -283,6 +301,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.18,
     geography: 'sea', difficultyRating: 3,
     specialFacility: null,
+    funFact: '成田国際空港があり、日本の空の玄関口のひとつ。ピーナッツの生産量も日本一だよ。',
   ),
   PrefectureData(
     code: '13', name: '東京都', kana: 'とうきょうと',
@@ -294,6 +313,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.15,
     geography: 'urban', difficultyRating: 5,
     specialFacility: 'base',
+    funFact: '日本の首都で人口が全国一多いよ。江戸時代は「江戸」と呼ばれていたんだ。',
   ),
   PrefectureData(
     code: '14', name: '神奈川県', kana: 'かながわけん',
@@ -305,6 +325,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.factory, industryBonus: 1.20,
     geography: 'urban', difficultyRating: 4,
     specialFacility: 'base',
+    funFact: '横浜港は明治時代に開かれた歴史ある港。鎌倉はかつて鎌倉幕府が置かれた古都だよ。',
   ),
 
   // ── 中部 ──────────────────────────────
@@ -318,6 +339,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.22,
     geography: 'agriculture', difficultyRating: 2,
     specialFacility: null,
+    funFact: 'お米の生産量が全国トップクラス。日本酒の蔵元も数多くあるんだ。',
   ),
   PrefectureData(
     code: '16', name: '富山県', kana: 'とやまけん',
@@ -329,6 +351,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.fishery, industryBonus: 1.18,
     geography: 'mountain', difficultyRating: 3,
     specialFacility: null,
+    funFact: '立山黒部アルペンルートの「雪の大谷」は、高さ20mにもなる雪の壁が見られるよ。',
   ),
   PrefectureData(
     code: '17', name: '石川県', kana: 'いしかわけん',
@@ -340,6 +363,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.16,
     geography: 'sea', difficultyRating: 3,
     specialFacility: null,
+    funFact: '兼六園は日本三名園のひとつ。金箔の生産量はほぼ全国シェア100%なんだ。',
   ),
   PrefectureData(
     code: '18', name: '福井県', kana: 'ふくいけん',
@@ -351,6 +375,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.16,
     geography: 'mountain', difficultyRating: 3,
     specialFacility: null,
+    funFact: '恐竜の化石が数多く発掘され「恐竜王国」と呼ばれるよ。眼鏡フレームの生産量も日本一。',
   ),
   PrefectureData(
     code: '19', name: '山梨県', kana: 'やまなしけん',
@@ -362,6 +387,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.mine, industryBonus: 1.17,
     geography: 'mountain', difficultyRating: 3,
     specialFacility: null,
+    funFact: '富士山の一部があり、ぶどうと桃の生産量が日本一なんだ。',
   ),
   PrefectureData(
     code: '20', name: '長野県', kana: 'ながのけん',
@@ -373,6 +399,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.mine, industryBonus: 1.17,
     geography: 'mountain', difficultyRating: 3,
     specialFacility: null,
+    funFact: '日本で一番多くの都道府県（8つ）と隣り合っているよ。1998年に冬季オリンピックが開かれたんだ。',
   ),
   PrefectureData(
     code: '21', name: '岐阜県', kana: 'ぎふけん',
@@ -384,6 +411,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.19,
     geography: 'mountain', difficultyRating: 3,
     specialFacility: null,
+    funFact: '世界遺産「白川郷」の合掌造り集落がある。鵜飼という伝統的な漁も有名だよ。',
   ),
   PrefectureData(
     code: '22', name: '静岡県', kana: 'しずおかけん',
@@ -395,6 +423,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.fishery, industryBonus: 1.18,
     geography: 'sea', difficultyRating: 3,
     specialFacility: null,
+    funFact: 'お茶の生産量が全国トップクラス。富士山の多くはこの県にまたがっているんだ。',
   ),
   PrefectureData(
     code: '23', name: '愛知県', kana: 'あいちけん',
@@ -406,6 +435,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.factory, industryBonus: 1.25,
     geography: 'urban', difficultyRating: 4,
     specialFacility: 'airport',
+    funFact: '自動車産業で知られるものづくりの中心地。名古屋城は徳川家康が築いたお城だよ。',
   ),
 
   // ── 近畿 ──────────────────────────────
@@ -419,6 +449,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.fishery, industryBonus: 1.19,
     geography: 'sea', difficultyRating: 3,
     specialFacility: null,
+    funFact: '日本で最も格式の高い神社のひとつ「伊勢神宮」があるよ。',
   ),
   PrefectureData(
     code: '25', name: '滋賀県', kana: 'しがけん',
@@ -430,6 +461,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.18,
     geography: 'mixed', difficultyRating: 3,
     specialFacility: null,
+    funFact: '日本で一番大きい湖「琵琶湖」がある県なんだ。',
   ),
   PrefectureData(
     code: '26', name: '京都府', kana: 'きょうとふ',
@@ -441,6 +473,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.16,
     geography: 'urban', difficultyRating: 4,
     specialFacility: null,
+    funFact: '1000年以上にわたって都が置かれた歴史ある町。清水寺や金閣寺など世界遺産がたくさんあるよ。',
   ),
   PrefectureData(
     code: '27', name: '大阪府', kana: 'おおさかふ',
@@ -452,6 +485,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.factory, industryBonus: 1.20,
     geography: 'urban', difficultyRating: 5,
     specialFacility: null,
+    funFact: '面積は全国で2番目に小さいけれど、人口はとても多い商業都市なんだ。',
   ),
   PrefectureData(
     code: '28', name: '兵庫県', kana: 'ひょうごけん',
@@ -463,6 +497,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.factory, industryBonus: 1.20,
     geography: 'urban', difficultyRating: 4,
     specialFacility: 'airport',
+    funFact: '神戸港は明治時代からの国際貿易港。世界遺産「姫路城」もあるよ。',
   ),
   PrefectureData(
     code: '29', name: '奈良県', kana: 'ならけん',
@@ -474,6 +509,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.17,
     geography: 'mountain', difficultyRating: 3,
     specialFacility: null,
+    funFact: '710年、日本で最初の本格的な都「平城京」が置かれたよ。奈良公園の鹿は有名だね。',
   ),
   PrefectureData(
     code: '30', name: '和歌山県', kana: 'わかやまけん',
@@ -485,6 +521,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.18,
     geography: 'sea', difficultyRating: 3,
     specialFacility: null,
+    funFact: '「高野山」は真言宗の総本山があるお寺の町。みかんの生産量が日本一なんだ。',
   ),
 
   // ── 中国 ──────────────────────────────
@@ -498,6 +535,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.16,
     geography: 'sea', difficultyRating: 2,
     specialFacility: null,
+    funFact: '47都道府県の中で人口が一番少ないよ。「鳥取砂丘」は日本最大級の砂丘なんだ。',
   ),
   PrefectureData(
     code: '32', name: '島根県', kana: 'しまねけん',
@@ -509,6 +547,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.fishery, industryBonus: 1.17,
     geography: 'sea', difficultyRating: 3,
     specialFacility: null,
+    funFact: '「出雲大社」は縁結びの神様として全国から参拝者が訪れるよ。',
   ),
   PrefectureData(
     code: '33', name: '岡山県', kana: 'おかやまけん',
@@ -520,6 +559,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.factory, industryBonus: 1.17,
     geography: 'mountain', difficultyRating: 3,
     specialFacility: null,
+    funFact: '桃太郎伝説の舞台とされているよ。晴れの日が多く「晴れの国」とも呼ばれるんだ。',
   ),
   PrefectureData(
     code: '34', name: '広島県', kana: 'ひろしまけん',
@@ -531,6 +571,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.fishery, industryBonus: 1.18,
     geography: 'sea', difficultyRating: 4,
     specialFacility: null,
+    funFact: '「原爆ドーム」は世界遺産で平和のシンボル。牡蠣の生産量は全国一だよ。',
   ),
   PrefectureData(
     code: '35', name: '山口県', kana: 'やまぐちけん',
@@ -542,6 +583,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.fishery, industryBonus: 1.17,
     geography: 'sea', difficultyRating: 3,
     specialFacility: 'base',
+    funFact: '本州で一番西にある県。幕末に活躍した多くの人物を輩出したんだ。',
   ),
 
   // ── 四国 ──────────────────────────────
@@ -555,6 +597,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.16,
     geography: 'agriculture', difficultyRating: 2,
     specialFacility: null,
+    funFact: '「阿波おどり」は400年以上の歴史を持つ夏祭りだよ。渦潮で有名な鳴門海峡もあるんだ。',
   ),
   PrefectureData(
     code: '37', name: '香川県', kana: 'かがわけん',
@@ -566,6 +609,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.16,
     geography: 'sea', difficultyRating: 2,
     specialFacility: null,
+    funFact: '面積が全国で一番小さい県。うどんの消費量・生産量も日本一なんだ。',
   ),
   PrefectureData(
     code: '38', name: '愛媛県', kana: 'えひめけん',
@@ -577,6 +621,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.17,
     geography: 'agriculture', difficultyRating: 2,
     specialFacility: null,
+    funFact: 'みかんの生産量が全国トップクラス。「道後温泉」は日本最古級の温泉のひとつだよ。',
   ),
   PrefectureData(
     code: '39', name: '高知県', kana: 'こうちけん',
@@ -588,6 +633,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.15,
     geography: 'sea', difficultyRating: 3,
     specialFacility: null,
+    funFact: '面積の多くを森林が占めているよ。幕末の志士・坂本龍馬の出身地としても有名なんだ。',
   ),
 
   // ── 九州・沖縄 ──────────────────────────────
@@ -601,6 +647,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.20,
     geography: 'urban', difficultyRating: 4,
     specialFacility: 'airport',
+    funFact: '九州で一番人口が多い県。博多ラーメンや辛子明太子で知られているよ。',
   ),
   PrefectureData(
     code: '41', name: '佐賀県', kana: 'さがけん',
@@ -612,6 +659,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.18,
     geography: 'sea', difficultyRating: 2,
     specialFacility: null,
+    funFact: '有明海苔の生産量が日本一。「吉野ヶ里遺跡」は弥生時代の大きな遺跡なんだ。',
   ),
   PrefectureData(
     code: '42', name: '長崎県', kana: 'ながさきけん',
@@ -623,6 +671,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.fishery, industryBonus: 1.20,
     geography: 'sea', difficultyRating: 3,
     specialFacility: null,
+    funFact: '島の数が全国一多い県。江戸時代、「出島」は海外に開かれた唯一の窓口だったよ。',
   ),
   PrefectureData(
     code: '43', name: '熊本県', kana: 'くまもとけん',
@@ -634,6 +683,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.19,
     geography: 'agriculture', difficultyRating: 3,
     specialFacility: null,
+    funFact: '「阿蘇山」は世界最大級のカルデラを持つ活火山。くまモンのふるさとでもあるよ。',
   ),
   PrefectureData(
     code: '44', name: '大分県', kana: 'おおいたけん',
@@ -645,6 +695,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.18,
     geography: 'mixed', difficultyRating: 2,
     specialFacility: null,
+    funFact: '温泉の源泉数・湧出量が日本一。「おんせん県」とも呼ばれているんだ。',
   ),
   PrefectureData(
     code: '45', name: '宮崎県', kana: 'みやざきけん',
@@ -656,6 +707,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.19,
     geography: 'agriculture', difficultyRating: 2,
     specialFacility: null,
+    funFact: '日本神話の舞台とされる「高千穂峡」があるよ。プロ野球のキャンプ地としても人気なんだ。',
   ),
   PrefectureData(
     code: '46', name: '鹿児島県', kana: 'かごしまけん',
@@ -667,6 +719,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.21,
     geography: 'agriculture', difficultyRating: 3,
     specialFacility: null,
+    funFact: '「桜島」は今も活動を続ける活火山。種子島宇宙センターからロケットが打ち上げられるよ。',
   ),
   PrefectureData(
     code: '47', name: '沖縄県', kana: 'おきなわけん',
@@ -678,6 +731,7 @@ const List<PrefectureData> allPrefectures = [
     primaryIndustry: FacilityType.farm, industryBonus: 1.21,
     geography: 'sea', difficultyRating: 4,
     specialFacility: 'base',
+    funFact: '日本で一番南にある県で、独自の琉球文化を持っているよ。「首里城」は琉球王国の王城だったんだ。',
   ),
 ];
 

@@ -56,10 +56,60 @@
   "loading": "ローディング中...",
   "error": "エラー",
   "tryAgain": "もう一度試す",
+  "menu": "メニュー",
+  "pokedex": "図鑑",
+  "hqUpgrade": "本部強化",
+  "nationalConquest": "全国制圧",
+  "deploy": "出撃する",
+  "deploySubtitle": "都道府県を選んで防衛開始",
+  "conqueredCount": "制圧県",
+  "totalScore": "総スコア",
+  "achievements": "実績",
+  "commanderName": "指揮官 {name}",
+  "appInfo": "アプリ情報",
+  "version": "バージョン",
+  "buildNumber": "ビルド番号",
+  "adsAndPurchases": "広告・課金",
+  "privacyPolicyTitle": "プライバシーポリシー",
+  "termsOfServiceTitle": "利用規約",
+  "removeAds": "広告を削除",
+  "removeAdsPurchased": "広告除去（購入済み）",
+  "purchaseThankYou": "ご購入ありがとうございます",
+  "storeConnectionError": "ストアに接続できませんでした",
+  "notAvailableNow": "現在ご利用いただけません",
+  "purchaseButton": "購入",
+  "guestPlayer": "ゲストプレイヤー",
+  "changePlayerName": "プレイヤー名を変更",
+  "personalInfoWarning": "個人を特定する情報（本名、住所など）は入力しないでください。他のプレイヤーに表示される可能性があります。",
+  "save": "保存",
+  "removeAdsDescription": "{price} — ゲーム内の広告表示がすべて非表示になります",
+  "@removeAdsDescription": {
+    "placeholders": {
+      "price": {"type": "String"}
+    }
+  },
+  "clearedOfTotal": "{cleared} / {total} 県",
+  "conquestPercent": "{percent}% 制圧完了",
   "@appTitle": {
     "description": "アプリのタイトル"
   },
   "@gameDescription": {
     "description": "ゲームの説明文"
+  },
+  "@commanderName": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "@clearedOfTotal": {
+    "placeholders": {
+      "cleared": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "@conquestPercent": {
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
   }
 }

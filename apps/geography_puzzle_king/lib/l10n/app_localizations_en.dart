@@ -9,25 +9,121 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get gameTitle => 'Geography Puzzle King';
+  String get appTitle => 'Prefectures Game';
 
   @override
-  String get gameSubtitle => 'Learn Prefectures Through Games';
+  String get appSubtitle => 'Learn Prefectures Through Games';
 
   @override
-  String get startGame => 'Start Game';
+  String get gameDescription => 'Master all 47 prefectures!';
 
   @override
-  String get settings => 'Settings';
+  String get nickname => 'Enter Nickname';
+
+  @override
+  String get nicknameHint => 'tankenkka';
+
+  @override
+  String get nicknameInstruction => 'Please enter in Hiragana or Katakana';
+
+  @override
+  String get startButton => 'Start!';
+
+  @override
+  String get errorInvalidNickname => 'Please enter a nickname';
+
+  @override
+  String get home => 'Home';
+
+  @override
+  String get game => 'Game';
+
+  @override
+  String get map => 'Map';
 
   @override
   String get ranking => 'Ranking';
 
   @override
-  String get profile => 'Profile';
+  String get settings => 'Settings';
+
+  @override
+  String get territory => 'Japan Unification Map';
+
+  @override
+  String get unificationProgress => 'Progress';
+
+  @override
+  String get prefectures => 'Prefectures';
+
+  @override
+  String get globalRanking => 'Global';
+
+  @override
+  String get prefectureVersus => 'Prefecture Rivalry';
+
+  @override
+  String get userInfo => 'User Info';
+
+  @override
+  String get playerName => 'Player Name';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get pushNotifications => 'Push Notifications';
+
+  @override
+  String get dailyEvents => 'Daily Events & Battle Notifications';
+
+  @override
+  String get soundSettings => 'Sound Settings';
+
+  @override
+  String get bgm => 'BGM';
+
+  @override
+  String get backgroundMusic => 'Background Music';
+
+  @override
+  String get sfx => 'Sound Effects';
+
+  @override
+  String get sfxDescription => 'Enable in-game sound effects';
 
   @override
   String get language => 'Language';
+
+  @override
+  String get languageSelect => 'Select Language';
+
+  @override
+  String get privacySettings => 'Privacy & Other';
+
+  @override
+  String get rankingDisplay => 'Ranking Display';
+
+  @override
+  String get hideFromRanking => 'Hide';
+
+  @override
+  String get showInRanking => 'Show Player Name';
+
+  @override
+  String get clearedPrefectures => 'Cleared';
+
+  @override
+  String get totalPlayers => 'Players';
+
+  @override
+  String get gameTitle => 'Geography Puzzle King';
+
+  @override
+  String get startGame => 'Start Game';
+
+  @override
+  String get profile => 'Profile';
 
   @override
   String get japanese => 'Japanese';
@@ -84,101 +180,97 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tryAgain => 'Try Again';
 
   @override
-  String get appTitle => 'Prefectures Game';
+  String get menu => 'Menu';
 
   @override
-  String get appSubtitle => 'Learn Prefectures Through Games';
+  String get pokedex => 'Pokedex';
 
   @override
-  String get gameDescription => 'Master all 47 prefectures!';
+  String get hqUpgrade => 'HQ Upgrade';
 
   @override
-  String get nickname => 'Enter Nickname';
+  String get nationalConquest => 'National Conquest';
 
   @override
-  String get nicknameHint => 'tankenkka';
+  String get deploy => 'Deploy';
 
   @override
-  String get nicknameInstruction => 'Please enter in Hiragana or Katakana';
+  String get deploySubtitle => 'Choose a prefecture to start defending';
 
   @override
-  String get startButton => 'Start!';
+  String get conqueredCount => 'Conquered';
 
   @override
-  String get errorInvalidNickname => 'Please enter a nickname';
+  String get totalScore => 'Total Score';
 
   @override
-  String get home => 'Home';
+  String get achievements => 'Achievements';
 
   @override
-  String get game => 'Game';
+  String commanderName(String name) {
+    return 'Commander $name';
+  }
 
   @override
-  String get map => 'Map';
+  String get appInfo => 'App Info';
 
   @override
-  String get territory => 'Japan Unification Map';
+  String get version => 'Version';
 
   @override
-  String get unificationProgress => 'Progress';
+  String get buildNumber => 'Build Number';
 
   @override
-  String get prefectures => 'Prefectures';
+  String get adsAndPurchases => 'Ads & Purchases';
 
   @override
-  String get globalRanking => 'Global';
+  String get privacyPolicyTitle => 'Privacy Policy';
 
   @override
-  String get prefectureVersus => 'Prefecture Rivalry';
+  String get termsOfServiceTitle => 'Terms of Service';
 
   @override
-  String get userInfo => 'User Info';
+  String get removeAds => 'Remove Ads';
 
   @override
-  String get playerName => 'Player Name';
+  String get removeAdsPurchased => 'Ads Removed (Purchased)';
 
   @override
-  String get notifications => 'Notifications';
+  String get purchaseThankYou => 'Thank you for your purchase';
 
   @override
-  String get pushNotifications => 'Push Notifications';
+  String get storeConnectionError => 'Could not connect to the store';
 
   @override
-  String get dailyEvents => 'Daily Events & Battle Notifications';
+  String get notAvailableNow => 'Not available right now';
 
   @override
-  String get soundSettings => 'Sound Settings';
+  String get purchaseButton => 'Purchase';
 
   @override
-  String get bgm => 'BGM';
+  String get guestPlayer => 'Guest Player';
 
   @override
-  String get backgroundMusic => 'Background Music';
+  String get changePlayerName => 'Change Player Name';
 
   @override
-  String get sfx => 'Sound Effects';
+  String get personalInfoWarning => 'Please don\'t enter personal information (real name, address, etc.). It may be shown to other players.';
 
   @override
-  String get sfxDescription => 'Enable in-game sound effects';
+  String get save => 'Save';
 
   @override
-  String get languageSelect => 'Select Language';
+  String removeAdsDescription(String price) {
+    return '$price — removes all in-game ads';
+  }
 
   @override
-  String get privacySettings => 'Privacy & Other';
+  String clearedOfTotal(int cleared, int total) {
+    return '$cleared / $total';
+  }
 
   @override
-  String get rankingDisplay => 'Ranking Display';
-
-  @override
-  String get hideFromRanking => 'Hide';
-
-  @override
-  String get showInRanking => 'Show Player Name';
-
-  @override
-  String get clearedPrefectures => 'Cleared';
-
-  @override
-  String get totalPlayers => 'Players';
+  String conquestPercent(String percent) {
+    return '$percent% Complete';
+  }
 }

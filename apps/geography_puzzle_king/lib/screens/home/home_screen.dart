@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
-import 'package:geography_puzzle_king/models/achievement_model.dart';
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 import 'package:geography_puzzle_king/providers/auth_provider.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
 import 'package:geography_puzzle_king/services/audio_service.dart';
@@ -105,9 +105,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       const SizedBox(height: AppSpacing.lg),
                       _buildStatsRow(),
                       const SizedBox(height: AppSpacing.lg),
-                      _buildContinueSection(),
-                      const SizedBox(height: AppSpacing.lg),
-                      const Text('メニュー', style: AppTextStyles.headline3),
+                      Text(AppLocalizations.of(context)!.menu, style: AppTextStyles.headline3),
                       const SizedBox(height: AppSpacing.md),
                       _buildMenuGrid(),
                       const SizedBox(height: AppSpacing.xl),
@@ -125,6 +123,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   // ── ヒーローヘッダー（タイトル + 全国制圧進捗） ─────────────────────────
   Widget _buildHeroHeader(String nickname) {
+    final l10n = AppLocalizations.of(context)!;
     final cleared = _clearedCount();
     const total = 47;
     final progress = cleared / total;
@@ -153,9 +152,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'ゲームで学ぶ都道府県',
-                      style: TextStyle(
+                    Text(
+                      l10n.appSubtitle,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -163,7 +162,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     ),
                     Text(
-                      '指揮官 $nickname',
+                      l10n.commanderName(nickname),
                       style: const TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                   ],
@@ -176,16 +175,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                '全国制圧',
-                style: TextStyle(
+              Text(
+                l10n.nationalConquest,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
-                '$cleared / $total 県',
+                l10n.clearedOfTotal(cleared, total),
                 style: const TextStyle(
                   color: AppColors.accent,
                   fontSize: 16,
@@ -206,7 +205,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            '${(progress * 100).toStringAsFixed(0)}% 制圧完了',
+            l10n.conquestPercent((progress * 100).toStringAsFixed(0)),
             style: const TextStyle(color: Colors.white60, fontSize: 11),
           ),
         ],
@@ -216,6 +215,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   // ── 出撃ボタン（メインCTA） ──────────────────────────────────────────
   Widget _buildDeployButton() {
+    final l10n = AppLocalizations.of(context)!;
     return Material(
       elevation: 6,
       borderRadius: BorderRadius.circular(AppRadius.large),
@@ -246,22 +246,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '出撃する',
-                      style: TextStyle(
+                      l10n.deploy,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      '都道府県を選んで防衛開始',
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                      l10n.deploySubtitle,
+                      style: const TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                   ],
                 ),
@@ -276,17 +276,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   // ── 統計サマリー（クリア県・総スコア・実績） ─────────────────────────
   Widget _buildStatsRow() {
+    final l10n = AppLocalizations.of(context)!;
     final stats = ref.watch(gameStatsProvider);
     final achievements = ref.watch(achievementsProvider);
     final unlocked = achievements.where((a) => a.isUnlocked).length;
 
     return Row(
       children: [
-        _statCard('🏯', '制圧県', '${_clearedCount()}', AppColors.primary),
+        _statCard('🏯', l10n.conqueredCount, '${_clearedCount()}', AppColors.primary),
         const SizedBox(width: AppSpacing.sm),
-        _statCard('⭐', '総スコア', _compact(stats.totalScore), AppColors.accent),
+        _statCard('⭐', l10n.totalScore, _compact(stats.totalScore), AppColors.accent),
         const SizedBox(width: AppSpacing.sm),
-        _statCard('🏅', '実績', '$unlocked/${achievements.length}', AppColors.secondary),
+        _statCard('🏅', l10n.achievements, '$unlocked/${achievements.length}', AppColors.secondary),
       ],
     );
   }
@@ -325,103 +326,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  // ── おすすめ（次に挑む県） ───────────────────────────────────────────
-  Widget _buildContinueSection() {
-    final pref = _recommendedPrefecture();
-    final diffColor = AppColors.difficulty(pref.difficultyRating);
-    final prefColor = Color(int.parse(pref.color.replaceFirst('#', '0xff')));
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('つぎの作戦', style: AppTextStyles.headline3),
-        const SizedBox(height: AppSpacing.md),
-        Material(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.large),
-          elevation: 2,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(AppRadius.large),
-            onTap: () => Navigator.of(context).pushNamed('/prefecture_selection'),
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Row(
-                children: [
-                  Container(
-                    width: 54,
-                    height: 54,
-                    decoration: BoxDecoration(
-                      color: prefColor.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(AppRadius.medium),
-                    ),
-                    child: Center(
-                      child: Text(pref.geographyIcon,
-                          style: const TextStyle(fontSize: 28)),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          pref.name,
-                          style: AppTextStyles.subtitle1
-                              .copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 2),
-                        Row(
-                          children: [
-                            Text(pref.difficultyStars,
-                                style: const TextStyle(fontSize: 11)),
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 1),
-                              decoration: BoxDecoration(
-                                color: diffColor.withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                pref.difficultyLabel,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: diffColor,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(AppRadius.medium),
-                    ),
-                    child: const Text(
-                      '挑む',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   // ── メニューグリッド（実装済みルートのみ） ───────────────────────────
   Widget _buildMenuGrid() {
+    final l10n = AppLocalizations.of(context)!;
     return GridView.count(
       crossAxisCount: 3,
       shrinkWrap: true,
@@ -430,11 +337,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       crossAxisSpacing: AppSpacing.md,
       childAspectRatio: 1.0,
       children: [
-        _menuTile('🗺️', '地図', Colors.green, '/territory'),
-        _menuTile('📖', '図鑑', AppColors.secondary, '/pokedex'),
-        _menuTile('🏆', 'ランキング', AppColors.accent, '/ranking'),
-        _menuTile('🏛️', '本部強化', Colors.deepOrangeAccent, '/hq'),
-        _menuTile('⚙️', '設定', AppColors.textSecondary, '/settings'),
+        _menuTile('🗺️', l10n.map, Colors.green, '/territory'),
+        _menuTile('📖', l10n.pokedex, AppColors.secondary, '/pokedex'),
+        _menuTile('🏆', l10n.ranking, AppColors.accent, '/ranking'),
+        _menuTile('🏛️', l10n.hqUpgrade, Colors.deepOrangeAccent, '/hq'),
+        _menuTile('⚙️', l10n.settings, AppColors.textSecondary, '/settings'),
       ],
     );
   }
@@ -481,17 +388,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return allPrefectures
         .where((p) => gameService.isPrefectureClearedAny(p.code))
         .length;
-  }
-
-  /// 未クリアの中で最も難易度が低い県を推奨（全クリアなら北海道）
-  PrefectureData _recommendedPrefecture() {
-    final gameService = ref.read(gameServiceProvider);
-    final uncleared = allPrefectures
-        .where((p) => !gameService.isPrefectureClearedAny(p.code))
-        .toList();
-    if (uncleared.isEmpty) return allPrefectures.first;
-    uncleared.sort((a, b) => a.difficultyRating.compareTo(b.difficultyRating));
-    return uncleared.first;
   }
 
   String _compact(int n) {

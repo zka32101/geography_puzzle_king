@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/app_config.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
-import 'package:geography_puzzle_king/providers/auth_provider.dart';
 import 'package:geography_puzzle_king/providers/monetization_provider.dart';
 import 'package:geography_puzzle_king/providers/localization_provider.dart';
 import 'package:geography_puzzle_king/services/audio_service.dart';
+import 'package:geography_puzzle_king/config/legal_content.dart';
+import 'package:geography_puzzle_king/screens/settings/legal_text_screen.dart';
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -19,7 +21,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _enableSoundEffects = true;
   bool _enableBgm = true;
   String _selectedLanguage = 'ja';
-  String _playerName = 'ゲストプレイヤー';
+  String? _playerName;
   bool _hideFromRanking = false;
 
   @override
@@ -43,6 +45,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final playerName = _playerName ?? l10n.guestPlayer;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -61,12 +65,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     children: [
                       // User Profile Section
                       _buildSection(
-                        title: 'ユーザー情報',
+                        title: l10n.userInfo,
                         children: [
                           _buildSettingTile(
                             icon: Icons.person,
-                            title: 'プレイヤー名',
-                            subtitle: _playerName,
+                            title: l10n.playerName,
+                            subtitle: playerName,
                             onTap: _showPlayerNameDialog,
                             showDivider: false,
                           ),
@@ -74,12 +78,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       // Notification Settings
                       _buildSection(
-                        title: '通知設定',
+                        title: l10n.notifications,
                         children: [
                           _buildSwitchTile(
                             icon: Icons.notifications,
-                            title: 'プッシュ通知',
-                            subtitle: 'デイリーイベント・対戦通知',
+                            title: l10n.pushNotifications,
+                            subtitle: l10n.dailyEvents,
                             value: _enableNotifications,
                             onChanged: (value) {
                               setState(() {
@@ -92,12 +96,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       // Sound & Vibration
                       _buildSection(
-                        title: 'サウンド設定',
+                        title: l10n.soundSettings,
                         children: [
                           _buildSwitchTile(
                             icon: Icons.music_note,
-                            title: 'BGM',
-                            subtitle: 'バックグラウンドミュージック',
+                            title: l10n.bgm,
+                            subtitle: l10n.backgroundMusic,
                             value: _enableBgm,
                             onChanged: (value) {
                               setState(() {
@@ -108,8 +112,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                           _buildSwitchTile(
                             icon: Icons.volume_up,
-                            title: '効果音',
-                            subtitle: 'ゲーム内の効果音を有効',
+                            title: l10n.sfx,
+                            subtitle: l10n.sfxDescription,
                             value: _enableSoundEffects,
                             onChanged: (value) {
                               setState(() {
@@ -123,15 +127,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       // Language Settings
                       _buildSection(
-                        title: '言語設定',
+                        title: l10n.language,
                         children: [
                           _buildDropdownTile(
                             icon: Icons.language,
-                            title: '言語',
+                            title: l10n.languageSelect,
                             value: _selectedLanguage,
-                            items: const {
-                              'ja': '日本語',
-                              'en': 'English',
+                            items: {
+                              'ja': l10n.japanese,
+                              'en': l10n.english,
                             },
                             onChanged: (value) {
                               if (value != null) {
@@ -147,12 +151,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       // Privacy & Legal
                       _buildSection(
-                        title: 'プライバシー・その他',
+                        title: l10n.privacySettings,
                         children: [
                           _buildSwitchTile(
                             icon: Icons.visibility_off,
-                            title: 'ランキング表示',
-                            subtitle: _hideFromRanking ? '非表示' : 'プレイヤー名を表示',
+                            title: l10n.rankingDisplay,
+                            subtitle: _hideFromRanking ? l10n.hideFromRanking : l10n.showInRanking,
                             value: !_hideFromRanking,
                             onChanged: (value) {
                               setState(() {
@@ -162,22 +166,38 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                           _buildSettingTile(
                             icon: Icons.shield,
-                            title: 'プライバシーポリシー',
+                            title: l10n.privacyPolicyTitle,
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('ブラウザで開く: 実装予定'),
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => LegalTextScreen(
+                                    title: l10n.privacyPolicyTitle,
+                                    updatedAt: _selectedLanguage == 'en'
+                                        ? kPrivacyPolicyUpdatedAtEn
+                                        : kPrivacyPolicyUpdatedAt,
+                                    sections: _selectedLanguage == 'en'
+                                        ? kPrivacyPolicySectionsEn
+                                        : kPrivacyPolicySections,
+                                  ),
                                 ),
                               );
                             },
                           ),
                           _buildSettingTile(
                             icon: Icons.description,
-                            title: '利用規約',
+                            title: l10n.termsOfServiceTitle,
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('ブラウザで開く: 実装予定'),
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => LegalTextScreen(
+                                    title: l10n.termsOfServiceTitle,
+                                    updatedAt: _selectedLanguage == 'en'
+                                        ? kTermsOfServiceUpdatedAtEn
+                                        : kTermsOfServiceUpdatedAt,
+                                    sections: _selectedLanguage == 'en'
+                                        ? kTermsOfServiceSectionsEn
+                                        : kTermsOfServiceSections,
+                                  ),
                                 ),
                               );
                             },
@@ -187,7 +207,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       // Version Info
                       _buildSection(
-                        title: 'アプリ情報',
+                        title: l10n.appInfo,
                         children: [
                           Padding(
                             padding: const EdgeInsets.all(AppSpacing.lg),
@@ -197,8 +217,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
-                                      'バージョン',
+                                    Text(
+                                      l10n.version,
                                       style: AppTextStyles.subtitle1,
                                     ),
                                     Text(
@@ -211,8 +231,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
-                                      'ビルド番号',
+                                    Text(
+                                      l10n.buildNumber,
                                       style: AppTextStyles.subtitle1,
                                     ),
                                     Text(
@@ -227,61 +247,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ],
                       ),
                       _buildSection(
-                        title: '広告・課金',
+                        title: l10n.adsAndPurchases,
                         children: [_buildRemoveAdsTile()],
-                      ),
-                      // Danger Zone
-                      const SizedBox(height: AppSpacing.sm),
-                      const Text('その他', style: AppTextStyles.headline3),
-                      const SizedBox(height: AppSpacing.md),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            _showLogoutDialog();
-                          },
-                          icon: const Icon(Icons.logout),
-                          label: const Text('ログアウト'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.textPrimary,
-                            backgroundColor: AppColors.surface,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.md,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(AppRadius.large),
-                            ),
-                            side: const BorderSide(
-                              color: AppColors.divider,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            _showDeleteAccountDialog();
-                          },
-                          icon: const Icon(Icons.delete),
-                          label: const Text('アカウント削除'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.error,
-                            backgroundColor: AppColors.surface,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.md,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(AppRadius.large),
-                            ),
-                            side: const BorderSide(
-                              color: AppColors.error,
-                            ),
-                          ),
-                        ),
                       ),
                       // TODO: cross_promo_kit連携（別セッションで進行中）はpubspec.yamlの依存が
                       // 未整備のため一時的に無効化。パッケージ配置後にCrossPromoSectionを復元すること。
@@ -322,10 +289,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(width: AppSpacing.xs),
           const Text('⚙️', style: TextStyle(fontSize: 26)),
           const SizedBox(width: AppSpacing.sm),
-          const Expanded(
+          Expanded(
             child: Text(
-              '設定',
-              style: TextStyle(
+              AppLocalizations.of(context)!.settings,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -339,13 +306,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Widget _buildRemoveAdsTile() {
+    final l10n = AppLocalizations.of(context)!;
     final adsRemoved = ref.watch(premiumUnlockedProvider);
     if (adsRemoved) {
       return _tileShell(
         icon: Icons.check_circle,
         iconColor: AppColors.success,
-        title: '広告除去（購入済み）',
-        subtitle: 'ご購入ありがとうございます',
+        title: l10n.removeAdsPurchased,
+        subtitle: l10n.purchaseThankYou,
         showDivider: false,
       );
     }
@@ -354,7 +322,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return productAsync.when(
       loading: () => _tileShell(
         icon: Icons.block,
-        title: '広告を削除',
+        title: l10n.removeAds,
         trailing: const SizedBox(
           width: 20,
           height: 20,
@@ -364,23 +332,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ),
       error: (_, __) => _tileShell(
         icon: Icons.block,
-        title: '広告を削除',
-        subtitle: 'ストアに接続できませんでした',
+        title: l10n.removeAds,
+        subtitle: l10n.storeConnectionError,
         showDivider: false,
       ),
       data: (product) {
         if (product == null) {
           return _tileShell(
             icon: Icons.block,
-            title: '広告を削除',
-            subtitle: '現在ご利用いただけません',
+            title: l10n.removeAds,
+            subtitle: l10n.notAvailableNow,
             showDivider: false,
           );
         }
         return _tileShell(
           icon: Icons.block,
-          title: '広告を削除',
-          subtitle: '${product.price} — ゲーム内の広告表示がすべて非表示になります',
+          title: l10n.removeAds,
+          subtitle: l10n.removeAdsDescription(product.price),
           showDivider: false,
           trailing: FilledButton(
             onPressed: () async {
@@ -394,7 +362,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 borderRadius: BorderRadius.circular(AppRadius.medium),
               ),
             ),
-            child: const Text('購入'),
+            child: Text(l10n.purchaseButton),
           ),
         );
       },
@@ -554,74 +522,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('ログアウト'),
-        content: const Text('ログアウトしますか？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('キャンセル'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              final authService = ref.read(authServiceProvider);
-              await authService.logout();
-              if (mounted) {
-                Navigator.of(context).pushReplacementNamed('/login');
-              }
-            },
-            child: const Text(
-              'ログアウト',
-              style: TextStyle(color: AppColors.error),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeleteAccountDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('アカウント削除'),
-        content: const Text(
-          'このアクションは取り消せません。本当にアカウントを削除しますか？',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('キャンセル'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('アカウント削除: 実装予定'),
-                ),
-              );
-            },
-            child: const Text(
-              '削除',
-              style: TextStyle(color: AppColors.error),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showPlayerNameDialog() {
-    final nameController = TextEditingController(text: _playerName);
+    final l10n = AppLocalizations.of(context)!;
+    final nameController = TextEditingController(text: _playerName ?? l10n.guestPlayer);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('プレイヤー名を変更'),
+        title: Text(l10n.changePlayerName),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -633,14 +540,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.orange.withOpacity(0.3)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.warning, color: Colors.orange, size: 20),
-                  SizedBox(width: 8),
+                  const Icon(Icons.warning, color: Colors.orange, size: 20),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '個人を特定する情報（本名、住所など）は入力しないでください。他のプレイヤーに表示される可能性があります。',
-                      style: TextStyle(fontSize: 12, color: Colors.orange),
+                      l10n.personalInfoWarning,
+                      style: const TextStyle(fontSize: 12, color: Colors.orange),
                     ),
                   ),
                 ],
@@ -650,8 +557,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             TextField(
               controller: nameController,
               decoration: InputDecoration(
-                labelText: 'プレイヤー名',
-                hintText: 'ゲストプレイヤー',
+                labelText: l10n.playerName,
+                hintText: l10n.guestPlayer,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -663,18 +570,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('キャンセル'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () {
               setState(() {
                 _playerName = nameController.text.isEmpty
-                    ? 'ゲストプレイヤー'
+                    ? l10n.guestPlayer
                     : nameController.text;
               });
               Navigator.pop(context);
             },
-            child: const Text('保存'),
+            child: Text(l10n.save),
           ),
         ],
       ),
