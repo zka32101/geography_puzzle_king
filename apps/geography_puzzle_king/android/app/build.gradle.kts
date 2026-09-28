@@ -36,6 +36,17 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
+            // R8がFirebase ComponentRegistrar/WorkManagerのRoomクラスを
+            // リフレクション経由の生成ということに気づかず削除・難読化し、
+            // 起動直後に "Failed to create an instance of
+            // androidx.work.impl.WorkDatabase" でクラッシュしていたため、
+            // 明示的なkeepルールを適用する（goen/shinjuu-leagueと同じ既知の
+            // バグパターン）。
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }
