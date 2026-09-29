@@ -11,7 +11,7 @@ import 'package:geography_puzzle_king/providers/game_provider.dart' show sharedP
 import 'package:geography_puzzle_king/providers/localization_provider.dart';
 import 'package:geography_puzzle_king/providers/monetization_provider.dart';
 import 'package:geography_puzzle_king/services/ad_service.dart';
-import 'package:geography_puzzle_king/services/purchase_service.dart' show kRemoveAdsProductId, kUnlockMapProductId;
+import 'package:geography_puzzle_king/services/purchase_service.dart' show kRemoveAdsProductId, kUnlockMapProductId, kPremiumPlanProductId;
 import 'package:geography_puzzle_king/screens/auth/splash_screen.dart';
 import 'package:geography_puzzle_king/screens/auth/login_screen.dart';
 import 'package:geography_puzzle_king/screens/home/home_screen.dart';
