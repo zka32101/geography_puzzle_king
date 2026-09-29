@@ -60,6 +60,16 @@ post_install do |installer|
         end
       end
     end
+
+    # google_mobile_ads (FLTAd_Internal / FLTAdPreloader) が GoogleMobileAds.framework の
+    # プライベートヘッダー(GoogleMobileAds_Beta.h)を #import しており、Xcodeのモジュール検証
+    # ("Include of non-modular header inside framework module")でビルド失敗する既知の問題を回避する。
+    # 参考: google_mobile_ads / GoogleMobileAds-SDK の既知issue。
+    if target.name == 'google_mobile_ads'
+      target.build_configurations.each do |config|
+        config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+      end
+    end
   end
 
   # gRPC-Core / gRPC-C++（cloud_firestore等が依存）のC++コードが、新しいClang
