@@ -23,6 +23,7 @@ RankingEntry _$RankingEntryFromJson(Map<String, dynamic> json) {
 mixin _$RankingEntry {
   int get rank => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
+  String get nickname => throw _privateConstructorUsedError;
   int get totalScore => throw _privateConstructorUsedError;
   int get clearedPrefectures => throw _privateConstructorUsedError;
   int get playTime => throw _privateConstructorUsedError;
@@ -48,6 +49,7 @@ abstract class $RankingEntryCopyWith<$Res> {
   $Res call({
     int rank,
     String userId,
+    String nickname,
     int totalScore,
     int clearedPrefectures,
     int playTime,
@@ -72,6 +74,7 @@ class _$RankingEntryCopyWithImpl<$Res, $Val extends RankingEntry>
   $Res call({
     Object? rank = null,
     Object? userId = null,
+    Object? nickname = null,
     Object? totalScore = null,
     Object? clearedPrefectures = null,
     Object? playTime = null,
@@ -86,6 +89,10 @@ class _$RankingEntryCopyWithImpl<$Res, $Val extends RankingEntry>
             userId: null == userId
                 ? _value.userId
                 : userId // ignore: cast_nullable_to_non_nullable
+                      as String,
+            nickname: null == nickname
+                ? _value.nickname
+                : nickname // ignore: cast_nullable_to_non_nullable
                       as String,
             totalScore: null == totalScore
                 ? _value.totalScore
@@ -121,6 +128,7 @@ abstract class _$$RankingEntryImplCopyWith<$Res>
   $Res call({
     int rank,
     String userId,
+    String nickname,
     int totalScore,
     int clearedPrefectures,
     int playTime,
@@ -144,6 +152,7 @@ class __$$RankingEntryImplCopyWithImpl<$Res>
   $Res call({
     Object? rank = null,
     Object? userId = null,
+    Object? nickname = null,
     Object? totalScore = null,
     Object? clearedPrefectures = null,
     Object? playTime = null,
@@ -158,6 +167,10 @@ class __$$RankingEntryImplCopyWithImpl<$Res>
         userId: null == userId
             ? _value.userId
             : userId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        nickname: null == nickname
+            ? _value.nickname
+            : nickname // ignore: cast_nullable_to_non_nullable
                   as String,
         totalScore: null == totalScore
             ? _value.totalScore
@@ -186,6 +199,7 @@ class _$RankingEntryImpl implements _RankingEntry {
   const _$RankingEntryImpl({
     required this.rank,
     required this.userId,
+    required this.nickname,
     required this.totalScore,
     required this.clearedPrefectures,
     required this.playTime,
@@ -200,6 +214,8 @@ class _$RankingEntryImpl implements _RankingEntry {
   @override
   final String userId;
   @override
+  final String nickname;
+  @override
   final int totalScore;
   @override
   final int clearedPrefectures;
@@ -210,7 +226,7 @@ class _$RankingEntryImpl implements _RankingEntry {
 
   @override
   String toString() {
-    return 'RankingEntry(rank: $rank, userId: $userId, totalScore: $totalScore, clearedPrefectures: $clearedPrefectures, playTime: $playTime, recordedAt: $recordedAt)';
+    return 'RankingEntry(rank: $rank, userId: $userId, nickname: $nickname, totalScore: $totalScore, clearedPrefectures: $clearedPrefectures, playTime: $playTime, recordedAt: $recordedAt)';
   }
 
   @override
@@ -220,6 +236,8 @@ class _$RankingEntryImpl implements _RankingEntry {
             other is _$RankingEntryImpl &&
             (identical(other.rank, rank) || other.rank == rank) &&
             (identical(other.userId, userId) || other.userId == userId) &&
+            (identical(other.nickname, nickname) ||
+                other.nickname == nickname) &&
             (identical(other.totalScore, totalScore) ||
                 other.totalScore == totalScore) &&
             (identical(other.clearedPrefectures, clearedPrefectures) ||
@@ -236,6 +254,7 @@ class _$RankingEntryImpl implements _RankingEntry {
     runtimeType,
     rank,
     userId,
+    nickname,
     totalScore,
     clearedPrefectures,
     playTime,
@@ -260,6 +279,7 @@ abstract class _RankingEntry implements RankingEntry {
   const factory _RankingEntry({
     required final int rank,
     required final String userId,
+    required final String nickname,
     required final int totalScore,
     required final int clearedPrefectures,
     required final int playTime,
@@ -273,6 +293,8 @@ abstract class _RankingEntry implements RankingEntry {
   int get rank;
   @override
   String get userId;
+  @override
+  String get nickname;
   @override
   int get totalScore;
   @override
@@ -301,6 +323,7 @@ mixin _$PrefectureRankingEntry {
   String get prefectureCode => throw _privateConstructorUsedError;
   String get difficulty => throw _privateConstructorUsedError;
   int get rank => throw _privateConstructorUsedError;
+  String get nickname => throw _privateConstructorUsedError;
   int get bestScore => throw _privateConstructorUsedError;
   int get fastestClearTime => throw _privateConstructorUsedError;
   int get playCount => throw _privateConstructorUsedError;
@@ -327,6 +350,7 @@ abstract class $PrefectureRankingEntryCopyWith<$Res> {
     String prefectureCode,
     String difficulty,
     int rank,
+    String nickname,
     int bestScore,
     int fastestClearTime,
     int playCount,
@@ -355,6 +379,7 @@ class _$PrefectureRankingEntryCopyWithImpl<
     Object? prefectureCode = null,
     Object? difficulty = null,
     Object? rank = null,
+    Object? nickname = null,
     Object? bestScore = null,
     Object? fastestClearTime = null,
     Object? playCount = null,
@@ -374,6 +399,10 @@ class _$PrefectureRankingEntryCopyWithImpl<
                 ? _value.rank
                 : rank // ignore: cast_nullable_to_non_nullable
                       as int,
+            nickname: null == nickname
+                ? _value.nickname
+                : nickname // ignore: cast_nullable_to_non_nullable
+                      as String,
             bestScore: null == bestScore
                 ? _value.bestScore
                 : bestScore // ignore: cast_nullable_to_non_nullable
@@ -409,6 +438,7 @@ abstract class _$$PrefectureRankingEntryImplCopyWith<$Res>
     String prefectureCode,
     String difficulty,
     int rank,
+    String nickname,
     int bestScore,
     int fastestClearTime,
     int playCount,
@@ -434,6 +464,7 @@ class __$$PrefectureRankingEntryImplCopyWithImpl<$Res>
     Object? prefectureCode = null,
     Object? difficulty = null,
     Object? rank = null,
+    Object? nickname = null,
     Object? bestScore = null,
     Object? fastestClearTime = null,
     Object? playCount = null,
@@ -453,6 +484,10 @@ class __$$PrefectureRankingEntryImplCopyWithImpl<$Res>
             ? _value.rank
             : rank // ignore: cast_nullable_to_non_nullable
                   as int,
+        nickname: null == nickname
+            ? _value.nickname
+            : nickname // ignore: cast_nullable_to_non_nullable
+                  as String,
         bestScore: null == bestScore
             ? _value.bestScore
             : bestScore // ignore: cast_nullable_to_non_nullable
@@ -481,6 +516,7 @@ class _$PrefectureRankingEntryImpl implements _PrefectureRankingEntry {
     required this.prefectureCode,
     required this.difficulty,
     required this.rank,
+    required this.nickname,
     required this.bestScore,
     required this.fastestClearTime,
     required this.playCount,
@@ -497,6 +533,8 @@ class _$PrefectureRankingEntryImpl implements _PrefectureRankingEntry {
   @override
   final int rank;
   @override
+  final String nickname;
+  @override
   final int bestScore;
   @override
   final int fastestClearTime;
@@ -507,7 +545,7 @@ class _$PrefectureRankingEntryImpl implements _PrefectureRankingEntry {
 
   @override
   String toString() {
-    return 'PrefectureRankingEntry(prefectureCode: $prefectureCode, difficulty: $difficulty, rank: $rank, bestScore: $bestScore, fastestClearTime: $fastestClearTime, playCount: $playCount, lastClearedAt: $lastClearedAt)';
+    return 'PrefectureRankingEntry(prefectureCode: $prefectureCode, difficulty: $difficulty, rank: $rank, nickname: $nickname, bestScore: $bestScore, fastestClearTime: $fastestClearTime, playCount: $playCount, lastClearedAt: $lastClearedAt)';
   }
 
   @override
@@ -520,6 +558,8 @@ class _$PrefectureRankingEntryImpl implements _PrefectureRankingEntry {
             (identical(other.difficulty, difficulty) ||
                 other.difficulty == difficulty) &&
             (identical(other.rank, rank) || other.rank == rank) &&
+            (identical(other.nickname, nickname) ||
+                other.nickname == nickname) &&
             (identical(other.bestScore, bestScore) ||
                 other.bestScore == bestScore) &&
             (identical(other.fastestClearTime, fastestClearTime) ||
@@ -537,6 +577,7 @@ class _$PrefectureRankingEntryImpl implements _PrefectureRankingEntry {
     prefectureCode,
     difficulty,
     rank,
+    nickname,
     bestScore,
     fastestClearTime,
     playCount,
@@ -566,6 +607,7 @@ abstract class _PrefectureRankingEntry implements PrefectureRankingEntry {
     required final String prefectureCode,
     required final String difficulty,
     required final int rank,
+    required final String nickname,
     required final int bestScore,
     required final int fastestClearTime,
     required final int playCount,
@@ -581,6 +623,8 @@ abstract class _PrefectureRankingEntry implements PrefectureRankingEntry {
   String get difficulty;
   @override
   int get rank;
+  @override
+  String get nickname;
   @override
   int get bestScore;
   @override

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
@@ -44,6 +45,17 @@ void main() async {
     );
   } on FirebaseException catch (e) {
     if (e.code != 'duplicate-app') rethrow;
+  }
+
+  // Firestoreランキングの書き込み権限（firestore.rules）を検証するための
+  // 匿名認証。既にサインイン済みならそのuidを再利用する。
+  if (FirebaseAuth.instance.currentUser == null) {
+    try {
+      await FirebaseAuth.instance.signInAnonymously();
+    } catch (_) {
+      // オフライン等でサインインに失敗してもアプリ起動は継続する
+      // （ランキング機能のみ利用不可になる）
+    }
   }
 
   // TODO: cross_promo_kit連携（別セッションで進行中）はpubspec.yamlの依存が

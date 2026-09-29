@@ -10,6 +10,7 @@ _$RankingEntryImpl _$$RankingEntryImplFromJson(Map<String, dynamic> json) =>
     _$RankingEntryImpl(
       rank: (json['rank'] as num).toInt(),
       userId: json['userId'] as String,
+      nickname: json['nickname'] as String,
       totalScore: (json['totalScore'] as num).toInt(),
       clearedPrefectures: (json['clearedPrefectures'] as num).toInt(),
       playTime: (json['playTime'] as num).toInt(),
@@ -20,6 +21,7 @@ Map<String, dynamic> _$$RankingEntryImplToJson(_$RankingEntryImpl instance) =>
     <String, dynamic>{
       'rank': instance.rank,
       'userId': instance.userId,
+      'nickname': instance.nickname,
       'totalScore': instance.totalScore,
       'clearedPrefectures': instance.clearedPrefectures,
       'playTime': instance.playTime,
@@ -32,6 +34,7 @@ _$PrefectureRankingEntryImpl _$$PrefectureRankingEntryImplFromJson(
   prefectureCode: json['prefectureCode'] as String,
   difficulty: json['difficulty'] as String,
   rank: (json['rank'] as num).toInt(),
+  nickname: json['nickname'] as String,
   bestScore: (json['bestScore'] as num).toInt(),
   fastestClearTime: (json['fastestClearTime'] as num).toInt(),
   playCount: (json['playCount'] as num).toInt(),
@@ -44,6 +47,7 @@ Map<String, dynamic> _$$PrefectureRankingEntryImplToJson(
   'prefectureCode': instance.prefectureCode,
   'difficulty': instance.difficulty,
   'rank': instance.rank,
+  'nickname': instance.nickname,
   'bestScore': instance.bestScore,
   'fastestClearTime': instance.fastestClearTime,
   'playCount': instance.playCount,

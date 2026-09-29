@@ -117,6 +117,11 @@
   "@rankingPlayerCount": {
     "placeholders": { "count": {"type": "int"} }
   },
+  "rankingEmptyGlobal": "まだランキングデータがありません。プレイしてスコアを記録しよう！",
+  "rankingEmptyPrefecture": "まだこの都道府県のランキングがありません。",
+  "rankingSelectPrefectureLabel": "都道府県を選択",
+  "rankingSelectDifficultyLabel": "難易度",
+  "rankingPlayCountSuffix": "回プレイ",
   "territoryMapTitle": "日本統一マップ",
   "japanMapLabel": "日本地図",
   "mapDataAttribution": "地図データ: 「地球地図日本」国土地理院",

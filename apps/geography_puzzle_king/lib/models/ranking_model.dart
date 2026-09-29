@@ -10,6 +10,7 @@ class RankingEntry with _$RankingEntry {
   const factory RankingEntry({
     required int rank,
     required String userId,
+    required String nickname,
     required int totalScore,
     required int clearedPrefectures,
     required int playTime,
@@ -28,6 +29,7 @@ class PrefectureRankingEntry with _$PrefectureRankingEntry {
     required String prefectureCode,
     required String difficulty,
     required int rank,
+    required String nickname,
     required int bestScore,
     required int fastestClearTime,
     required int playCount,

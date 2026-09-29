@@ -1,15 +1,18 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // ランキング - 誰でも読み取り可能（Cloud Functions から書き込み）
-    match /rankings/{prefecture} {
+    // グローバルランキング - 誰でも読み取り可能・本人のドキュメントのみ書き込み可
+    match /rankings/{userId} {
       allow read: if true;
-      allow write: if false;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
 
-      match /entries/{entry=**} {
-        allow read: if true;
-        allow write: if false;
-      }
+    // 都道府県別ランキング - 誰でも読み取り可能・本人のエントリのみ書き込み可
+    match /prefecture_rankings/{prefDifficulty}/entries/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.userId == userId;
     }
 
     // ユーザープロフィール - 本人のみ

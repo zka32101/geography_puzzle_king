@@ -1,5 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geography_puzzle_king/providers/auth_provider.dart';
 import 'package:geography_puzzle_king/config/difficulty_config.dart';
 import 'package:geography_puzzle_king/models/achievement_model.dart';
 import 'package:geography_puzzle_king/models/game_model.dart';
@@ -32,9 +35,8 @@ final achievementServiceProvider = Provider<AchievementService?>((ref) {
 
 // ─── ランキングサービス ──────────────────────────────────────────────────────
 
-final rankingServiceProvider = Provider<RankingService?>((ref) {
-  final prefs = ref.watch(sharedPreferencesProvider).value;
-  return prefs != null ? RankingService(prefs) : null;
+final rankingServiceProvider = Provider<RankingService>((ref) {
+  return RankingService(FirebaseFirestore.instance);
 });
 
 // ─── プレイヤーレベルサービス ────────────────────────────────────────────────
@@ -245,12 +247,22 @@ class GameService {
       ref.read(achievementsProvider.notifier).state = newAchievements;
     }
 
-    // ランキング更新
-    if (isCleared) {
+    // ランキング更新（Firestore）
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      final nickname = ref.read(currentUserProvider)?.nickname ?? 'たんけんか';
       final rankingSvc = ref.read(rankingServiceProvider);
-      if (rankingSvc != null) {
+      await rankingSvc.updateRankingData(
+        userId: uid,
+        nickname: nickname,
+        totalScore: newStats.totalScore,
+        clearedCount: newStats.totalClearedPrefectures,
+        playTime: newStats.totalPlayTime,
+      );
+      if (isCleared) {
         await rankingSvc.recordPrefectureScore(
-          userId: 'player_1',
+          userId: uid,
+          nickname: nickname,
           prefCode: g.prefectureCode,
           difficulty: g.difficulty,
           score: finalScore,
@@ -265,7 +277,7 @@ class GameService {
       final result = await playerLevelSvc.addExperience(earnedExp);
       ref.read(playerLevelProvider.notifier).state = PlayerLevel(
         currentLevel: result.newLevel,
-        totalExp: (await playerLevelSvc.loadPlayerLevel()).totalExp,
+        totalExp: playerLevelSvc.loadPlayerLevel().totalExp,
         lastUpdated: DateTime.now(),
       );
     }
