@@ -289,7 +289,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String stageLockedBody(int count) {
-    return '仅前$count个都道府县可免费游玩。\n购买“解锁全部都道府县”即可游玩全部47个。';
+    return '仅前$count个都道府县可免费游玩。\n购买高级版（一次性买断）即可游玩全部47个并去除广告。';
   }
 
   @override

@@ -289,7 +289,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String stageLockedBody(int count) {
-    return '無料でプレイできるのは最初の$count都道府県までです。\n「全都道府県マップを解放」を購入すると全47都道府県がプレイできます。';
+    return '無料でプレイできるのは最初の$count都道府県までです。\n「プレミアム」（買い切り）を購入すると、全47都道府県が遊べて広告も消えます。';
   }
 
   @override

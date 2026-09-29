@@ -104,7 +104,7 @@
     }
   },
   "stageLockedTitle": "🔒 この都道府県はロック中",
-  "stageLockedBody": "無料でプレイできるのは最初の{count}都道府県までです。\n「全都道府県マップを解放」を購入すると全47都道府県がプレイできます。",
+  "stageLockedBody": "無料でプレイできるのは最初の{count}都道府県までです。\n「プレミアム」（買い切り）を購入すると、全47都道府県が遊べて広告も消えます。",
   "@stageLockedBody": {
     "placeholders": {
       "count": {

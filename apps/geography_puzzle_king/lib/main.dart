@@ -62,6 +62,11 @@ void main() async {
             container.read(adsRemovedProvider.notifier).markPurchased();
           } else if (productId == kUnlockMapProductId) {
             container.read(mapUnlockedProvider.notifier).markPurchased();
+          } else if (productId == kPremiumPlanProductId) {
+            // プレミアム（買い切り）: 広告削除＋全解放を即時反映。
+            container.read(premiumPlanProvider.notifier).markPurchased();
+            container.read(adsRemovedProvider.notifier).markPurchased();
+            container.read(mapUnlockedProvider.notifier).markPurchased();
           }
         },
       );

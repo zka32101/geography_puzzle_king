@@ -289,7 +289,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String stageLockedBody(int count) {
-    return 'Only the first $count prefectures are free to play.\nPurchase "Unlock All Prefectures" to play all 47.';
+    return 'Only the first $count prefectures are free to play.\nGet Premium (one-time purchase) to play all 47 and remove ads.';
   }
 
   @override

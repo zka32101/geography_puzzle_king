@@ -289,7 +289,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String stageLockedBody(int count) {
-    return '무료로 플레이할 수 있는 것은 처음 $count개 도도부현까지입니다.\n“전체 도도부현 잠금 해제”를 구매하면 47개 전부 플레이할 수 있습니다.';
+    return '무료로 플레이할 수 있는 것은 처음 $count개 도도부현까지입니다.\n프리미엄(1회 구매)을 구매하면 47개 전부 플레이하고 광고도 사라집니다.';
   }
 
   @override

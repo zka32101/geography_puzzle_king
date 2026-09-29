@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:geography_puzzle_king/config/app_config.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/providers/monetization_provider.dart';
-import 'package:geography_puzzle_king/services/purchase_service.dart';
 import 'package:geography_puzzle_king/providers/localization_provider.dart';
 import 'package:geography_puzzle_king/services/audio_service.dart';
 import 'package:geography_puzzle_king/config/legal_content.dart';
@@ -255,8 +253,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         title: l10n.adsAndPurchases,
                         children: [
                           _buildPremiumPlanTile(),
-                          _buildRemoveAdsTile(),
-                          _buildUnlockMapTile(),
+                          _buildRestoreTile(),
                         ],
                       ),
                       // TODO: cross_promo_kit連携（別セッションで進行中）はpubspec.yamlの依存が
@@ -320,10 +317,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return _tileShell(
       icon: Icons.workspace_premium,
       iconColor: isPremium ? AppColors.success : AppColors.primary,
-      title: isPremium ? 'プレミアムプラン（購入済み）' : 'プレミアムプラン',
+      title: isPremium ? 'プレミアム（購入済み）' : 'プレミアム（買い切り\$3）',
       subtitle: isPremium
-          ? '広告非表示・全マップ解放が有効です'
-          : '広告除去＋マップ解放がまとめてお得に',
+          ? '広告非表示・全コンテンツ解放が有効です'
+          : '広告を消して、全都道府県・全ステージを解放',
       trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
       onTap: () {
         Navigator.of(context).push(
@@ -334,100 +331,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  Widget _buildRemoveAdsTile() {
-    final l10n = AppLocalizations.of(context)!;
-    return _buildIapTile(
-      purchased: ref.watch(adsRemovedProvider),
-      productAsync: ref.watch(removeAdsProductProvider),
-      notPurchasedTitle: l10n.removeAds,
-      purchasedTitle: l10n.removeAdsPurchased,
-      purchasedSubtitle: l10n.purchaseThankYou,
-      describeProduct: (price) => l10n.removeAdsDescription(price),
-      onBuy: (service, product) => service.buyNonConsumable(product),
-      showDivider: true,
-    );
-  }
-
-  Widget _buildUnlockMapTile() {
-    final l10n = AppLocalizations.of(context)!;
-    return _buildIapTile(
-      purchased: ref.watch(mapUnlockedProvider),
-      productAsync: ref.watch(unlockMapProductProvider),
-      notPurchasedTitle: l10n.unlockMap,
-      purchasedTitle: l10n.unlockMapPurchased,
-      purchasedSubtitle: l10n.unlockMapThankYou,
-      describeProduct: (price) => l10n.unlockMapDescription(price),
-      onBuy: (service, product) => service.buyNonConsumable(product),
+  // NOTE: 文言は日本語ハードコード（プレミアム画面と同様）。l10n化は別途。
+  Widget _buildRestoreTile() {
+    return _tileShell(
+      icon: Icons.restore,
+      title: '購入の復元',
+      subtitle: '機種変更・再インストール後に購入済みの内容を復元します',
       showDivider: false,
-    );
-  }
-
-  Widget _buildIapTile({
-    required bool purchased,
-    required AsyncValue<ProductDetails?> productAsync,
-    required String notPurchasedTitle,
-    required String purchasedTitle,
-    required String purchasedSubtitle,
-    required String Function(String price) describeProduct,
-    required Future<void> Function(PurchaseService service, ProductDetails product) onBuy,
-    required bool showDivider,
-  }) {
-    final l10n = AppLocalizations.of(context)!;
-    if (purchased) {
-      return _tileShell(
-        icon: Icons.check_circle,
-        iconColor: AppColors.success,
-        title: purchasedTitle,
-        subtitle: purchasedSubtitle,
-        showDivider: showDivider,
-      );
-    }
-
-    return productAsync.when(
-      loading: () => _tileShell(
-        icon: Icons.block,
-        title: notPurchasedTitle,
-        trailing: const SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-        showDivider: showDivider,
-      ),
-      error: (_, __) => _tileShell(
-        icon: Icons.block,
-        title: notPurchasedTitle,
-        subtitle: l10n.storeConnectionError,
-        showDivider: showDivider,
-      ),
-      data: (product) {
-        if (product == null) {
-          return _tileShell(
-            icon: Icons.block,
-            title: notPurchasedTitle,
-            subtitle: l10n.notAvailableNow,
-            showDivider: showDivider,
-          );
-        }
-        return _tileShell(
-          icon: Icons.block,
-          title: notPurchasedTitle,
-          subtitle: describeProduct(product.price),
-          showDivider: showDivider,
-          trailing: FilledButton(
-            onPressed: () async {
-              final service = ref.read(purchaseServiceProvider);
-              if (service == null) return;
-              await onBuy(service, product);
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.medium),
-              ),
-            ),
-            child: Text(l10n.purchaseButton),
-          ),
+      onTap: () async {
+        final service = ref.read(purchaseServiceProvider);
+        if (service == null) return;
+        await service.restorePurchases();
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('購入情報を確認しています…')),
         );
       },
     );
