@@ -72,7 +72,11 @@ dependencies:
   json_serializable: ^6.7.0
 
   # Monetization
-  google_mobile_ads: ^9.0.0
+  # 9.1.0+ has a known Release-build regression: FLTAd_Internal.h /
+  # FLTAdPreloader.h non-modular #import of GoogleMobileAds_Beta.h breaks
+  # `flutter build ios --release` with "Include of non-modular header inside
+  # framework module". Pin to 9.0.0 until upstream fixes it.
+  google_mobile_ads: 9.0.0
   in_app_purchase: ^3.2.0
 
 dev_dependencies:
