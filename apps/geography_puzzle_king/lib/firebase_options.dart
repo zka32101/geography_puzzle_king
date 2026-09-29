@@ -1,4 +1,4 @@
-﻿import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
+import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'dart:io';
 
 class DefaultFirebaseOptions {
@@ -15,13 +15,12 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCdIuk0UifwgliMGDdU-06TwUsvkJESPc0',
-    appId: '1:250444577503:android:a09c016319d25f05c1476a',
-    messagingSenderId: '250444577503',
-    projectId: 'petit-works-games',
-    databaseURL: 'https://petit-works-games-default-rtdb.asia-southeast1.firebasedatabase.app',
+    apiKey: 'AIzaSyC97KS0mXf-Wr4nlGLg_bzhfuhiyNclPJk',
+    appId: '1:453130253031:android:1322c313d89e56cda3a842',
+    messagingSenderId: '453130253031',
+    projectId: 'geography-puzzle-king-app',
+    storageBucket: 'geography-puzzle-king-app.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyC4gaFcLxN8iT7xm6JeIM7Iou-efE5g5SM',
     appId: '1:946448575860:ios:e59a3ae6f5fba47237d021',
@@ -41,4 +40,3 @@ class DefaultFirebaseOptions {
     storageBucket: 'geography-puzzle-king.appspot.com',
   );
 }
-

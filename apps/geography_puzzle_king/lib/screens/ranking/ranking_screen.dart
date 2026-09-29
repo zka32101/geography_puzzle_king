@@ -43,21 +43,21 @@ class _RankingScreenState extends State<RankingScreen>
 
   // 都道府県ごとのトップスコアをまとめて取得し、スコア降順に並べ替える。
   Future<List<PrefectureRanking>> _loadPrefectureRanking() async {
-    final results = <PrefectureRanking>[];
-    for (final pref in allPrefectures) {
-      final top = await _rankingService.fetchTopForPrefecture(
+    final tops = await Future.wait(allPrefectures.map(
+      (pref) => _rankingService.fetchTopForPrefecture(
         prefectureCode: pref.code,
         prefectureName: pref.name,
-      );
-      if (top != null) {
-        results.add(PrefectureRanking(
-          rank: 0,
-          prefectureName: top.prefectureName,
-          score: top.score,
-          playerCount: top.playerCount,
-        ));
-      }
-    }
+      ),
+    ));
+    final results = tops
+        .whereType<PrefectureRankingEntry>()
+        .map((top) => PrefectureRanking(
+              rank: 0,
+              prefectureName: top.prefectureName,
+              score: top.score,
+              playerCount: top.playerCount,
+            ))
+        .toList();
     results.sort((a, b) => b.score.compareTo(a.score));
     for (var i = 0; i < results.length; i++) {
       results[i] = PrefectureRanking(

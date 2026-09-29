@@ -11,4 +11,8 @@ regexes = [
   # SharedPreferences保存用のローカルキー名。APIキーやトークンではない。
   # apps/geography_puzzle_king/lib/services/purchase_service.dart
   '''premium_plan_v1''',
+  # Firebase Android APIキー。クライアントに同梱される前提の識別子で、
+  # アクセス制御はFirestoreセキュリティルール/App Check側で行うため機密情報ではない。
+  # apps/geography_puzzle_king/lib/firebase_options.dart, android/app/google-services.json
+  '''AIzaSyC97KS0mXf-Wr4nlGLg_bzhfuhiyNclPJk''',
 ]
