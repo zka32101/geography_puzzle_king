@@ -8,7 +8,8 @@ import 'package:geography_puzzle_king/screens/pokedex/pokedex_screen.dart';
 import 'package:geography_puzzle_king/services/audio_service.dart';
 import 'package:geography_puzzle_king/services/tutorial_service.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
-import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
+import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -56,7 +57,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 if (mounted) Future.delayed(const Duration(milliseconds: 300),
                   () => _showTutorialStep(tutorialService));
               },
-              child: const Text('次へ'),
+              child: Text(tr('次へ')),
             )
           else
             ElevatedButton(
@@ -64,7 +65,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 await tutorialService.completeTutorial();
                 Navigator.pop(ctx);
               },
-              child: const Text('完了'),
+              child: Text(tr('完了')),
             ),
         ],
       ),

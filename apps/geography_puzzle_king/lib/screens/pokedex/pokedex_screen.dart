@@ -6,6 +6,7 @@ import 'package:geography_puzzle_king/providers/game_provider.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
 
 class PokedexScreen extends ConsumerStatefulWidget {
   final int initialTabIndex;
@@ -328,13 +329,13 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
                     style: const TextStyle(fontSize: 28),
                   ),
                   title: Text(
-                    a.title,
+                    tr(a.title),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: a.isUnlocked ? null : AppColors.textSecondary,
                     ),
                   ),
-                  subtitle: Text(a.description, style: AppTextStyles.bodySmall),
+                  subtitle: Text(tr(a.description), style: AppTextStyles.bodySmall),
                   trailing: a.isUnlocked && a.unlockedAt != null
                       ? Text(
                           '${a.unlockedAt!.month}/${a.unlockedAt!.day}',

@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
 
 class BadgeData {
   final String id;
-  final String name;
+  final String _name;
+  String get name => tr(_name);
   final String emoji;
-  final String description;
+  final String _description;
+  String get description => tr(_description);
   final Color color;
 
   const BadgeData({
     required this.id,
-    required this.name,
+    required String name,
     required this.emoji,
-    required this.description,
+    required String description,
     required this.color,
-  });
+  }) : _name = name, _description = description;
 }
 
 // ── 地方バッジ (8) ─────────────────────────────────────────────────────────

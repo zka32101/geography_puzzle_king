@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 import 'package:geography_puzzle_king/models/user_model.dart';
-import 'package:geography_puzzle_king/providers/auth_provider.dart';
+import 'package:geography_puzzle_king/providers/auth_provider.dart';
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -44,7 +45,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final nickname = _nicknameController.text.trim();
     if (nickname.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('ニックネームを入力してください')),
+        SnackBar(content: Text(tr('ニックネームを入力してください'))),
       );
       return;
     }
@@ -102,8 +103,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: AppSpacing.lg),
 
-                  const Text(
-                    'ゲームで学ぶ都道府県',
+                  Text(
+                    tr('ゲームで学ぶ都道府県'),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 28,
@@ -112,8 +113,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xs),
-                  const Text(
-                    '47都道府県を守り抜け！',
+                  Text(
+                    tr('47都道府県を守り抜け！'),
                     style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   const SizedBox(height: AppSpacing.xxl),
@@ -154,7 +155,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                           decoration: InputDecoration(
-                            hintText: 'たんけんか',
+                            hintText: tr('たんけんか'),
                             hintStyle: const TextStyle(color: Colors.white38),
                             counterStyle: const TextStyle(color: Colors.white54),
                             filled: true,
@@ -199,8 +200,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Text(
-                                    'はじめる！',
+                                : Text(
+                                    tr('はじめる！'),
                                     style: TextStyle(
                                       color: Colors.black87,
                                       fontSize: 18,
@@ -214,8 +215,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
 
                   const SizedBox(height: AppSpacing.xl),
-                  const Text(
-                    '⚠️ データはこの端末に保存されます',
+                  Text(
+                    tr('⚠️ データはこの端末に保存されます'),
                     style: TextStyle(color: Colors.white38, fontSize: 12),
                   ),
                 ],

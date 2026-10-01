@@ -1199,4 +1199,189 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get premiumStoreNotReady => '※ストア側での商品登録が完了すると購入できるようになります。';
+
+  @override
+  String saidHistory(String name) {
+    return '「$nameの決戦だ！歴史を守れ！」';
+  }
+
+  @override
+  String saidRegion(String name) {
+    return '「$name地方の決戦だ！全力で戦うぞ！」';
+  }
+
+  @override
+  String saidPref(String name) {
+    return '「$nameを守るぞ！ぼくにまかせて！」';
+  }
+
+  @override
+  String bannerHistoryBoss(String emoji, String boss) {
+    return '$emoji $boss 降臨！';
+  }
+
+  @override
+  String bannerHistoryFinal(String name) {
+    return '歴史決戦「$name」最終決戦！';
+  }
+
+  @override
+  String bannerRegionBoss(String emoji, String boss) {
+    return '$emoji $boss 登場！';
+  }
+
+  @override
+  String bannerRegionFinal(String name) {
+    return '地方決戦「$name」最終決戦！';
+  }
+
+  @override
+  String bannerPrefBoss(String boss) {
+    return '👹 $boss 登場！';
+  }
+
+  @override
+  String bannerBossSkill(String skill) {
+    return 'スキル「$skill」に警戒せよ';
+  }
+
+  @override
+  String waveRegionElite(String emoji, String region) {
+    return '$emoji $region地方の精鋭が迫る…';
+  }
+
+  @override
+  String waveGeoEnemy(String icon, String geo) {
+    return '$icon $geoの敵が迫る…';
+  }
+
+  @override
+  String saidWaveHistory(int wave) {
+    return '「ウェーブ$wave！歴史の脅威が押し寄せる！」';
+  }
+
+  @override
+  String saidWaveRegion(int wave) {
+    return '「ウェーブ$wave、地方最強の敵が来るぞ！」';
+  }
+
+  @override
+  String saidWave(int wave) {
+    return '「ウェーブ$wave、いくよ！」';
+  }
+
+  @override
+  String combo5(int bonus) {
+    return '🔥5コンボ! +$bonus🪙';
+  }
+
+  @override
+  String combo10(int bonus) {
+    return '💥10コンボ!! +$bonus🪙';
+  }
+
+  @override
+  String comboN(int count, int bonus) {
+    return '⚡$countコンボ!!! +$bonus🪙';
+  }
+
+  @override
+  String cheerBonus(int bonus) {
+    return '応援 +$bonus🪙';
+  }
+
+  @override
+  String saidSpecialtyPower(String specialty) {
+    return '「$specialtyパワー、いっけー！」';
+  }
+
+  @override
+  String quizCapitalQuestion(String name) {
+    return '$nameの県庁所在地は？';
+  }
+
+  @override
+  String synergyBonus(int pct) {
+    return '✨シナジー +$pct%';
+  }
+
+  @override
+  String resultSecretsTitle(String name) {
+    return '📚 $name のひみつ';
+  }
+
+  @override
+  String resultPopulationApprox(int man) {
+    return '約 $man 万人';
+  }
+
+  @override
+  String resultTerrain(String icon) {
+    return '$icon 地形';
+  }
+
+  @override
+  String resultCompanionJoined(String name) {
+    return '$name が仲間になった！';
+  }
+
+  @override
+  String bossStoryRegion(String region, String boss) {
+    return '$region地方の覇権を賭けた戦い。$bossが立ちはだかる！';
+  }
+
+  @override
+  String recordClearsCount(int n) {
+    return '$n回';
+  }
+
+  @override
+  String recordPointsCount(int n) {
+    return '$n点';
+  }
+
+  @override
+  String dateYmd(int y, int m, int d) {
+    return '$y年$m月$d日';
+  }
+
+  @override
+  String triviaCapital(String name, String capital) {
+    return '$nameの県庁所在地は$capitalだよ。';
+  }
+
+  @override
+  String triviaArea(int area) {
+    return '面積は約${area}km²。全国でも特徴的な広さなんだ。';
+  }
+
+  @override
+  String triviaPopulation(int man) {
+    return '人口は約$man万人が暮らしているよ。';
+  }
+
+  @override
+  String triviaSpecialty(String item) {
+    return '名産品の「$item」がとくに有名なんだ。';
+  }
+
+  @override
+  String triviaGeography(String geo) {
+    return '地形は「$geo」タイプ。だから敵もその土地らしいんだ。';
+  }
+
+  @override
+  String detailWithSpecialty(
+    String region,
+    String geo,
+    String items,
+    String capital,
+  ) {
+    return '$region地方に位置する「$geo」タイプの地形が特徴の県。名産品は$itemsなどが知られていて、県庁所在地の$capitalを中心ににぎわっているよ。';
+  }
+
+  @override
+  String detailNoSpecialty(String region, String geo, String capital) {
+    return '$region地方に位置する「$geo」タイプの地形が特徴の県。県庁所在地は$capitalだよ。';
+  }
 }

@@ -1,14 +1,20 @@
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
-import 'package:geography_puzzle_king/models/td_model.dart';
+import 'package:geography_puzzle_king/models/td_model.dart';
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
 
 class PrefectureData {
   final String code;
-  final String name;
-  final String kana;
-  final String capitalCity;
+  final String _name;
+  String get name => tr(_name);
+  String get nameRaw => _name;
+  final String _kana;
+  String get kana => tr(_kana);
+  final String _capitalCity;
+  String get capitalCity => tr(_capitalCity);
   final int population;
   final int area;
-  final List<String> specialties;
+  final List<String> _specialties;
+  List<String> get specialties => _specialties.map(tr).toList();
   final String region;
   final String color;
   final BossData boss;
@@ -23,16 +29,17 @@ class PrefectureData {
   /// 地理的特徴・全国一/最初の記録など）。capitalCity/population/area/
   /// specialties から自動生成される [trivia] getter とは異なり、
   /// 手書きで用意した固有の内容。
-  final String funFact;
+  final String _funFact;
+  String get funFact => tr(_funFact);
 
   const PrefectureData({
     required this.code,
-    required this.name,
-    required this.kana,
-    required this.capitalCity,
+    required String name,
+    required String kana,
+    required String capitalCity,
     required this.population,
     required this.area,
-    required this.specialties,
+    required List<String> specialties,
     required this.region,
     required this.color,
     required this.boss,
@@ -42,40 +49,45 @@ class PrefectureData {
     required this.geography,
     required this.difficultyRating,
     this.specialFacility,
-    required this.funFact,
-  });
+    required String funFact,
+  }) : _name = name, _kana = kana, _capitalCity = capitalCity, _specialties = specialties, _funFact = funFact;
 }
 
 class BossData {
-  final String name;
+  final String _name;
+  String get name => tr(_name);
   final String type;
   final int baseHp;
   final int baseAttack;
-  final String skill;
+  final String _skill;
+  String get skill => tr(_skill);
 
   const BossData({
-    required this.name,
+    required String name,
     required this.type,
     required this.baseHp,
     required this.baseAttack,
-    required this.skill,
-  });
+    required String skill,
+  }) : _name = name, _skill = skill;
 }
 
 class CompanionData {
   final String id;
-  final String name;
-  final String description;
+  final String _name;
+  String get name => tr(_name);
+  final String _description;
+  String get description => tr(_description);
   final String rarity; // common, rare, legend
-  final List<String> skills;
+  final List<String> _skills;
+  List<String> get skills => _skills.map(tr).toList();
 
   const CompanionData({
     required this.id,
-    required this.name,
-    required this.description,
+    required String name,
+    required String description,
     required this.rarity,
-    required this.skills,
-  });
+    required List<String> skills,
+  }) : _name = name, _description = description, _skills = skills;
 }
 
 /// 地域定数
@@ -831,17 +843,17 @@ extension PrefectureGeographyX on PrefectureData {
   String get geographyName {
     switch (geography) {
       case 'sea':
-        return '海・沿岸';
+        return tr('海・沿岸');
       case 'mountain':
-        return '山岳';
+        return tr('山岳');
       case 'urban':
-        return '都市';
+        return tr('都市');
       case 'agriculture':
-        return '農業';
+        return tr('農業');
       case 'mixed':
-        return '複合';
+        return tr('複合');
       default:
-        return '—';
+        return tr('—');
     }
   }
 
@@ -890,27 +902,23 @@ extension PrefectureGeographyX on PrefectureData {
   /// （region/geography/specialties/capitalCity）だけを使うことで、
   /// 不確かな統計を混ぜずに拡充できるようにしている。
   String get detailedDescription {
-    final regionLabel = regionNames[region];
-    final regionPart = regionLabel != null ? '$regionLabel地方に位置する' : '';
-    final geoPart = '「$geographyName」タイプの地形が特徴の県';
-    final specialtyPart = specialties.isNotEmpty
-        ? '名産品は${specialties.take(2).join('や')}などが知られていて、'
-            '県庁所在地の$capitalCityを中心ににぎわっているよ。'
-        : '県庁所在地は$capitalCityだよ。';
-    final extraSentence = '$regionPart$geoPart。$specialtyPart';
-    return '$funFact$extraSentence';
+    final regionLabel = tr(regionNames[region] ?? '');
+    final sep = ContentLocale.code == 'ja' ? 'や' : ', ';
+    final extra = specialties.isNotEmpty
+        ? tl.detailWithSpecialty(regionLabel, geographyName, specialties.take(2).join(sep), capitalCity)
+        : tl.detailNoSpecialty(regionLabel, geographyName, capitalCity);
+    return '$funFact$extra';
   }
 
   /// 制圧トリビア（データから自動生成する豆知識を1つ返す）
   String get trivia {
     final c = int.tryParse(code) ?? 0;
     final facts = <String>[
-      '${name}の県庁所在地は${capitalCity}だよ。',
-      '面積は約${area}km²。全国でも特徴的な広さなんだ。',
-      '人口は約${(population / 10000).round()}万人が暮らしているよ。',
-      if (specialties.isNotEmpty)
-        '名産品の「${specialties.first}」がとくに有名なんだ。',
-      '地形は「${geographyName}」タイプ。だから敵もその土地らしいんだ。',
+      tl.triviaCapital(name, capitalCity),
+      tl.triviaArea(area),
+      tl.triviaPopulation((population / 10000).round()),
+      if (specialties.isNotEmpty) tl.triviaSpecialty(specialties.first),
+      tl.triviaGeography(geographyName),
     ];
     // code をシード代わりにして毎回同じ県は同じ豆知識
     return facts[c % facts.length];

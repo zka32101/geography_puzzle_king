@@ -1193,4 +1193,189 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get premiumStoreNotReady => '※商店商品登记完成后即可购买。';
+
+  @override
+  String saidHistory(String name) {
+    return '“$name的决战！守护历史！”';
+  }
+
+  @override
+  String saidRegion(String name) {
+    return '“$name地区的决战！全力以赴！”';
+  }
+
+  @override
+  String saidPref(String name) {
+    return '“我来守护$name！交给我吧！”';
+  }
+
+  @override
+  String bannerHistoryBoss(String emoji, String boss) {
+    return '$emoji $boss降临！';
+  }
+
+  @override
+  String bannerHistoryFinal(String name) {
+    return '历史决战「$name」最终决战！';
+  }
+
+  @override
+  String bannerRegionBoss(String emoji, String boss) {
+    return '$emoji $boss登场！';
+  }
+
+  @override
+  String bannerRegionFinal(String name) {
+    return '地区决战「$name」最终决战！';
+  }
+
+  @override
+  String bannerPrefBoss(String boss) {
+    return '👹 $boss登场！';
+  }
+
+  @override
+  String bannerBossSkill(String skill) {
+    return '小心技能「$skill」';
+  }
+
+  @override
+  String waveRegionElite(String emoji, String region) {
+    return '$emoji $region地区的精锐逼近…';
+  }
+
+  @override
+  String waveGeoEnemy(String icon, String geo) {
+    return '$icon $geo的敌人逼近…';
+  }
+
+  @override
+  String saidWaveHistory(int wave) {
+    return '“第$wave波！历史的威胁袭来！”';
+  }
+
+  @override
+  String saidWaveRegion(int wave) {
+    return '“第$wave波，地区最强的敌人来了！”';
+  }
+
+  @override
+  String saidWave(int wave) {
+    return '“第$wave波，出发！”';
+  }
+
+  @override
+  String combo5(int bonus) {
+    return '🔥5连击！+$bonus🪙';
+  }
+
+  @override
+  String combo10(int bonus) {
+    return '💥10连击！！+$bonus🪙';
+  }
+
+  @override
+  String comboN(int count, int bonus) {
+    return '⚡$count连击！！！+$bonus🪙';
+  }
+
+  @override
+  String cheerBonus(int bonus) {
+    return '助威 +$bonus🪙';
+  }
+
+  @override
+  String saidSpecialtyPower(String specialty) {
+    return '“$specialty之力，出击！”';
+  }
+
+  @override
+  String quizCapitalQuestion(String name) {
+    return '$name的县厅所在地是？';
+  }
+
+  @override
+  String synergyBonus(int pct) {
+    return '✨协同 +$pct%';
+  }
+
+  @override
+  String resultSecretsTitle(String name) {
+    return '📚 $name的秘密';
+  }
+
+  @override
+  String resultPopulationApprox(int man) {
+    return '约 $man 万人';
+  }
+
+  @override
+  String resultTerrain(String icon) {
+    return '$icon 地形';
+  }
+
+  @override
+  String resultCompanionJoined(String name) {
+    return '$name成为了伙伴！';
+  }
+
+  @override
+  String bossStoryRegion(String region, String boss) {
+    return '争夺$region地区霸权之战。$boss拦住了去路！';
+  }
+
+  @override
+  String recordClearsCount(int n) {
+    return '$n次';
+  }
+
+  @override
+  String recordPointsCount(int n) {
+    return '$n分';
+  }
+
+  @override
+  String dateYmd(int y, int m, int d) {
+    return '$y年$m月$d日';
+  }
+
+  @override
+  String triviaCapital(String name, String capital) {
+    return '$name的县厅所在地是$capital。';
+  }
+
+  @override
+  String triviaArea(int area) {
+    return '面积约${area}km²，在全国也很有特点。';
+  }
+
+  @override
+  String triviaPopulation(int man) {
+    return '约有$man万人居住在这里。';
+  }
+
+  @override
+  String triviaSpecialty(String item) {
+    return '特产「$item」尤其有名。';
+  }
+
+  @override
+  String triviaGeography(String geo) {
+    return '地形为「$geo」类型，所以敌人也很有当地特色。';
+  }
+
+  @override
+  String detailWithSpecialty(
+    String region,
+    String geo,
+    String items,
+    String capital,
+  ) {
+    return '位于$region地区，以「$geo」类型地形为特色的县。以$items等特产闻名，以县厅所在地$capital为中心十分繁华。';
+  }
+
+  @override
+  String detailNoSpecialty(String region, String geo, String capital) {
+    return '位于$region地区，以「$geo」类型地形为特色的县。县厅所在地是$capital。';
+  }
 }

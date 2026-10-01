@@ -3,6 +3,7 @@ import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/models/prefecture_record.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'japan_map_widget.dart' show prefectureEmojis;
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
 
 class PrefectureDetailSheet extends StatelessWidget {
   final PrefectureData prefecture;
@@ -68,14 +69,14 @@ class PrefectureDetailSheet extends StatelessWidget {
                       child: Column(
                         children: [
                           Text(
-                            '未クリア',
+                            tr('未クリア'),
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               color: Colors.grey.shade600,
                             ),
                           ),
                           const SizedBox(height: AppSpacing.sm),
                           Text(
-                            'この県を防衛してクリアしよう！',
+                            tr('この県を防衛してクリアしよう！'),
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Colors.grey.shade700,
                             ),
@@ -144,7 +145,7 @@ class PrefectureDetailSheet extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '経験値',
+                  tr('経験値'),
                   style: Theme.of(context).textTheme.labelMedium,
                 ),
                 const SizedBox(height: 4),
@@ -173,21 +174,21 @@ class PrefectureDetailSheet extends StatelessWidget {
             // クリア記録
             Divider(color: Colors.grey.shade300),
             const SizedBox(height: AppSpacing.md),
-            _buildRecordRow(context, '総クリア', '${record!.totalClears}回'),
-            _buildRecordRow(context, 'ハイスコア', '${record!.bestScore}点'),
+            _buildRecordRow(context, tr('総クリア'), tl.recordClearsCount(record!.totalClears)),
+            _buildRecordRow(context, tr('ハイスコア'), tl.recordPointsCount(record!.bestScore)),
             _buildRecordRow(
               context,
-              '最高難易度',
-              record!.highestDifficulty ?? '未挑戦',
+              tr('最高難易度'),
+              record!.highestDifficulty ?? tr('未挑戦'),
             ),
             _buildRecordRow(
               context,
-              '初クリア',
+              tr('初クリア'),
               _formatDate(record!.firstClearedAt),
             ),
             _buildRecordRow(
               context,
-              '最終プレイ',
+              tr('最終プレイ'),
               _formatDate(record!.lastClearedAt),
             ),
           ],
@@ -209,19 +210,19 @@ class PrefectureDetailSheet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '県情報',
+              tr('県情報'),
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
-            _buildInfoRow(context, '絵文字', emoji),
-            _buildInfoRow(context, '都道府県コード', prefecture.code),
+            _buildInfoRow(context, tr('絵文字'), emoji),
+            _buildInfoRow(context, tr('都道府県コード'), prefecture.code),
             if (prefecture.specialFacility != null)
               _buildInfoRow(
                 context,
-                '特殊施設',
-                prefecture.specialFacility == 'airport' ? '🛫 空港' : '🎖️ 基地',
+                tr('特殊施設'),
+                prefecture.specialFacility == 'airport' ? tr('🛫 空港') : tr('🎖️ 基地'),
               ),
           ],
         ),

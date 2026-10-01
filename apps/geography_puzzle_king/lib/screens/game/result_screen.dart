@@ -10,7 +10,8 @@ import 'package:geography_puzzle_king/utils/history_stage_data.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/utils/region_data.dart';
 import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
-import 'package:geography_puzzle_king/l10n/app_localizations.dart';
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
 
 class ResultScreen extends ConsumerStatefulWidget {
   final String prefectureCode;
@@ -566,20 +567,20 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '📚 ${pref.name} のひみつ',
+              tl.resultSecretsTitle(pref.name),
               style: const TextStyle(
                   color: Colors.amber,
                   fontWeight: FontWeight.bold,
                   fontSize: 14),
             ),
             const SizedBox(height: AppSpacing.sm),
-            _buildFactRow('🏛 県庁', pref.capitalCity),
-            _buildFactRow('👥 人口',
-                '約 ${(pref.population / 10000).round()} 万人'),
-            _buildFactRow('📐 面積', '${pref.area} km²'),
-            _buildFactRow('${pref.geographyIcon} 地形', pref.geographyName),
+            _buildFactRow(tr('🏛 県庁'), pref.capitalCity),
+            _buildFactRow(tr('👥 人口'),
+                tl.resultPopulationApprox((pref.population / 10000).round())),
+            _buildFactRow(tr('📐 面積'), '${pref.area} km²'),
+            _buildFactRow(tl.resultTerrain(pref.geographyIcon), pref.geographyName),
             _buildFactRow(
-                '🍽 特産品', pref.specialties.take(3).join('・')),
+                tr('🍽 特産品'), pref.specialties.take(3).join('・')),
             const SizedBox(height: AppSpacing.sm),
             // 豆知識
             Container(
@@ -622,7 +623,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${pref.companion.name} が仲間になった！',
+                          tl.resultCompanionJoined(pref.companion.name),
                           style: const TextStyle(
                               color: Colors.amber,
                               fontWeight: FontWeight.bold,

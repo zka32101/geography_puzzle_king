@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 import 'package:geography_puzzle_king/firebase_options.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart' show sharedPreferencesProvider;
@@ -85,6 +86,11 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
+    // ゲーム内コンテンツ翻訳（tr()）が参照する言語を同期する。
+    // 未設定の間は端末の言語に従い、未対応言語は日本語。
+    final contentLang =
+        locale?.languageCode ?? WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+    ContentLocale.code = const ['ja', 'en', 'zh', 'ko'].contains(contentLang) ? contentLang : 'ja';
 
     return MaterialApp(
       title: '都道府県ゲーム',

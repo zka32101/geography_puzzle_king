@@ -1,3 +1,5 @@
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
+
 /// Stage 1-5 地理クイズ問題データ
 /// 各ステージ15問 × 5 = 60問
 /// s1q1 ～ s5q15 の形式
@@ -7,25 +9,29 @@ class StageQuestion {
   final String stageId; // s1, s2, etc.
   final int questionNumber; // 1-15
   final String region; // 北海道、東北、関東、近畿、九州
-  final String question;
-  final List<String> options;
+  final String _question;
+  String get question => tr(_question);
+  final List<String> _options;
+  List<String> get options => _options.map(tr).toList();
   final int correctIndex;
-  final String explanation; // 学習用：詳しい解説
+  final String _explanation;
+  String get explanation => tr(_explanation);
   final String difficulty; // easy, normal, hard
-  final List<String> keywords; // キーワード（学習支援）
+  final List<String> _keywords;
+  List<String> get keywords => _keywords.map(tr).toList();
 
   const StageQuestion({
     required this.id,
     required this.stageId,
     required this.questionNumber,
     required this.region,
-    required this.question,
-    required this.options,
+    required String question,
+    required List<String> options,
     required this.correctIndex,
-    required this.explanation,
+    required String explanation,
     required this.difficulty,
-    required this.keywords,
-  });
+    required List<String> keywords,
+  }) : _question = question, _options = options, _explanation = explanation, _keywords = keywords;
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

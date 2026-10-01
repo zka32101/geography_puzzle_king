@@ -255,7 +255,7 @@ class GameService {
         final rankingSvc = ref.read(rankingServiceProvider);
         await rankingSvc.submitPrefectureScore(
           prefectureCode: g.prefectureCode,
-          prefectureName: pref?.name ?? g.prefectureCode,
+          prefectureName: pref?.nameRaw ?? g.prefectureCode,
           uid: user.uid,
           score: finalScore,
         );

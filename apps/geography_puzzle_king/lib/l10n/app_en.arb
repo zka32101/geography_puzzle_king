@@ -755,5 +755,335 @@
         "type": "int"
       }
     }
+  },
+  "saidHistory": "\"The decisive battle of {name}! Protect history!\"",
+  "@saidHistory": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saidRegion": "\"The {name} region showdown! Give it everything!\"",
+  "@saidRegion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saidPref": "\"I'll protect {name}! Leave it to me!\"",
+  "@saidPref": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerHistoryBoss": "{emoji} {boss} descends!",
+  "@bannerHistoryBoss": {
+    "placeholders": {
+      "emoji": {
+        "type": "String"
+      },
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerHistoryFinal": "History Battle \"{name}\" – final showdown!",
+  "@bannerHistoryFinal": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerRegionBoss": "{emoji} {boss} appears!",
+  "@bannerRegionBoss": {
+    "placeholders": {
+      "emoji": {
+        "type": "String"
+      },
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerRegionFinal": "Region Battle \"{name}\" – final showdown!",
+  "@bannerRegionFinal": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerPrefBoss": "👹 {boss} appears!",
+  "@bannerPrefBoss": {
+    "placeholders": {
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerBossSkill": "Beware of the skill \"{skill}\"",
+  "@bannerBossSkill": {
+    "placeholders": {
+      "skill": {
+        "type": "String"
+      }
+    }
+  },
+  "waveRegionElite": "{emoji} Elite forces of {region} approach…",
+  "@waveRegionElite": {
+    "placeholders": {
+      "emoji": {
+        "type": "String"
+      },
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "waveGeoEnemy": "{icon} {geo} enemies approach…",
+  "@waveGeoEnemy": {
+    "placeholders": {
+      "icon": {
+        "type": "String"
+      },
+      "geo": {
+        "type": "String"
+      }
+    }
+  },
+  "saidWaveHistory": "\"Wave {wave}! The threats of history are coming!\"",
+  "@saidWaveHistory": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "saidWaveRegion": "\"Wave {wave} – the region's strongest enemy is coming!\"",
+  "@saidWaveRegion": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "saidWave": "\"Wave {wave}, here we go!\"",
+  "@saidWave": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "combo5": "🔥5 combo! +{bonus}🪙",
+  "@combo5": {
+    "placeholders": {
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "combo10": "💥10 combo!! +{bonus}🪙",
+  "@combo10": {
+    "placeholders": {
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "comboN": "⚡{count} combo!!! +{bonus}🪙",
+  "@comboN": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "cheerBonus": "Cheer +{bonus}🪙",
+  "@cheerBonus": {
+    "placeholders": {
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "saidSpecialtyPower": "\"{specialty} power, go!\"",
+  "@saidSpecialtyPower": {
+    "placeholders": {
+      "specialty": {
+        "type": "String"
+      }
+    }
+  },
+  "quizCapitalQuestion": "What is the capital of {name}?",
+  "@quizCapitalQuestion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "synergyBonus": "✨Synergy +{pct}%",
+  "@synergyBonus": {
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "resultSecretsTitle": "📚 Secrets of {name}",
+  "@resultSecretsTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "resultPopulationApprox": "About {man}0,000 people",
+  "@resultPopulationApprox": {
+    "placeholders": {
+      "man": {
+        "type": "int"
+      }
+    }
+  },
+  "resultTerrain": "{icon} Terrain",
+  "@resultTerrain": {
+    "placeholders": {
+      "icon": {
+        "type": "String"
+      }
+    }
+  },
+  "resultCompanionJoined": "{name} joined your team!",
+  "@resultCompanionJoined": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bossStoryRegion": "A battle for supremacy of the {region} region. {boss} stands in your way!",
+  "@bossStoryRegion": {
+    "placeholders": {
+      "region": {
+        "type": "String"
+      },
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "recordClearsCount": "{n} times",
+  "@recordClearsCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "recordPointsCount": "{n} pts",
+  "@recordPointsCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "dateYmd": "{y}/{m}/{d}",
+  "@dateYmd": {
+    "placeholders": {
+      "y": {
+        "type": "int"
+      },
+      "m": {
+        "type": "int"
+      },
+      "d": {
+        "type": "int"
+      }
+    }
+  },
+  "triviaCapital": "The capital of {name} is {capital}.",
+  "@triviaCapital": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "capital": {
+        "type": "String"
+      }
+    }
+  },
+  "triviaArea": "Its area is about {area} km² – a distinctive size even nationwide.",
+  "@triviaArea": {
+    "placeholders": {
+      "area": {
+        "type": "int"
+      }
+    }
+  },
+  "triviaPopulation": "About {man}0,000 people live here.",
+  "@triviaPopulation": {
+    "placeholders": {
+      "man": {
+        "type": "int"
+      }
+    }
+  },
+  "triviaSpecialty": "Its specialty \"{item}\" is especially famous.",
+  "@triviaSpecialty": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "triviaGeography": "The terrain is \"{geo}\" type, so the enemies match the land.",
+  "@triviaGeography": {
+    "placeholders": {
+      "geo": {
+        "type": "String"
+      }
+    }
+  },
+  "detailWithSpecialty": "Located in the {region} region, a prefecture known for its \"{geo}\" terrain. Famous for {items}, it bustles around its capital, {capital}.",
+  "@detailWithSpecialty": {
+    "placeholders": {
+      "region": {
+        "type": "String"
+      },
+      "geo": {
+        "type": "String"
+      },
+      "items": {
+        "type": "String"
+      },
+      "capital": {
+        "type": "String"
+      }
+    }
+  },
+  "detailNoSpecialty": "Located in the {region} region, a prefecture known for its \"{geo}\" terrain. Its capital is {capital}.",
+  "@detailNoSpecialty": {
+    "placeholders": {
+      "region": {
+        "type": "String"
+      },
+      "geo": {
+        "type": "String"
+      },
+      "capital": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -755,5 +755,335 @@
         "type": "int"
       }
     }
+  },
+  "saidHistory": "「{name}の決戦だ！歴史を守れ！」",
+  "@saidHistory": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saidRegion": "「{name}地方の決戦だ！全力で戦うぞ！」",
+  "@saidRegion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saidPref": "「{name}を守るぞ！ぼくにまかせて！」",
+  "@saidPref": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerHistoryBoss": "{emoji} {boss} 降臨！",
+  "@bannerHistoryBoss": {
+    "placeholders": {
+      "emoji": {
+        "type": "String"
+      },
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerHistoryFinal": "歴史決戦「{name}」最終決戦！",
+  "@bannerHistoryFinal": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerRegionBoss": "{emoji} {boss} 登場！",
+  "@bannerRegionBoss": {
+    "placeholders": {
+      "emoji": {
+        "type": "String"
+      },
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerRegionFinal": "地方決戦「{name}」最終決戦！",
+  "@bannerRegionFinal": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerPrefBoss": "👹 {boss} 登場！",
+  "@bannerPrefBoss": {
+    "placeholders": {
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerBossSkill": "スキル「{skill}」に警戒せよ",
+  "@bannerBossSkill": {
+    "placeholders": {
+      "skill": {
+        "type": "String"
+      }
+    }
+  },
+  "waveRegionElite": "{emoji} {region}地方の精鋭が迫る…",
+  "@waveRegionElite": {
+    "placeholders": {
+      "emoji": {
+        "type": "String"
+      },
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "waveGeoEnemy": "{icon} {geo}の敵が迫る…",
+  "@waveGeoEnemy": {
+    "placeholders": {
+      "icon": {
+        "type": "String"
+      },
+      "geo": {
+        "type": "String"
+      }
+    }
+  },
+  "saidWaveHistory": "「ウェーブ{wave}！歴史の脅威が押し寄せる！」",
+  "@saidWaveHistory": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "saidWaveRegion": "「ウェーブ{wave}、地方最強の敵が来るぞ！」",
+  "@saidWaveRegion": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "saidWave": "「ウェーブ{wave}、いくよ！」",
+  "@saidWave": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "combo5": "🔥5コンボ! +{bonus}🪙",
+  "@combo5": {
+    "placeholders": {
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "combo10": "💥10コンボ!! +{bonus}🪙",
+  "@combo10": {
+    "placeholders": {
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "comboN": "⚡{count}コンボ!!! +{bonus}🪙",
+  "@comboN": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "cheerBonus": "応援 +{bonus}🪙",
+  "@cheerBonus": {
+    "placeholders": {
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "saidSpecialtyPower": "「{specialty}パワー、いっけー！」",
+  "@saidSpecialtyPower": {
+    "placeholders": {
+      "specialty": {
+        "type": "String"
+      }
+    }
+  },
+  "quizCapitalQuestion": "{name}の県庁所在地は？",
+  "@quizCapitalQuestion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "synergyBonus": "✨シナジー +{pct}%",
+  "@synergyBonus": {
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "resultSecretsTitle": "📚 {name} のひみつ",
+  "@resultSecretsTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "resultPopulationApprox": "約 {man} 万人",
+  "@resultPopulationApprox": {
+    "placeholders": {
+      "man": {
+        "type": "int"
+      }
+    }
+  },
+  "resultTerrain": "{icon} 地形",
+  "@resultTerrain": {
+    "placeholders": {
+      "icon": {
+        "type": "String"
+      }
+    }
+  },
+  "resultCompanionJoined": "{name} が仲間になった！",
+  "@resultCompanionJoined": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bossStoryRegion": "{region}地方の覇権を賭けた戦い。{boss}が立ちはだかる！",
+  "@bossStoryRegion": {
+    "placeholders": {
+      "region": {
+        "type": "String"
+      },
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "recordClearsCount": "{n}回",
+  "@recordClearsCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "recordPointsCount": "{n}点",
+  "@recordPointsCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "dateYmd": "{y}年{m}月{d}日",
+  "@dateYmd": {
+    "placeholders": {
+      "y": {
+        "type": "int"
+      },
+      "m": {
+        "type": "int"
+      },
+      "d": {
+        "type": "int"
+      }
+    }
+  },
+  "triviaCapital": "{name}の県庁所在地は{capital}だよ。",
+  "@triviaCapital": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "capital": {
+        "type": "String"
+      }
+    }
+  },
+  "triviaArea": "面積は約{area}km²。全国でも特徴的な広さなんだ。",
+  "@triviaArea": {
+    "placeholders": {
+      "area": {
+        "type": "int"
+      }
+    }
+  },
+  "triviaPopulation": "人口は約{man}万人が暮らしているよ。",
+  "@triviaPopulation": {
+    "placeholders": {
+      "man": {
+        "type": "int"
+      }
+    }
+  },
+  "triviaSpecialty": "名産品の「{item}」がとくに有名なんだ。",
+  "@triviaSpecialty": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "triviaGeography": "地形は「{geo}」タイプ。だから敵もその土地らしいんだ。",
+  "@triviaGeography": {
+    "placeholders": {
+      "geo": {
+        "type": "String"
+      }
+    }
+  },
+  "detailWithSpecialty": "{region}地方に位置する「{geo}」タイプの地形が特徴の県。名産品は{items}などが知られていて、県庁所在地の{capital}を中心ににぎわっているよ。",
+  "@detailWithSpecialty": {
+    "placeholders": {
+      "region": {
+        "type": "String"
+      },
+      "geo": {
+        "type": "String"
+      },
+      "items": {
+        "type": "String"
+      },
+      "capital": {
+        "type": "String"
+      }
+    }
+  },
+  "detailNoSpecialty": "{region}地方に位置する「{geo}」タイプの地形が特徴の県。県庁所在地は{capital}だよ。",
+  "@detailNoSpecialty": {
+    "placeholders": {
+      "region": {
+        "type": "String"
+      },
+      "geo": {
+        "type": "String"
+      },
+      "capital": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
 
 class TutorialService {
   final SharedPreferences prefs;
@@ -49,7 +50,7 @@ class TutorialStep {
   final String? imagePath;
   final TutorialAction action;
 
-  const TutorialStep({
+  TutorialStep({
     required this.step,
     required this.title,
     required this.description,
@@ -57,40 +58,40 @@ class TutorialStep {
     required this.action,
   });
 
-  static const steps = [
+  static List<TutorialStep> get steps => [
     // Step 1: ようこそ
     TutorialStep(
       step: 1,
-      title: 'ようこそ！',
-      description: '地理パズル王へようこそ！\n47都道府県を舞台にしたタワーディフェンスゲームです。',
+      title: tr('ようこそ！'),
+      description: tr('地理パズル王へようこそ！\n47都道府県を舞台にしたタワーディフェンスゲームです。'),
       action: TutorialAction.welcome,
     ),
     // Step 2: 県選択
     TutorialStep(
       step: 2,
-      title: '県を選んでゲーム開始',
-      description: '「ゲーム開始」から好きな県を選択します。\n県ごとに異なるボスキャラが待っています！',
+      title: tr('県を選んでゲーム開始'),
+      description: tr('「ゲーム開始」から好きな県を選択します。\n県ごとに異なるボスキャラが待っています！'),
       action: TutorialAction.selectPrefecture,
     ),
     // Step 3: 難易度選択
     TutorialStep(
       step: 3,
-      title: '難易度を選択',
-      description: 'Easy（簡単）、Normal（普通）、Hard（難しい）\nから好きな難易度を選びます。',
+      title: tr('難易度を選択'),
+      description: tr('Easy（簡単）、Normal（普通）、Hard（難しい）\nから好きな難易度を選びます。'),
       action: TutorialAction.selectDifficulty,
     ),
     // Step 4: ゲームプレイ
     TutorialStep(
       step: 4,
-      title: 'ゲームをプレイ',
-      description: '敵が来る前に施設を配置して、敵を倒します。\nすべての波をクリアするとゲーム勝利です！',
+      title: tr('ゲームをプレイ'),
+      description: tr('敵が来る前に施設を配置して、敵を倒します。\nすべての波をクリアするとゲーム勝利です！'),
       action: TutorialAction.playGame,
     ),
     // Step 5: ランキング
     TutorialStep(
       step: 5,
-      title: 'ランキングで競おう',
-      description: '「ランキング」でプレイヤー同士のスコアを比較。\nあなたの実力を試してください！',
+      title: tr('ランキングで競おう'),
+      description: tr('「ランキング」でプレイヤー同士のスコアを比較。\nあなたの実力を試してください！'),
       action: TutorialAction.checkRanking,
     ),
   ];
