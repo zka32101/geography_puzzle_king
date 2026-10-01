@@ -4,6 +4,7 @@ import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/models/prefecture_record.dart';
 import 'package:geography_puzzle_king/providers/prefecture_records_provider.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
+import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 import 'japan_map_widget.dart';
 import 'prefecture_detail.dart';
@@ -22,6 +23,7 @@ class TerritoryScreen extends ConsumerWidget {
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
+      bottomNavigationBar: const BannerAdBar(),
       body: recordsAsync.when(
         data: (records) => _buildContent(context, records, ref),
         loading: () => Container(

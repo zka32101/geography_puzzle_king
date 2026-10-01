@@ -6,8 +6,12 @@ import 'package:geography_puzzle_king/providers/monetization_provider.dart';
 import 'package:geography_puzzle_king/providers/localization_provider.dart';
 import 'package:geography_puzzle_king/services/audio_service.dart';
 import 'package:geography_puzzle_king/config/legal_content.dart';
+import 'package:geography_puzzle_king/providers/auth_provider.dart';
+import 'package:geography_puzzle_king/screens/settings/how_to_play_screen.dart';
 import 'package:geography_puzzle_king/screens/settings/legal_text_screen.dart';
 import 'package:geography_puzzle_king/screens/settings/premium_plan_screen.dart';
+import 'package:geography_puzzle_king/utils/prefecture_data.dart';
+import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -73,6 +77,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             title: l10n.playerName,
                             subtitle: playerName,
                             onTap: _showPlayerNameDialog,
+                          ),
+                          _buildHometownTile(),
+                        ],
+                      ),
+                      // 遊び方
+                      _buildSection(
+                        title: l10n.howToPlaySettingsTile,
+                        children: [
+                          _buildSettingTile(
+                            icon: Icons.menu_book,
+                            title: l10n.howToPlaySettingsTile,
+                            subtitle: l10n.howToPlaySettingsSubtitle,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => const HowToPlayScreen()),
+                              );
+                            },
                             showDivider: false,
                           ),
                         ],
@@ -268,6 +289,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: const BannerAdBar(),
     );
   }
 
@@ -311,16 +333,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  // NOTE: このタイルの文言は日本語ハードコード。l10n化は別途対応すること。
   Widget _buildPremiumPlanTile() {
+    final l10n = AppLocalizations.of(context)!;
     final isPremium = ref.watch(premiumPlanProvider);
     return _tileShell(
       icon: Icons.workspace_premium,
       iconColor: isPremium ? AppColors.success : AppColors.primary,
-      title: isPremium ? 'プレミアム（購入済み）' : 'プレミアム（買い切り\$3）',
-      subtitle: isPremium
-          ? '広告非表示・全コンテンツ解放が有効です'
-          : '広告を消して、全都道府県・全ステージを解放',
+      title: isPremium ? l10n.premiumPlanTitlePurchased : l10n.premiumPlanTitle,
+      subtitle: isPremium ? l10n.premiumPlanSubtitlePurchased : l10n.premiumPlanSubtitle,
       trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
       onTap: () {
         Navigator.of(context).push(
@@ -331,12 +351,59 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  // NOTE: 文言は日本語ハードコード（プレミアム画面と同様）。l10n化は別途。
+  // 都道府県対抗ランキング用の出身地選択。未設定の間はスコアを集計できない
+  // （result_screen.dart 参照）ため、ここで選んでもらう。
+  Widget _buildHometownTile() {
+    final l10n = AppLocalizations.of(context)!;
+    final user = ref.watch(currentUserProvider);
+    final hometown = user == null ? null : getPrefectureByCode(user.hometownCode);
+    return _buildSettingTile(
+      icon: Icons.flag,
+      title: l10n.hometownLabel,
+      subtitle: hometown?.name ?? l10n.hometownNotSet,
+      onTap: _showHometownPicker,
+      showDivider: false,
+    );
+  }
+
+  void _showHometownPicker() {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        expand: false,
+        builder: (context, scrollController) => ListView.builder(
+          controller: scrollController,
+          itemCount: allPrefectures.length,
+          itemBuilder: (context, index) {
+            final pref = allPrefectures[index];
+            return ListTile(
+              title: Text(pref.name),
+              trailing: pref.code == user.hometownCode
+                  ? const Icon(Icons.check, color: AppColors.primary)
+                  : null,
+              onTap: () {
+                ref.read(authServiceProvider).updateUser(
+                      user.copyWith(hometownCode: pref.code),
+                    );
+                Navigator.pop(context);
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   Widget _buildRestoreTile() {
+    final l10n = AppLocalizations.of(context)!;
     return _tileShell(
       icon: Icons.restore,
-      title: '購入の復元',
-      subtitle: '機種変更・再インストール後に購入済みの内容を復元します',
+      title: l10n.restorePurchases,
+      subtitle: l10n.restorePurchasesSubtitle,
       showDivider: false,
       onTap: () async {
         final service = ref.read(purchaseServiceProvider);
@@ -344,7 +411,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         await service.restorePurchases();
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('購入情報を確認しています…')),
+          SnackBar(content: Text(l10n.restorePurchasesChecking)),
         );
       },
     );

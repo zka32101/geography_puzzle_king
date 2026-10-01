@@ -260,7 +260,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get changePlayerName => 'Change Player Name';
 
   @override
-  String get personalInfoWarning => 'Please don\'t enter personal information (real name, address, etc.). It may be shown to other players.';
+  String get personalInfoWarning =>
+      'Please don\'t enter personal information (real name, address, etc.). It may be shown to other players.';
 
   @override
   String get save => 'Save';
@@ -382,7 +383,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String hoursMinutesFormat(int hours, int minutes) {
-    return '$hoursh $minutesm';
+    return '${hours}h ${minutes}m';
   }
 
   @override
@@ -396,6 +397,128 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get achievementsTitle => 'Achievements';
+
+  @override
+  String get defeatedBossLabel => 'Defeated Boss: ';
+
+  @override
+  String bossStoryAppears(String bossName) {
+    return '$bossName appears!';
+  }
+
+  @override
+  String get bossStoryFightButton => 'Fight!';
+
+  @override
+  String get howToPlayTitle => 'How to Play';
+
+  @override
+  String get howToPlayStep1Title => 'Choose a Prefecture';
+
+  @override
+  String get howToPlayStep1Description =>
+      'Pick a prefecture on the map you want to challenge and prepare to deploy.';
+
+  @override
+  String get howToPlayStep2Title => 'Build Facilities to Defend';
+
+  @override
+  String get howToPlayStep2Description =>
+      'Spend coins to build facilities around the path and stop the enemy advance.';
+
+  @override
+  String get howToPlayStep3Title => 'Defeat the Boss';
+
+  @override
+  String get howToPlayStep3Description =>
+      'Each prefecture has a boss symbolizing its region. Survive every wave and take it down.';
+
+  @override
+  String get howToPlayStep4Title => 'Score & Ranking';
+
+  @override
+  String get howToPlayStep4Description =>
+      'Your score depends on clear time and mistakes. Compete with players nationwide on the ranking screen.';
+
+  @override
+  String get howToPlayStep5Title => 'Look Back in the Pokedex';
+
+  @override
+  String get howToPlayStep5Description =>
+      'Cleared prefectures are recorded in the Pokedex, where you can also review defeated bosses and achievements.';
+
+  @override
+  String get howToPlaySettingsTile => 'How to Play';
+
+  @override
+  String get howToPlaySettingsSubtitle => 'Review the basic rules of the game';
+
+  @override
+  String get premiumPlanTitle => 'Premium';
+
+  @override
+  String get premiumPlanTitlePurchased => 'Premium (Purchased)';
+
+  @override
+  String get premiumPlanSubtitle =>
+      'Remove ads and unlock all prefectures and stages';
+
+  @override
+  String get premiumPlanSubtitlePurchased =>
+      'Ads removed and all content unlocked';
+
+  @override
+  String get premiumPlanBenefitsHeading => 'Premium Benefits';
+
+  @override
+  String get premiumPlanBenefitAdsFreeTitle => 'No Ads at All';
+
+  @override
+  String get premiumPlanBenefitAdsFreeDescription =>
+      'Banner and interstitial ads during play and on the result screen will no longer appear.';
+
+  @override
+  String get premiumPlanBenefitMapUnlockTitle => 'Unlock All Prefectures';
+
+  @override
+  String get premiumPlanBenefitMapUnlockDescription =>
+      'All 47 prefectures, regional battles, and historical battles become playable anytime.';
+
+  @override
+  String get premiumPlanBenefitFutureTitle =>
+      'One-time purchase, no extra fees';
+
+  @override
+  String get premiumPlanBenefitFutureDescription =>
+      'Buy once and keep it forever. Future premium content is included.';
+
+  @override
+  String premiumPlanDescriptionNote(int count) {
+    return 'The free version shows ads and lets you play the first $count prefectures. Premium is a single purchase — no subscription.';
+  }
+
+  @override
+  String get premiumPlanPurchasedMessage =>
+      'You have Premium. Thank you for your purchase!';
+
+  @override
+  String get premiumPlanPriceLabel => 'Price';
+
+  @override
+  String get premiumPlanBuyButton => 'Buy Premium (one-time)';
+
+  @override
+  String get hometownLabel => 'Home Prefecture (for prefecture ranking)';
+
+  @override
+  String get hometownNotSet => 'Not set';
+
+  @override
+  String get rankingEmptyGlobal =>
+      'No ranking data yet. Clear a stage and be the first on the leaderboard!';
+
+  @override
+  String get rankingEmptyPrefecture => 'No ranking data yet.';
 
   @override
   String get kanaLabel => 'Kana: ';
@@ -459,13 +582,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hqTrackHpTitle => '🏯 Wall Fortification';
 
   @override
-  String get hqTrackAttackDescription => 'Permanently increases all facility damage';
+  String get hqTrackAttackDescription =>
+      'Permanently increases all facility damage';
 
   @override
-  String get hqTrackCoinDescription => 'Permanently increases coins earned per kill';
+  String get hqTrackCoinDescription =>
+      'Permanently increases coins earned per kill';
 
   @override
-  String get hqTrackHpDescription => 'Permanently increases starting HP for all stages';
+  String get hqTrackHpDescription =>
+      'Permanently increases starting HP for all stages';
 
   @override
   String get selectPrefectureTitle => 'Select Prefecture';
@@ -497,7 +623,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legendDifficulty => 'Difficulty';
 
   @override
-  String get regionUnlockHint => 'Clear every prefecture in a region at any difficulty to unlock it';
+  String get regionUnlockHint =>
+      'Clear every prefecture in a region at any difficulty to unlock it';
 
   @override
   String bossLabel(String name) {
@@ -524,7 +651,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String bossSkillLabel(String skill) {
-    return 'Skill: "$skill"';
+    return 'Skill: \"$skill\"';
   }
 
   @override
@@ -539,13 +666,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startRegionBattleButton => 'Start Region Battle';
 
   @override
-  String get historyUnlockedBanner => '🏆 National Hard Conquest Complete! History Battles Unlocked!';
+  String get historyUnlockedBanner =>
+      '🏆 National Hard Conquest Complete! History Battles Unlocked!';
 
   @override
   String get postgameSectionLabel => '⚔️ Post-Game Content';
 
   @override
-  String get historyUnlockHint => 'Clear all 47 prefectures on Hard difficulty to unlock\n"Age of the Gods"';
+  String get historyUnlockHint =>
+      'Clear all 47 prefectures on Hard difficulty to unlock\n\"Age of the Gods\"';
 
   @override
   String hardClearedProgress(int count) {
@@ -561,10 +690,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get historyLockReason1 => 'Unlocks after clearing all prefectures on Hard';
+  String get historyLockReason1 =>
+      'Unlocks after clearing all prefectures on Hard';
 
   @override
-  String get historyLockReason2 => 'Unlocks after clearing the previous history stage';
+  String get historyLockReason2 =>
+      'Unlocks after clearing the previous history stage';
 
   @override
   String get historyConqueredBanner => 'History Battle Conquered!';
@@ -602,7 +733,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String bossStatsLine(int hp, int attack, String skill) {
-    return 'HP $hp / ATK $attack / Skill: "$skill"';
+    return 'HP $hp / ATK $attack / Skill: \"$skill\"';
   }
 
   @override
@@ -635,10 +766,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get facilityDescDairyFarm => 'Dairy farm that slows enemies by -20%';
 
   @override
-  String get facilityDescAlpineWatch => 'Long-range watchtower that also slows enemies';
+  String get facilityDescAlpineWatch =>
+      'Long-range watchtower that also slows enemies';
 
   @override
-  String get facilityDescToyotaFactory => 'Rapid attacks plus bonus coin generation';
+  String get facilityDescToyotaFactory =>
+      'Rapid attacks plus bonus coin generation';
 
   @override
   String get facilityDescKiyomizuTemple => '+40% damage dealt to enemies';
@@ -656,28 +789,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get facilityDescUdonShop => 'Very low cost, rapid attack speed';
 
   @override
-  String get facilityDescDefault => 'Special facility exclusive to this prefecture';
+  String get facilityDescDefault =>
+      'Special facility exclusive to this prefecture';
 
   @override
   String get searchByPrefNameHint => 'Search by prefecture name';
 
   @override
-  String get difficultyDescriptionEasy => 'Weaker, slower enemies\nMore hearts, longer breaks\nGreat for beginners & kids';
+  String get difficultyDescriptionEasy =>
+      'Weaker, slower enemies\nMore hearts, longer breaks\nGreat for beginners & kids';
 
   @override
-  String get difficultyDescriptionNormal => 'Standard difficulty\nPlan your placement to win';
+  String get difficultyDescriptionNormal =>
+      'Standard difficulty\nPlan your placement to win';
 
   @override
-  String get difficultyDescriptionHard => 'Enemy HP +30%, faster\nWaves +2, fewer hearts\nScore ×1.5';
+  String get difficultyDescriptionHard =>
+      'Enemy HP +30%, faster\nWaves +2, fewer hearts\nScore ×1.5';
 
   @override
   String minSecFormat(int m, int s) {
-    return '$mm $ss';
+    return '${m}m ${s}s';
   }
 
   @override
   String secFormat(int s) {
-    return '$ss';
+    return '${s}s';
   }
 
   @override
@@ -735,7 +872,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get historyMasterAchievedBanner => '🏆 Full Completion! Certified as Guardian of History!';
+  String get historyMasterAchievedBanner =>
+      '🏆 Full Completion! Certified as Guardian of History!';
 
   @override
   String get retryButton => 'Retry';
@@ -784,7 +922,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectWaveSkillButton => 'Select Wave Skill';
 
   @override
-  String get effectAppliesNextWaveHint => 'The effect applies from the next wave';
+  String get effectAppliesNextWaveHint =>
+      'The effect applies from the next wave';
 
   @override
   String get statAttack => 'Attack';
@@ -814,7 +953,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quitConfirmTitle => 'Quit Battle?';
 
   @override
-  String get quitConfirmBody => 'Quit this battle and return to the top screen?';
+  String get quitConfirmBody =>
+      'Quit this battle and return to the top screen?';
 
   @override
   String get continueButton => 'Continue';
@@ -835,7 +975,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String secondsUntilNextWave(int seconds) {
-    return 'Next wave in $secondss';
+    return 'Next wave in ${seconds}s';
   }
 
   @override
@@ -874,7 +1014,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ultimateButtonLabel => 'Ultimate: Territory Defense';
 
   @override
-  String get placeFacilitiesHint => 'Place facilities and\npress "Start!"';
+  String get placeFacilitiesHint => 'Place facilities and\npress \"Start!\"';
 
   @override
   String clearedOfTotal(int cleared, int total) {
@@ -1069,4 +1209,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get prefectureName47 => 'Okinawa';
 
+  @override
+  String get restorePurchases => 'Restore Purchases';
+
+  @override
+  String get restorePurchasesSubtitle =>
+      'Restore your purchases after switching devices or reinstalling';
+
+  @override
+  String get restorePurchasesChecking => 'Checking your purchases…';
+
+  @override
+  String get premiumStoreError =>
+      'Could not connect to the store. Please try again later.';
+
+  @override
+  String get premiumStoreNotReady =>
+      '* Purchasing becomes available once the store listing is set up.';
 }

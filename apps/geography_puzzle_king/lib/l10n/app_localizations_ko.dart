@@ -260,7 +260,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get changePlayerName => '플레이어 이름 변경';
 
   @override
-  String get personalInfoWarning => '개인정보(실명, 주소 등)는 입력하지 마세요. 다른 플레이어에게 표시될 수 있습니다.';
+  String get personalInfoWarning =>
+      '개인정보(실명, 주소 등)는 입력하지 마세요. 다른 플레이어에게 표시될 수 있습니다.';
 
   @override
   String get save => '저장';
@@ -396,6 +397,121 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get achievementsTitle => '업적';
+
+  @override
+  String get defeatedBossLabel => '물리친 보스: ';
+
+  @override
+  String bossStoryAppears(String bossName) {
+    return '$bossName 등장!';
+  }
+
+  @override
+  String get bossStoryFightButton => '전투!';
+
+  @override
+  String get howToPlayTitle => '게임 방법';
+
+  @override
+  String get howToPlayStep1Title => '도도부현을 선택하자';
+
+  @override
+  String get howToPlayStep1Description => '지도에서 도전하고 싶은 도도부현을 선택하고 출격을 준비하자.';
+
+  @override
+  String get howToPlayStep2Title => '시설을 배치해 방어하자';
+
+  @override
+  String get howToPlayStep2Description => '코인을 사용해 길 주변에 시설을 지어 적의 진격을 막자.';
+
+  @override
+  String get howToPlayStep3Title => '보스를 물리치자';
+
+  @override
+  String get howToPlayStep3Description =>
+      '각 도도부현에는 그 지역을 상징하는 보스가 등장한다. 모든 웨이브를 막아내고 보스를 물리치자.';
+
+  @override
+  String get howToPlayStep4Title => '점수와 랭킹';
+
+  @override
+  String get howToPlayStep4Description =>
+      '클리어 시간과 실수 횟수에 따라 점수가 정해진다. 랭킹 화면에서 전국 플레이어와 경쟁해보자.';
+
+  @override
+  String get howToPlayStep5Title => '도감에서 돌아보자';
+
+  @override
+  String get howToPlayStep5Description =>
+      '클리어한 도도부현은 도감에 기록된다. 물리친 보스와 업적도 확인할 수 있다.';
+
+  @override
+  String get howToPlaySettingsTile => '게임 방법';
+
+  @override
+  String get howToPlaySettingsSubtitle => '게임의 기본 규칙을 확인한다';
+
+  @override
+  String get premiumPlanTitle => '프리미엄';
+
+  @override
+  String get premiumPlanTitlePurchased => '프리미엄 (구매 완료)';
+
+  @override
+  String get premiumPlanSubtitle => '광고 제거 + 모든 도도부현·스테이지 해제';
+
+  @override
+  String get premiumPlanSubtitlePurchased => '광고 제거 및 전체 콘텐츠 해제가 적용 중입니다';
+
+  @override
+  String get premiumPlanBenefitsHeading => '프리미엄 혜택';
+
+  @override
+  String get premiumPlanBenefitAdsFreeTitle => '광고 완전 비표시';
+
+  @override
+  String get premiumPlanBenefitAdsFreeDescription =>
+      '플레이 중・결과 화면의 배너 광고・전면 광고가 표시되지 않습니다.';
+
+  @override
+  String get premiumPlanBenefitMapUnlockTitle => '전체 도도부현 맵 해금';
+
+  @override
+  String get premiumPlanBenefitMapUnlockDescription =>
+      '47개 도도부현 전체・지방 결전・역사 결전 스테이지를 언제든지 플레이할 수 있습니다.';
+
+  @override
+  String get premiumPlanBenefitFutureTitle => '1회 구매, 추가 요금 없음';
+
+  @override
+  String get premiumPlanBenefitFutureDescription =>
+      '한 번 구매하면 계속 사용할 수 있으며, 앞으로 추가되는 프리미엄 콘텐츠도 이용할 수 있습니다.';
+
+  @override
+  String premiumPlanDescriptionNote(int count) {
+    return '무료 버전은 광고가 표시되며 처음 $count개 현까지 플레이할 수 있습니다. 프리미엄은 1회 구매로 계속 사용합니다(구독 아님).';
+  }
+
+  @override
+  String get premiumPlanPurchasedMessage => '프리미엄을 구매하셨습니다. 감사합니다!';
+
+  @override
+  String get premiumPlanPriceLabel => '가격';
+
+  @override
+  String get premiumPlanBuyButton => '프리미엄 구매 (1회 결제)';
+
+  @override
+  String get hometownLabel => '출신지(도도부현 대항 랭킹용)';
+
+  @override
+  String get hometownNotSet => '미설정';
+
+  @override
+  String get rankingEmptyGlobal => '아직 랭킹 데이터가 없습니다. 게임을 클리어하고 첫 번째 랭커가 되어보세요!';
+
+  @override
+  String get rankingEmptyPrefecture => '아직 랭킹 데이터가 없습니다.';
 
   @override
   String get kanaLabel => '가나: ';
@@ -662,7 +778,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get searchByPrefNameHint => '현 이름으로 검색';
 
   @override
-  String get difficultyDescriptionEasy => '적이 약하고 느림\n하트 많음・휴식 길게\n초보자・어린이에게 추천';
+  String get difficultyDescriptionEasy =>
+      '적이 약하고 느림\n하트 많음・휴식 길게\n초보자・어린이에게 추천';
 
   @override
   String get difficultyDescriptionNormal => '표준 난이도\n배치를 잘 생각하면 클리어';
@@ -1069,4 +1186,18 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get prefectureName47 => '오키나와현';
 
+  @override
+  String get restorePurchases => '구매 복원';
+
+  @override
+  String get restorePurchasesSubtitle => '기기 변경·재설치 후 구매 내역을 복원합니다';
+
+  @override
+  String get restorePurchasesChecking => '구매 정보를 확인하는 중…';
+
+  @override
+  String get premiumStoreError => '스토어에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get premiumStoreNotReady => '※스토어 상품 등록이 완료되면 구매할 수 있습니다.';
 }

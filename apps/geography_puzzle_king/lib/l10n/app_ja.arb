@@ -188,6 +188,48 @@
   "statTotalGamesPlayed": "総プレイ回数",
   "clearsByDifficultyLabel": "難度別クリア数",
   "achievementsTitle": "実績",
+  "defeatedBossLabel": "撃破したボス: ",
+  "bossStoryAppears": "{bossName} 現る！",
+  "@bossStoryAppears": {
+    "placeholders": {
+      "bossName": {
+        "type": "String"
+      }
+    }
+  },
+  "bossStoryFightButton": "たたかう！",
+  "howToPlayTitle": "遊び方",
+  "howToPlayStep1Title": "都道府県を選ぼう",
+  "howToPlayStep1Description": "マップから挑戦したい都道府県を選んで出撃準備をしよう。",
+  "howToPlayStep2Title": "施設を配置して防衛しよう",
+  "howToPlayStep2Description": "コインを使って道の周りに施設を建てて、敵の侵攻を防ごう。",
+  "howToPlayStep3Title": "ボスを倒そう",
+  "howToPlayStep3Description": "各都道府県にはその土地を象徴するボスが登場する。すべての波を防ぎきってボスを撃破しよう。",
+  "howToPlayStep4Title": "スコアとランキング",
+  "howToPlayStep4Description": "クリアタイム・ミス回数に応じてスコアが決まる。ランキング画面で全国のプレイヤーと競い合おう。",
+  "howToPlayStep5Title": "図鑑でふりかえろう",
+  "howToPlayStep5Description": "クリアした都道府県は図鑑に記録される。倒したボスや実績も確認できるよ。",
+  "howToPlaySettingsTile": "遊び方",
+  "howToPlaySettingsSubtitle": "ゲームの基本ルールを確認する",
+  "premiumPlanTitle": "プレミアム",
+  "premiumPlanTitlePurchased": "プレミアム（購入済み）",
+  "premiumPlanSubtitle": "広告を消して、全都道府県・全ステージを解放",
+  "premiumPlanSubtitlePurchased": "広告非表示・全コンテンツ解放が有効です",
+  "premiumPlanBenefitsHeading": "プレミアムの特典",
+  "premiumPlanBenefitAdsFreeTitle": "広告完全非表示",
+  "premiumPlanBenefitAdsFreeDescription": "プレイ中・結果画面のバナー広告・インタースティシャル広告が表示されなくなります。",
+  "premiumPlanBenefitMapUnlockTitle": "全都道府県マップ解放",
+  "premiumPlanBenefitMapUnlockDescription": "47都道府県すべて・地方決戦・歴史決戦ステージがいつでもプレイ可能になります。",
+  "premiumPlanBenefitFutureTitle": "買い切り・追加料金なし",
+  "premiumPlanBenefitFutureDescription": "一度購入すればずっと有効。今後追加されるプレミアム向けコンテンツも利用できます。",
+  "premiumPlanDescriptionNote": "無料版は広告つきで最初の{count}県まで遊べます。プレミアムは一度の購入で、ずっと使えます（月額・更新なし）。",
+  "premiumPlanPurchasedMessage": "プレミアム購入済みです。ご購入ありがとうございます！",
+  "premiumPlanPriceLabel": "価格",
+  "premiumPlanBuyButton": "プレミアムを購入する（買い切り）",
+  "hometownLabel": "出身地（都道府県対抗ランキング用）",
+  "hometownNotSet": "未設定",
+  "rankingEmptyGlobal": "まだランキングデータがありません。ゲームをクリアして最初のランカーになろう！",
+  "rankingEmptyPrefecture": "まだランキングデータがありません。",
   "kanaLabel": "かな: ",
   "capitalCityLabel": "県庁: ",
   "populationLabel": "人口: 約{population}人",
@@ -701,5 +743,17 @@
   "prefectureName44": "大分県",
   "prefectureName45": "宮崎県",
   "prefectureName46": "鹿児島県",
-  "prefectureName47": "沖縄県"
+  "prefectureName47": "沖縄県",
+  "restorePurchases": "購入の復元",
+  "restorePurchasesSubtitle": "機種変更・再インストール後に購入済みの内容を復元します",
+  "restorePurchasesChecking": "購入情報を確認しています…",
+  "premiumStoreError": "ストアに接続できませんでした。時間をおいて再度お試しください。",
+  "premiumStoreNotReady": "※ストア側での商品登録が完了すると購入できるようになります。",
+  "@premiumPlanDescriptionNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

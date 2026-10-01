@@ -260,7 +260,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get changePlayerName => 'プレイヤー名を変更';
 
   @override
-  String get personalInfoWarning => '個人を特定する情報（本名、住所など）は入力しないでください。他のプレイヤーに表示される可能性があります。';
+  String get personalInfoWarning =>
+      '個人を特定する情報（本名、住所など）は入力しないでください。他のプレイヤーに表示される可能性があります。';
 
   @override
   String get save => '保存';
@@ -396,6 +397,120 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get achievementsTitle => '実績';
+
+  @override
+  String get defeatedBossLabel => '撃破したボス: ';
+
+  @override
+  String bossStoryAppears(String bossName) {
+    return '$bossName 現る！';
+  }
+
+  @override
+  String get bossStoryFightButton => 'たたかう！';
+
+  @override
+  String get howToPlayTitle => '遊び方';
+
+  @override
+  String get howToPlayStep1Title => '都道府県を選ぼう';
+
+  @override
+  String get howToPlayStep1Description => 'マップから挑戦したい都道府県を選んで出撃準備をしよう。';
+
+  @override
+  String get howToPlayStep2Title => '施設を配置して防衛しよう';
+
+  @override
+  String get howToPlayStep2Description => 'コインを使って道の周りに施設を建てて、敵の侵攻を防ごう。';
+
+  @override
+  String get howToPlayStep3Title => 'ボスを倒そう';
+
+  @override
+  String get howToPlayStep3Description =>
+      '各都道府県にはその土地を象徴するボスが登場する。すべての波を防ぎきってボスを撃破しよう。';
+
+  @override
+  String get howToPlayStep4Title => 'スコアとランキング';
+
+  @override
+  String get howToPlayStep4Description =>
+      'クリアタイム・ミス回数に応じてスコアが決まる。ランキング画面で全国のプレイヤーと競い合おう。';
+
+  @override
+  String get howToPlayStep5Title => '図鑑でふりかえろう';
+
+  @override
+  String get howToPlayStep5Description => 'クリアした都道府県は図鑑に記録される。倒したボスや実績も確認できるよ。';
+
+  @override
+  String get howToPlaySettingsTile => '遊び方';
+
+  @override
+  String get howToPlaySettingsSubtitle => 'ゲームの基本ルールを確認する';
+
+  @override
+  String get premiumPlanTitle => 'プレミアム';
+
+  @override
+  String get premiumPlanTitlePurchased => 'プレミアム（購入済み）';
+
+  @override
+  String get premiumPlanSubtitle => '広告を消して、全都道府県・全ステージを解放';
+
+  @override
+  String get premiumPlanSubtitlePurchased => '広告非表示・全コンテンツ解放が有効です';
+
+  @override
+  String get premiumPlanBenefitsHeading => 'プレミアムの特典';
+
+  @override
+  String get premiumPlanBenefitAdsFreeTitle => '広告完全非表示';
+
+  @override
+  String get premiumPlanBenefitAdsFreeDescription =>
+      'プレイ中・結果画面のバナー広告・インタースティシャル広告が表示されなくなります。';
+
+  @override
+  String get premiumPlanBenefitMapUnlockTitle => '全都道府県マップ解放';
+
+  @override
+  String get premiumPlanBenefitMapUnlockDescription =>
+      '47都道府県すべて・地方決戦・歴史決戦ステージがいつでもプレイ可能になります。';
+
+  @override
+  String get premiumPlanBenefitFutureTitle => '買い切り・追加料金なし';
+
+  @override
+  String get premiumPlanBenefitFutureDescription =>
+      '一度購入すればずっと有効。今後追加されるプレミアム向けコンテンツも利用できます。';
+
+  @override
+  String premiumPlanDescriptionNote(int count) {
+    return '無料版は広告つきで最初の$count県まで遊べます。プレミアムは一度の購入で、ずっと使えます（月額・更新なし）。';
+  }
+
+  @override
+  String get premiumPlanPurchasedMessage => 'プレミアム購入済みです。ご購入ありがとうございます！';
+
+  @override
+  String get premiumPlanPriceLabel => '価格';
+
+  @override
+  String get premiumPlanBuyButton => 'プレミアムを購入する（買い切り）';
+
+  @override
+  String get hometownLabel => '出身地（都道府県対抗ランキング用）';
+
+  @override
+  String get hometownNotSet => '未設定';
+
+  @override
+  String get rankingEmptyGlobal => 'まだランキングデータがありません。ゲームをクリアして最初のランカーになろう！';
+
+  @override
+  String get rankingEmptyPrefecture => 'まだランキングデータがありません。';
 
   @override
   String get kanaLabel => 'かな: ';
@@ -662,7 +777,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get searchByPrefNameHint => '県名で検索';
 
   @override
-  String get difficultyDescriptionEasy => '敵が弱くてゆっくり\nハート多め・休憩長め\nはじめての人・小さい子向け';
+  String get difficultyDescriptionEasy =>
+      '敵が弱くてゆっくり\nハート多め・休憩長め\nはじめての人・小さい子向け';
 
   @override
   String get difficultyDescriptionNormal => '標準の難しさ\n置き方を考えればクリア';
@@ -1069,4 +1185,18 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get prefectureName47 => '沖縄県';
 
+  @override
+  String get restorePurchases => '購入の復元';
+
+  @override
+  String get restorePurchasesSubtitle => '機種変更・再インストール後に購入済みの内容を復元します';
+
+  @override
+  String get restorePurchasesChecking => '購入情報を確認しています…';
+
+  @override
+  String get premiumStoreError => 'ストアに接続できませんでした。時間をおいて再度お試しください。';
+
+  @override
+  String get premiumStoreNotReady => '※ストア側での商品登録が完了すると購入できるようになります。';
 }
