@@ -11,7 +11,7 @@ import 'package:geography_puzzle_king/providers/game_provider.dart' show sharedP
 import 'package:geography_puzzle_king/providers/localization_provider.dart';
 import 'package:geography_puzzle_king/providers/monetization_provider.dart';
 import 'package:geography_puzzle_king/services/ad_service.dart';
-import 'package:geography_puzzle_king/services/purchase_service.dart' show kRemoveAdsProductId, kUnlockMapProductId;
+import 'package:geography_puzzle_king/services/purchase_service.dart' show kRemoveAdsProductId, kUnlockMapProductId, kPremiumPlanProductId;
 import 'package:geography_puzzle_king/screens/auth/splash_screen.dart';
 import 'package:geography_puzzle_king/screens/auth/login_screen.dart';
 import 'package:geography_puzzle_king/screens/home/home_screen.dart';
@@ -61,6 +61,11 @@ void main() async {
           if (productId == kRemoveAdsProductId) {
             container.read(adsRemovedProvider.notifier).markPurchased();
           } else if (productId == kUnlockMapProductId) {
+            container.read(mapUnlockedProvider.notifier).markPurchased();
+          } else if (productId == kPremiumPlanProductId) {
+            // プレミアム（買い切り）: 広告削除＋全解放を即時反映。
+            container.read(premiumPlanProvider.notifier).markPurchased();
+            container.read(adsRemovedProvider.notifier).markPurchased();
             container.read(mapUnlockedProvider.notifier).markPurchased();
           }
         },

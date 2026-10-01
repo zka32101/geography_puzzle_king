@@ -289,7 +289,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String stageLockedBody(int count) {
-    return '仅前$count个都道府县可免费游玩。\n购买“解锁全部都道府县”即可游玩全部47个。';
+    return '仅前$count个都道府县可免费游玩。\n购买高级版（一次性买断）即可游玩全部47个并去除广告。';
   }
 
   @override
@@ -448,19 +448,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get howToPlaySettingsSubtitle => '查看游戏的基本规则';
 
   @override
-  String get premiumPlanTitle => '高级方案';
+  String get premiumPlanTitle => '高级版';
 
   @override
-  String get premiumPlanTitlePurchased => '高级方案（已购买）';
+  String get premiumPlanTitlePurchased => '高级版（已购买）';
 
   @override
-  String get premiumPlanSubtitle => '去广告＋地图解锁一次搞定，更划算';
+  String get premiumPlanSubtitle => '去除广告并解锁全部都道府县与关卡';
 
   @override
-  String get premiumPlanSubtitlePurchased => '已隐藏广告并解锁全部地图';
+  String get premiumPlanSubtitlePurchased => '已去除广告并解锁全部内容';
 
   @override
-  String get premiumPlanBenefitsHeading => '高级方案特典';
+  String get premiumPlanBenefitsHeading => '高级版特典';
 
   @override
   String get premiumPlanBenefitAdsFreeTitle => '完全隐藏广告';
@@ -476,22 +476,24 @@ class AppLocalizationsZh extends AppLocalizations {
       '全部47个都道府县、地方对决、历史对决关卡随时可玩。';
 
   @override
-  String get premiumPlanBenefitFutureTitle => '今后的追加特典';
+  String get premiumPlanBenefitFutureTitle => '一次购买，无额外费用';
 
   @override
-  String get premiumPlanBenefitFutureDescription => '今后追加的高级限定内容与功能也可依次使用。';
+  String get premiumPlanBenefitFutureDescription => '一次购买永久有效，今后新增的高级内容也可使用。';
 
   @override
-  String get premiumPlanDescriptionNote => '比单独购买去广告和地图解锁更划算的组合方案。';
+  String premiumPlanDescriptionNote(int count) {
+    return '免费版含广告，可游玩前$count个县。高级版一次购买即可永久使用（非订阅）。';
+  }
 
   @override
-  String get premiumPlanPurchasedMessage => '您已购买高级方案，感谢您的购买！';
+  String get premiumPlanPurchasedMessage => '您已购买高级版，感谢支持！';
 
   @override
   String get premiumPlanPriceLabel => '价格';
 
   @override
-  String get premiumPlanBuyButton => '购买高级方案';
+  String get premiumPlanBuyButton => '购买高级版（一次性）';
 
   @override
   String get hometownLabel => '出身地（用于都道府县对抗排行榜）';
@@ -1176,4 +1178,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get prefectureName47 => '冲绳县';
+
+  @override
+  String get restorePurchases => '恢复购买';
+
+  @override
+  String get restorePurchasesSubtitle => '更换设备或重新安装后恢复已购买内容';
+
+  @override
+  String get restorePurchasesChecking => '正在确认购买信息…';
+
+  @override
+  String get premiumStoreError => '无法连接商店，请稍后再试。';
+
+  @override
+  String get premiumStoreNotReady => '※商店商品登记完成后即可购买。';
 }

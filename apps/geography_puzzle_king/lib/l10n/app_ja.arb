@@ -104,7 +104,7 @@
     }
   },
   "stageLockedTitle": "🔒 この都道府県はロック中",
-  "stageLockedBody": "無料でプレイできるのは最初の{count}都道府県までです。\n「全都道府県マップを解放」を購入すると全47都道府県がプレイできます。",
+  "stageLockedBody": "無料でプレイできるのは最初の{count}都道府県までです。\n「プレミアム」（買い切り）を購入すると、全47都道府県が遊べて広告も消えます。",
   "@stageLockedBody": {
     "placeholders": {
       "count": {
@@ -211,21 +211,21 @@
   "howToPlayStep5Description": "クリアした都道府県は図鑑に記録される。倒したボスや実績も確認できるよ。",
   "howToPlaySettingsTile": "遊び方",
   "howToPlaySettingsSubtitle": "ゲームの基本ルールを確認する",
-  "premiumPlanTitle": "プレミアムプラン",
-  "premiumPlanTitlePurchased": "プレミアムプラン（購入済み）",
-  "premiumPlanSubtitle": "広告除去＋マップ解放がまとめてお得に",
-  "premiumPlanSubtitlePurchased": "広告非表示・全マップ解放が有効です",
-  "premiumPlanBenefitsHeading": "プレミアムプランの特典",
+  "premiumPlanTitle": "プレミアム",
+  "premiumPlanTitlePurchased": "プレミアム（購入済み）",
+  "premiumPlanSubtitle": "広告を消して、全都道府県・全ステージを解放",
+  "premiumPlanSubtitlePurchased": "広告非表示・全コンテンツ解放が有効です",
+  "premiumPlanBenefitsHeading": "プレミアムの特典",
   "premiumPlanBenefitAdsFreeTitle": "広告完全非表示",
   "premiumPlanBenefitAdsFreeDescription": "プレイ中・結果画面のバナー広告・インタースティシャル広告が表示されなくなります。",
   "premiumPlanBenefitMapUnlockTitle": "全都道府県マップ解放",
   "premiumPlanBenefitMapUnlockDescription": "47都道府県すべて・地方決戦・歴史決戦ステージがいつでもプレイ可能になります。",
-  "premiumPlanBenefitFutureTitle": "今後の追加特典",
-  "premiumPlanBenefitFutureDescription": "今後追加されるプレミアム限定コンテンツ・機能も順次利用できます。",
-  "premiumPlanDescriptionNote": "広告除去・マップ解放を個別に購入するよりお得な統合プランです。",
-  "premiumPlanPurchasedMessage": "プレミアムプラン購入済みです。ご購入ありがとうございます！",
+  "premiumPlanBenefitFutureTitle": "買い切り・追加料金なし",
+  "premiumPlanBenefitFutureDescription": "一度購入すればずっと有効。今後追加されるプレミアム向けコンテンツも利用できます。",
+  "premiumPlanDescriptionNote": "無料版は広告つきで最初の{count}県まで遊べます。プレミアムは一度の購入で、ずっと使えます（月額・更新なし）。",
+  "premiumPlanPurchasedMessage": "プレミアム購入済みです。ご購入ありがとうございます！",
   "premiumPlanPriceLabel": "価格",
-  "premiumPlanBuyButton": "プレミアムプランを購入する",
+  "premiumPlanBuyButton": "プレミアムを購入する（買い切り）",
   "hometownLabel": "出身地（都道府県対抗ランキング用）",
   "hometownNotSet": "未設定",
   "rankingEmptyGlobal": "まだランキングデータがありません。ゲームをクリアして最初のランカーになろう！",
@@ -743,5 +743,17 @@
   "prefectureName44": "大分県",
   "prefectureName45": "宮崎県",
   "prefectureName46": "鹿児島県",
-  "prefectureName47": "沖縄県"
+  "prefectureName47": "沖縄県",
+  "restorePurchases": "購入の復元",
+  "restorePurchasesSubtitle": "機種変更・再インストール後に購入済みの内容を復元します",
+  "restorePurchasesChecking": "購入情報を確認しています…",
+  "premiumStoreError": "ストアに接続できませんでした。時間をおいて再度お試しください。",
+  "premiumStoreNotReady": "※ストア側での商品登録が完了すると購入できるようになります。",
+  "@premiumPlanDescriptionNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

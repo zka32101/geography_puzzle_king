@@ -104,7 +104,7 @@
     }
   },
   "stageLockedTitle": "🔒 This Prefecture Is Locked",
-  "stageLockedBody": "Only the first {count} prefectures are free to play.\nPurchase \"Unlock All Prefectures\" to play all 47.",
+  "stageLockedBody": "Only the first {count} prefectures are free to play.\nGet Premium (one-time purchase) to play all 47 and remove ads.",
   "@stageLockedBody": {
     "placeholders": {
       "count": {
@@ -211,21 +211,21 @@
   "howToPlayStep5Description": "Cleared prefectures are recorded in the Pokedex, where you can also review defeated bosses and achievements.",
   "howToPlaySettingsTile": "How to Play",
   "howToPlaySettingsSubtitle": "Review the basic rules of the game",
-  "premiumPlanTitle": "Premium Plan",
-  "premiumPlanTitlePurchased": "Premium Plan (Purchased)",
-  "premiumPlanSubtitle": "Remove ads and unlock the full map together for less",
-  "premiumPlanSubtitlePurchased": "Ads hidden and the full map is unlocked",
-  "premiumPlanBenefitsHeading": "Premium Plan Benefits",
+  "premiumPlanTitle": "Premium",
+  "premiumPlanTitlePurchased": "Premium (Purchased)",
+  "premiumPlanSubtitle": "Remove ads and unlock all prefectures and stages",
+  "premiumPlanSubtitlePurchased": "Ads removed and all content unlocked",
+  "premiumPlanBenefitsHeading": "Premium Benefits",
   "premiumPlanBenefitAdsFreeTitle": "No Ads at All",
   "premiumPlanBenefitAdsFreeDescription": "Banner and interstitial ads during play and on the result screen will no longer appear.",
   "premiumPlanBenefitMapUnlockTitle": "Unlock All Prefectures",
   "premiumPlanBenefitMapUnlockDescription": "All 47 prefectures, regional battles, and historical battles become playable anytime.",
-  "premiumPlanBenefitFutureTitle": "Future Bonus Content",
-  "premiumPlanBenefitFutureDescription": "You'll also get access to premium-only content and features added in the future.",
-  "premiumPlanDescriptionNote": "A bundled plan that's cheaper than buying ad removal and map unlock separately.",
-  "premiumPlanPurchasedMessage": "You already own the Premium Plan. Thank you for your purchase!",
+  "premiumPlanBenefitFutureTitle": "One-time purchase, no extra fees",
+  "premiumPlanBenefitFutureDescription": "Buy once and keep it forever. Future premium content is included.",
+  "premiumPlanDescriptionNote": "The free version shows ads and lets you play the first {count} prefectures. Premium is a single purchase — no subscription.",
+  "premiumPlanPurchasedMessage": "You have Premium. Thank you for your purchase!",
   "premiumPlanPriceLabel": "Price",
-  "premiumPlanBuyButton": "Buy Premium Plan",
+  "premiumPlanBuyButton": "Buy Premium (one-time)",
   "hometownLabel": "Home Prefecture (for prefecture ranking)",
   "hometownNotSet": "Not set",
   "rankingEmptyGlobal": "No ranking data yet. Clear a stage and be the first on the leaderboard!",
@@ -743,5 +743,17 @@
   "prefectureName44": "Oita",
   "prefectureName45": "Miyazaki",
   "prefectureName46": "Kagoshima",
-  "prefectureName47": "Okinawa"
+  "prefectureName47": "Okinawa",
+  "restorePurchases": "Restore Purchases",
+  "restorePurchasesSubtitle": "Restore your purchases after switching devices or reinstalling",
+  "restorePurchasesChecking": "Checking your purchases…",
+  "premiumStoreError": "Could not connect to the store. Please try again later.",
+  "premiumStoreNotReady": "* Purchasing becomes available once the store listing is set up.",
+  "@premiumPlanDescriptionNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -290,7 +290,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String stageLockedBody(int count) {
-    return 'Only the first $count prefectures are free to play.\nPurchase \"Unlock All Prefectures\" to play all 47.';
+    return 'Only the first $count prefectures are free to play.\nGet Premium (one-time purchase) to play all 47 and remove ads.';
   }
 
   @override
@@ -454,21 +454,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get howToPlaySettingsSubtitle => 'Review the basic rules of the game';
 
   @override
-  String get premiumPlanTitle => 'Premium Plan';
+  String get premiumPlanTitle => 'Premium';
 
   @override
-  String get premiumPlanTitlePurchased => 'Premium Plan (Purchased)';
+  String get premiumPlanTitlePurchased => 'Premium (Purchased)';
 
   @override
   String get premiumPlanSubtitle =>
-      'Remove ads and unlock the full map together for less';
+      'Remove ads and unlock all prefectures and stages';
 
   @override
   String get premiumPlanSubtitlePurchased =>
-      'Ads hidden and the full map is unlocked';
+      'Ads removed and all content unlocked';
 
   @override
-  String get premiumPlanBenefitsHeading => 'Premium Plan Benefits';
+  String get premiumPlanBenefitsHeading => 'Premium Benefits';
 
   @override
   String get premiumPlanBenefitAdsFreeTitle => 'No Ads at All';
@@ -485,25 +485,27 @@ class AppLocalizationsEn extends AppLocalizations {
       'All 47 prefectures, regional battles, and historical battles become playable anytime.';
 
   @override
-  String get premiumPlanBenefitFutureTitle => 'Future Bonus Content';
+  String get premiumPlanBenefitFutureTitle =>
+      'One-time purchase, no extra fees';
 
   @override
   String get premiumPlanBenefitFutureDescription =>
-      'You\'ll also get access to premium-only content and features added in the future.';
+      'Buy once and keep it forever. Future premium content is included.';
 
   @override
-  String get premiumPlanDescriptionNote =>
-      'A bundled plan that\'s cheaper than buying ad removal and map unlock separately.';
+  String premiumPlanDescriptionNote(int count) {
+    return 'The free version shows ads and lets you play the first $count prefectures. Premium is a single purchase — no subscription.';
+  }
 
   @override
   String get premiumPlanPurchasedMessage =>
-      'You already own the Premium Plan. Thank you for your purchase!';
+      'You have Premium. Thank you for your purchase!';
 
   @override
   String get premiumPlanPriceLabel => 'Price';
 
   @override
-  String get premiumPlanBuyButton => 'Buy Premium Plan';
+  String get premiumPlanBuyButton => 'Buy Premium (one-time)';
 
   @override
   String get hometownLabel => 'Home Prefecture (for prefecture ranking)';
@@ -1206,4 +1208,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prefectureName47 => 'Okinawa';
+
+  @override
+  String get restorePurchases => 'Restore Purchases';
+
+  @override
+  String get restorePurchasesSubtitle =>
+      'Restore your purchases after switching devices or reinstalling';
+
+  @override
+  String get restorePurchasesChecking => 'Checking your purchases…';
+
+  @override
+  String get premiumStoreError =>
+      'Could not connect to the store. Please try again later.';
+
+  @override
+  String get premiumStoreNotReady =>
+      '* Purchasing becomes available once the store listing is set up.';
 }

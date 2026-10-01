@@ -111,7 +111,7 @@
     }
   },
   "stageLockedTitle": "🔒 이 도도부현은 잠겨 있습니다",
-  "stageLockedBody": "무료로 플레이할 수 있는 것은 처음 {count}개 도도부현까지입니다.\n“전체 도도부현 잠금 해제”를 구매하면 47개 전부 플레이할 수 있습니다.",
+  "stageLockedBody": "무료로 플레이할 수 있는 것은 처음 {count}개 도도부현까지입니다.\n프리미엄(1회 구매)을 구매하면 47개 전부 플레이하고 광고도 사라집니다.",
   "@stageLockedBody": {
     "placeholders": {
       "count": {
@@ -218,21 +218,21 @@
   "howToPlayStep5Description": "클리어한 도도부현은 도감에 기록된다. 물리친 보스와 업적도 확인할 수 있다.",
   "howToPlaySettingsTile": "게임 방법",
   "howToPlaySettingsSubtitle": "게임의 기본 규칙을 확인한다",
-  "premiumPlanTitle": "프리미엄 플랜",
-  "premiumPlanTitlePurchased": "프리미엄 플랜(구매 완료)",
-  "premiumPlanSubtitle": "광고 제거＋맵 해금을 한 번에 저렴하게",
-  "premiumPlanSubtitlePurchased": "광고 비표시・전체 맵 해금이 적용되어 있습니다",
-  "premiumPlanBenefitsHeading": "프리미엄 플랜 혜택",
+  "premiumPlanTitle": "프리미엄",
+  "premiumPlanTitlePurchased": "프리미엄 (구매 완료)",
+  "premiumPlanSubtitle": "광고 제거 + 모든 도도부현·스테이지 해제",
+  "premiumPlanSubtitlePurchased": "광고 제거 및 전체 콘텐츠 해제가 적용 중입니다",
+  "premiumPlanBenefitsHeading": "프리미엄 혜택",
   "premiumPlanBenefitAdsFreeTitle": "광고 완전 비표시",
   "premiumPlanBenefitAdsFreeDescription": "플레이 중・결과 화면의 배너 광고・전면 광고가 표시되지 않습니다.",
   "premiumPlanBenefitMapUnlockTitle": "전체 도도부현 맵 해금",
   "premiumPlanBenefitMapUnlockDescription": "47개 도도부현 전체・지방 결전・역사 결전 스테이지를 언제든지 플레이할 수 있습니다.",
-  "premiumPlanBenefitFutureTitle": "향후 추가 혜택",
-  "premiumPlanBenefitFutureDescription": "앞으로 추가되는 프리미엄 전용 콘텐츠・기능도 순차적으로 이용할 수 있습니다.",
-  "premiumPlanDescriptionNote": "광고 제거・맵 해금을 각각 구매하는 것보다 저렴한 통합 플랜입니다.",
-  "premiumPlanPurchasedMessage": "프리미엄 플랜을 이미 구매하셨습니다. 구매해 주셔서 감사합니다!",
+  "premiumPlanBenefitFutureTitle": "1회 구매, 추가 요금 없음",
+  "premiumPlanBenefitFutureDescription": "한 번 구매하면 계속 사용할 수 있으며, 앞으로 추가되는 프리미엄 콘텐츠도 이용할 수 있습니다.",
+  "premiumPlanDescriptionNote": "무료 버전은 광고가 표시되며 처음 {count}개 현까지 플레이할 수 있습니다. 프리미엄은 1회 구매로 계속 사용합니다(구독 아님).",
+  "premiumPlanPurchasedMessage": "프리미엄을 구매하셨습니다. 감사합니다!",
   "premiumPlanPriceLabel": "가격",
-  "premiumPlanBuyButton": "프리미엄 플랜 구매하기",
+  "premiumPlanBuyButton": "프리미엄 구매 (1회 결제)",
   "hometownLabel": "출신지(도도부현 대항 랭킹용)",
   "hometownNotSet": "미설정",
   "rankingEmptyGlobal": "아직 랭킹 데이터가 없습니다. 게임을 클리어하고 첫 번째 랭커가 되어보세요!",
@@ -737,5 +737,17 @@
   "prefectureName44": "오이타현",
   "prefectureName45": "미야자키현",
   "prefectureName46": "가고시마현",
-  "prefectureName47": "오키나와현"
+  "prefectureName47": "오키나와현",
+  "restorePurchases": "구매 복원",
+  "restorePurchasesSubtitle": "기기 변경·재설치 후 구매 내역을 복원합니다",
+  "restorePurchasesChecking": "구매 정보를 확인하는 중…",
+  "premiumStoreError": "스토어에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.",
+  "premiumStoreNotReady": "※스토어 상품 등록이 완료되면 구매할 수 있습니다.",
+  "@premiumPlanDescriptionNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

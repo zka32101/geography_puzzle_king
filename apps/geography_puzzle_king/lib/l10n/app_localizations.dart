@@ -651,7 +651,7 @@ abstract class AppLocalizations {
   /// No description provided for @stageLockedBody.
   ///
   /// In ja, this message translates to:
-  /// **'無料でプレイできるのは最初の{count}都道府県までです。\n「全都道府県マップを解放」を購入すると全47都道府県がプレイできます。'**
+  /// **'無料でプレイできるのは最初の{count}都道府県までです。\n「プレミアム」（買い切り）を購入すると、全47都道府県が遊べて広告も消えます。'**
   String stageLockedBody(int count);
 
   /// No description provided for @goToPurchaseButton.
@@ -939,31 +939,31 @@ abstract class AppLocalizations {
   /// No description provided for @premiumPlanTitle.
   ///
   /// In ja, this message translates to:
-  /// **'プレミアムプラン'**
+  /// **'プレミアム'**
   String get premiumPlanTitle;
 
   /// No description provided for @premiumPlanTitlePurchased.
   ///
   /// In ja, this message translates to:
-  /// **'プレミアムプラン（購入済み）'**
+  /// **'プレミアム（購入済み）'**
   String get premiumPlanTitlePurchased;
 
   /// No description provided for @premiumPlanSubtitle.
   ///
   /// In ja, this message translates to:
-  /// **'広告除去＋マップ解放がまとめてお得に'**
+  /// **'広告を消して、全都道府県・全ステージを解放'**
   String get premiumPlanSubtitle;
 
   /// No description provided for @premiumPlanSubtitlePurchased.
   ///
   /// In ja, this message translates to:
-  /// **'広告非表示・全マップ解放が有効です'**
+  /// **'広告非表示・全コンテンツ解放が有効です'**
   String get premiumPlanSubtitlePurchased;
 
   /// No description provided for @premiumPlanBenefitsHeading.
   ///
   /// In ja, this message translates to:
-  /// **'プレミアムプランの特典'**
+  /// **'プレミアムの特典'**
   String get premiumPlanBenefitsHeading;
 
   /// No description provided for @premiumPlanBenefitAdsFreeTitle.
@@ -993,25 +993,25 @@ abstract class AppLocalizations {
   /// No description provided for @premiumPlanBenefitFutureTitle.
   ///
   /// In ja, this message translates to:
-  /// **'今後の追加特典'**
+  /// **'買い切り・追加料金なし'**
   String get premiumPlanBenefitFutureTitle;
 
   /// No description provided for @premiumPlanBenefitFutureDescription.
   ///
   /// In ja, this message translates to:
-  /// **'今後追加されるプレミアム限定コンテンツ・機能も順次利用できます。'**
+  /// **'一度購入すればずっと有効。今後追加されるプレミアム向けコンテンツも利用できます。'**
   String get premiumPlanBenefitFutureDescription;
 
   /// No description provided for @premiumPlanDescriptionNote.
   ///
   /// In ja, this message translates to:
-  /// **'広告除去・マップ解放を個別に購入するよりお得な統合プランです。'**
-  String get premiumPlanDescriptionNote;
+  /// **'無料版は広告つきで最初の{count}県まで遊べます。プレミアムは一度の購入で、ずっと使えます（月額・更新なし）。'**
+  String premiumPlanDescriptionNote(int count);
 
   /// No description provided for @premiumPlanPurchasedMessage.
   ///
   /// In ja, this message translates to:
-  /// **'プレミアムプラン購入済みです。ご購入ありがとうございます！'**
+  /// **'プレミアム購入済みです。ご購入ありがとうございます！'**
   String get premiumPlanPurchasedMessage;
 
   /// No description provided for @premiumPlanPriceLabel.
@@ -1023,7 +1023,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumPlanBuyButton.
   ///
   /// In ja, this message translates to:
-  /// **'プレミアムプランを購入する'**
+  /// **'プレミアムを購入する（買い切り）'**
   String get premiumPlanBuyButton;
 
   /// No description provided for @hometownLabel.
@@ -2237,6 +2237,36 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'沖縄県'**
   String get prefectureName47;
+
+  /// No description provided for @restorePurchases.
+  ///
+  /// In ja, this message translates to:
+  /// **'購入の復元'**
+  String get restorePurchases;
+
+  /// No description provided for @restorePurchasesSubtitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'機種変更・再インストール後に購入済みの内容を復元します'**
+  String get restorePurchasesSubtitle;
+
+  /// No description provided for @restorePurchasesChecking.
+  ///
+  /// In ja, this message translates to:
+  /// **'購入情報を確認しています…'**
+  String get restorePurchasesChecking;
+
+  /// No description provided for @premiumStoreError.
+  ///
+  /// In ja, this message translates to:
+  /// **'ストアに接続できませんでした。時間をおいて再度お試しください。'**
+  String get premiumStoreError;
+
+  /// No description provided for @premiumStoreNotReady.
+  ///
+  /// In ja, this message translates to:
+  /// **'※ストア側での商品登録が完了すると購入できるようになります。'**
+  String get premiumStoreNotReady;
 }
 
 class _AppLocalizationsDelegate

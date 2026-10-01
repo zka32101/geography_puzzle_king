@@ -290,7 +290,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String stageLockedBody(int count) {
-    return '무료로 플레이할 수 있는 것은 처음 $count개 도도부현까지입니다.\n“전체 도도부현 잠금 해제”를 구매하면 47개 전부 플레이할 수 있습니다.';
+    return '무료로 플레이할 수 있는 것은 처음 $count개 도도부현까지입니다.\n프리미엄(1회 구매)을 구매하면 47개 전부 플레이하고 광고도 사라집니다.';
   }
 
   @override
@@ -452,19 +452,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get howToPlaySettingsSubtitle => '게임의 기본 규칙을 확인한다';
 
   @override
-  String get premiumPlanTitle => '프리미엄 플랜';
+  String get premiumPlanTitle => '프리미엄';
 
   @override
-  String get premiumPlanTitlePurchased => '프리미엄 플랜(구매 완료)';
+  String get premiumPlanTitlePurchased => '프리미엄 (구매 완료)';
 
   @override
-  String get premiumPlanSubtitle => '광고 제거＋맵 해금을 한 번에 저렴하게';
+  String get premiumPlanSubtitle => '광고 제거 + 모든 도도부현·스테이지 해제';
 
   @override
-  String get premiumPlanSubtitlePurchased => '광고 비표시・전체 맵 해금이 적용되어 있습니다';
+  String get premiumPlanSubtitlePurchased => '광고 제거 및 전체 콘텐츠 해제가 적용 중입니다';
 
   @override
-  String get premiumPlanBenefitsHeading => '프리미엄 플랜 혜택';
+  String get premiumPlanBenefitsHeading => '프리미엄 혜택';
 
   @override
   String get premiumPlanBenefitAdsFreeTitle => '광고 완전 비표시';
@@ -481,25 +481,25 @@ class AppLocalizationsKo extends AppLocalizations {
       '47개 도도부현 전체・지방 결전・역사 결전 스테이지를 언제든지 플레이할 수 있습니다.';
 
   @override
-  String get premiumPlanBenefitFutureTitle => '향후 추가 혜택';
+  String get premiumPlanBenefitFutureTitle => '1회 구매, 추가 요금 없음';
 
   @override
   String get premiumPlanBenefitFutureDescription =>
-      '앞으로 추가되는 프리미엄 전용 콘텐츠・기능도 순차적으로 이용할 수 있습니다.';
+      '한 번 구매하면 계속 사용할 수 있으며, 앞으로 추가되는 프리미엄 콘텐츠도 이용할 수 있습니다.';
 
   @override
-  String get premiumPlanDescriptionNote =>
-      '광고 제거・맵 해금을 각각 구매하는 것보다 저렴한 통합 플랜입니다.';
+  String premiumPlanDescriptionNote(int count) {
+    return '무료 버전은 광고가 표시되며 처음 $count개 현까지 플레이할 수 있습니다. 프리미엄은 1회 구매로 계속 사용합니다(구독 아님).';
+  }
 
   @override
-  String get premiumPlanPurchasedMessage =>
-      '프리미엄 플랜을 이미 구매하셨습니다. 구매해 주셔서 감사합니다!';
+  String get premiumPlanPurchasedMessage => '프리미엄을 구매하셨습니다. 감사합니다!';
 
   @override
   String get premiumPlanPriceLabel => '가격';
 
   @override
-  String get premiumPlanBuyButton => '프리미엄 플랜 구매하기';
+  String get premiumPlanBuyButton => '프리미엄 구매 (1회 결제)';
 
   @override
   String get hometownLabel => '출신지(도도부현 대항 랭킹용)';
@@ -1185,4 +1185,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get prefectureName47 => '오키나와현';
+
+  @override
+  String get restorePurchases => '구매 복원';
+
+  @override
+  String get restorePurchasesSubtitle => '기기 변경·재설치 후 구매 내역을 복원합니다';
+
+  @override
+  String get restorePurchasesChecking => '구매 정보를 확인하는 중…';
+
+  @override
+  String get premiumStoreError => '스토어에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get premiumStoreNotReady => '※스토어 상품 등록이 완료되면 구매할 수 있습니다.';
 }

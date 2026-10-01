@@ -290,7 +290,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String stageLockedBody(int count) {
-    return '無料でプレイできるのは最初の$count都道府県までです。\n「全都道府県マップを解放」を購入すると全47都道府県がプレイできます。';
+    return '無料でプレイできるのは最初の$count都道府県までです。\n「プレミアム」（買い切り）を購入すると、全47都道府県が遊べて広告も消えます。';
   }
 
   @override
@@ -451,19 +451,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get howToPlaySettingsSubtitle => 'ゲームの基本ルールを確認する';
 
   @override
-  String get premiumPlanTitle => 'プレミアムプラン';
+  String get premiumPlanTitle => 'プレミアム';
 
   @override
-  String get premiumPlanTitlePurchased => 'プレミアムプラン（購入済み）';
+  String get premiumPlanTitlePurchased => 'プレミアム（購入済み）';
 
   @override
-  String get premiumPlanSubtitle => '広告除去＋マップ解放がまとめてお得に';
+  String get premiumPlanSubtitle => '広告を消して、全都道府県・全ステージを解放';
 
   @override
-  String get premiumPlanSubtitlePurchased => '広告非表示・全マップ解放が有効です';
+  String get premiumPlanSubtitlePurchased => '広告非表示・全コンテンツ解放が有効です';
 
   @override
-  String get premiumPlanBenefitsHeading => 'プレミアムプランの特典';
+  String get premiumPlanBenefitsHeading => 'プレミアムの特典';
 
   @override
   String get premiumPlanBenefitAdsFreeTitle => '広告完全非表示';
@@ -480,23 +480,25 @@ class AppLocalizationsJa extends AppLocalizations {
       '47都道府県すべて・地方決戦・歴史決戦ステージがいつでもプレイ可能になります。';
 
   @override
-  String get premiumPlanBenefitFutureTitle => '今後の追加特典';
+  String get premiumPlanBenefitFutureTitle => '買い切り・追加料金なし';
 
   @override
   String get premiumPlanBenefitFutureDescription =>
-      '今後追加されるプレミアム限定コンテンツ・機能も順次利用できます。';
+      '一度購入すればずっと有効。今後追加されるプレミアム向けコンテンツも利用できます。';
 
   @override
-  String get premiumPlanDescriptionNote => '広告除去・マップ解放を個別に購入するよりお得な統合プランです。';
+  String premiumPlanDescriptionNote(int count) {
+    return '無料版は広告つきで最初の$count県まで遊べます。プレミアムは一度の購入で、ずっと使えます（月額・更新なし）。';
+  }
 
   @override
-  String get premiumPlanPurchasedMessage => 'プレミアムプラン購入済みです。ご購入ありがとうございます！';
+  String get premiumPlanPurchasedMessage => 'プレミアム購入済みです。ご購入ありがとうございます！';
 
   @override
   String get premiumPlanPriceLabel => '価格';
 
   @override
-  String get premiumPlanBuyButton => 'プレミアムプランを購入する';
+  String get premiumPlanBuyButton => 'プレミアムを購入する（買い切り）';
 
   @override
   String get hometownLabel => '出身地（都道府県対抗ランキング用）';
@@ -1182,4 +1184,19 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get prefectureName47 => '沖縄県';
+
+  @override
+  String get restorePurchases => '購入の復元';
+
+  @override
+  String get restorePurchasesSubtitle => '機種変更・再インストール後に購入済みの内容を復元します';
+
+  @override
+  String get restorePurchasesChecking => '購入情報を確認しています…';
+
+  @override
+  String get premiumStoreError => 'ストアに接続できませんでした。時間をおいて再度お試しください。';
+
+  @override
+  String get premiumStoreNotReady => '※ストア側での商品登録が完了すると購入できるようになります。';
 }
