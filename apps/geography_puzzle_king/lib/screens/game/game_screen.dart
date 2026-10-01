@@ -1387,8 +1387,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
               children: [
                 Row(
                   children: [
-                    Text(current.type.emoji,
-                        style: const TextStyle(fontSize: 32)),
+                    _facilityIcon(current.type, 40),
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1887,6 +1886,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 ..._buildEnemyImageLayers(cellSize, fieldW, fieldH),
                 // 施設の画像レイヤー
                 ..._buildFacilityImageLayers(cellSize, fieldW, fieldH),
+                // 配置プレビューの画像
+                if (validPreview != null) _buildPreviewImageLayer(validPreview, cellSize),
               ],
             ),
           ),
@@ -2539,6 +2540,23 @@ class _GameScreenState extends ConsumerState<GameScreen>
       );
     }
     return layers;
+  }
+
+  /// 配置プレビュー用の施設画像（盤面に置かれたときと同じ画像を半透明で重ねる）。
+  Widget _buildPreviewImageLayer(GridPos pos, double cellSize) {
+    final size = cellSize * 0.7;
+    return Positioned(
+      left: (pos.col + 0.5) * cellSize - size / 2,
+      top: (pos.row + 0.5) * cellSize - size / 2,
+      width: size,
+      height: size,
+      child: IgnorePointer(
+        child: Opacity(
+          opacity: 0.85,
+          child: _facilityIcon(_selectedFacility, size),
+        ),
+      ),
+    );
   }
 
   String _enemyTypeEmoji(EnemyType type) {
@@ -3237,8 +3255,7 @@ class _GameFieldPainter extends CustomPainter {
       cellSize * 0.42,
       Paint()..color = fColor.withOpacity(0.45),
     );
-    _drawText(canvas, selectedFacility.emoji, Offset(cx, cy),
-        cellSize * 0.65);
+    // 施設アイコン本体は画像のため、ウィジェット層（_buildPreviewImageLayer）で描く。
   }
 
   // ─── 施設シナジー線 ──────────────────────────────────────────────────
