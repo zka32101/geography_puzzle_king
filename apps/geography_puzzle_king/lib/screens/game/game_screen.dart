@@ -1864,6 +1864,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   _buildBackgroundImage(widget.regionCode),
                 // ゲームフィールド
                 CustomPaint(
+                  size: Size(fieldW, fieldH),
                   painter: _GameFieldPainter(
                     state: _gameState,
                     cellSize: cellSize,
