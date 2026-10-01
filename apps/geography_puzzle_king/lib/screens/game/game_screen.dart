@@ -3462,8 +3462,11 @@ class _GameFieldPainter extends CustomPainter {
 
   void _drawOverlay(Canvas canvas, Size size) {
     if (state.phase == GamePhase.prep) {
+      // CustomPaint に size 指定が無く（Stack が制約を緩める）size が 0 になるため、
+      // 盤面の実寸（セルサイズ × 列/行数）を基準に中央配置する。
+      final fieldSize = Size(cellSize * TdEngine.cols, cellSize * TdEngine.rows);
       _drawCenteredText(
-          canvas, size, placeFacilitiesHint,
+          canvas, fieldSize, placeFacilitiesHint,
           Colors.white54, 13);
     }
     // victory / defeat は ResultScreen へ遷移するので不要
