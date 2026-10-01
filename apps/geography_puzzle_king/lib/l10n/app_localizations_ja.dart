@@ -260,7 +260,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get changePlayerName => 'プレイヤー名を変更';
 
   @override
-  String get personalInfoWarning => '個人を特定する情報（本名、住所など）は入力しないでください。他のプレイヤーに表示される可能性があります。';
+  String get personalInfoWarning =>
+      '個人を特定する情報（本名、住所など）は入力しないでください。他のプレイヤーに表示される可能性があります。';
 
   @override
   String get save => '保存';
@@ -396,6 +397,118 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get achievementsTitle => '実績';
+
+  @override
+  String get defeatedBossLabel => '撃破したボス: ';
+
+  @override
+  String bossStoryAppears(String bossName) {
+    return '$bossName 現る！';
+  }
+
+  @override
+  String get bossStoryFightButton => 'たたかう！';
+
+  @override
+  String get howToPlayTitle => '遊び方';
+
+  @override
+  String get howToPlayStep1Title => '都道府県を選ぼう';
+
+  @override
+  String get howToPlayStep1Description => 'マップから挑戦したい都道府県を選んで出撃準備をしよう。';
+
+  @override
+  String get howToPlayStep2Title => '施設を配置して防衛しよう';
+
+  @override
+  String get howToPlayStep2Description => 'コインを使って道の周りに施設を建てて、敵の侵攻を防ごう。';
+
+  @override
+  String get howToPlayStep3Title => 'ボスを倒そう';
+
+  @override
+  String get howToPlayStep3Description =>
+      '各都道府県にはその土地を象徴するボスが登場する。すべての波を防ぎきってボスを撃破しよう。';
+
+  @override
+  String get howToPlayStep4Title => 'スコアとランキング';
+
+  @override
+  String get howToPlayStep4Description =>
+      'クリアタイム・ミス回数に応じてスコアが決まる。ランキング画面で全国のプレイヤーと競い合おう。';
+
+  @override
+  String get howToPlayStep5Title => '図鑑でふりかえろう';
+
+  @override
+  String get howToPlayStep5Description => 'クリアした都道府県は図鑑に記録される。倒したボスや実績も確認できるよ。';
+
+  @override
+  String get howToPlaySettingsTile => '遊び方';
+
+  @override
+  String get howToPlaySettingsSubtitle => 'ゲームの基本ルールを確認する';
+
+  @override
+  String get premiumPlanTitle => 'プレミアムプラン';
+
+  @override
+  String get premiumPlanTitlePurchased => 'プレミアムプラン（購入済み）';
+
+  @override
+  String get premiumPlanSubtitle => '広告除去＋マップ解放がまとめてお得に';
+
+  @override
+  String get premiumPlanSubtitlePurchased => '広告非表示・全マップ解放が有効です';
+
+  @override
+  String get premiumPlanBenefitsHeading => 'プレミアムプランの特典';
+
+  @override
+  String get premiumPlanBenefitAdsFreeTitle => '広告完全非表示';
+
+  @override
+  String get premiumPlanBenefitAdsFreeDescription =>
+      'プレイ中・結果画面のバナー広告・インタースティシャル広告が表示されなくなります。';
+
+  @override
+  String get premiumPlanBenefitMapUnlockTitle => '全都道府県マップ解放';
+
+  @override
+  String get premiumPlanBenefitMapUnlockDescription =>
+      '47都道府県すべて・地方決戦・歴史決戦ステージがいつでもプレイ可能になります。';
+
+  @override
+  String get premiumPlanBenefitFutureTitle => '今後の追加特典';
+
+  @override
+  String get premiumPlanBenefitFutureDescription =>
+      '今後追加されるプレミアム限定コンテンツ・機能も順次利用できます。';
+
+  @override
+  String get premiumPlanDescriptionNote => '広告除去・マップ解放を個別に購入するよりお得な統合プランです。';
+
+  @override
+  String get premiumPlanPurchasedMessage => 'プレミアムプラン購入済みです。ご購入ありがとうございます！';
+
+  @override
+  String get premiumPlanPriceLabel => '価格';
+
+  @override
+  String get premiumPlanBuyButton => 'プレミアムプランを購入する';
+
+  @override
+  String get hometownLabel => '出身地（都道府県対抗ランキング用）';
+
+  @override
+  String get hometownNotSet => '未設定';
+
+  @override
+  String get rankingEmptyGlobal => 'まだランキングデータがありません。ゲームをクリアして最初のランカーになろう！';
+
+  @override
+  String get rankingEmptyPrefecture => 'まだランキングデータがありません。';
 
   @override
   String get kanaLabel => 'かな: ';
@@ -662,7 +775,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get searchByPrefNameHint => '県名で検索';
 
   @override
-  String get difficultyDescriptionEasy => '敵が弱くてゆっくり\nハート多め・休憩長め\nはじめての人・小さい子向け';
+  String get difficultyDescriptionEasy =>
+      '敵が弱くてゆっくり\nハート多め・休憩長め\nはじめての人・小さい子向け';
 
   @override
   String get difficultyDescriptionNormal => '標準の難しさ\n置き方を考えればクリア';
@@ -1068,5 +1182,4 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get prefectureName47 => '沖縄県';
-
 }

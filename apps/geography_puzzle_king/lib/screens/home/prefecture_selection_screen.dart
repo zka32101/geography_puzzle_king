@@ -6,8 +6,9 @@ import 'package:geography_puzzle_king/config/monetization_config.dart';
 import 'package:geography_puzzle_king/models/td_model.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
 import 'package:geography_puzzle_king/providers/monetization_provider.dart';
-import 'package:geography_puzzle_king/screens/game/game_screen.dart';
+import 'package:geography_puzzle_king/screens/game/boss_story_screen.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
+import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
 import 'package:geography_puzzle_king/widgets/stage_locked_dialog.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
@@ -50,6 +51,7 @@ class _PrefectureSelectionScreenState
           Expanded(child: _buildPrefectureGrid()),
         ],
       ),
+      bottomNavigationBar: const BannerAdBar(),
     );
   }
 
@@ -334,7 +336,7 @@ class _PrefectureSelectionScreenState
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => GameScreen(
+        builder: (_) => BossStoryScreen(
           prefectureCode: pref.code,
           difficulty: difficulty,
         ),

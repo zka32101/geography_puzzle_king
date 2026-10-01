@@ -4,10 +4,13 @@ import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/models/achievement_model.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
+import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 class PokedexScreen extends ConsumerStatefulWidget {
-  const PokedexScreen({Key? key}) : super(key: key);
+  final int initialTabIndex;
+
+  const PokedexScreen({Key? key, this.initialTabIndex = 0}) : super(key: key);
 
   @override
   ConsumerState<PokedexScreen> createState() => _PokedexScreenState();
@@ -20,7 +23,11 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: widget.initialTabIndex,
+    );
   }
 
   @override
@@ -75,6 +82,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
           _buildAchievementsTab(l10n),
         ],
       ),
+      bottomNavigationBar: const BannerAdBar(),
     );
   }
 
@@ -363,7 +371,27 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle, color: prefColor, size: 26),
+            Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                ClipOval(
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    color: prefColor.withOpacity(0.15),
+                    child: prefectureBossImages[prefecture.code] != null
+                        ? Image.asset(
+                            prefectureBossImages[prefecture.code]!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Icon(Icons.check_circle, color: prefColor, size: 26),
+                          )
+                        : Icon(Icons.check_circle, color: prefColor, size: 26),
+                  ),
+                ),
+                Icon(Icons.check_circle, color: prefColor, size: 14),
+              ],
+            ),
             const SizedBox(height: 3),
             Text(
               prefecture.name,
@@ -429,6 +457,27 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (prefectureBossImages[prefecture.code] != null)
+              Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRadius.medium),
+                  child: Image.asset(
+                    prefectureBossImages[prefecture.code]!,
+                    height: 120,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                  ),
+                ),
+              ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                child: Text(
+                  '${l10n.defeatedBossLabel}${prefecture.boss.name}',
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.accent),
+                ),
+              ),
+            ),
             Text('${l10n.kanaLabel}${prefecture.kana}'),
             const SizedBox(height: AppSpacing.sm),
             Text('${l10n.capitalCityLabel}${prefecture.capitalCity}'),

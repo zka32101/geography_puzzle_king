@@ -398,6 +398,114 @@ class AppLocalizationsZh extends AppLocalizations {
   String get achievementsTitle => '成就';
 
   @override
+  String get defeatedBossLabel => '击败的首领：';
+
+  @override
+  String bossStoryAppears(String bossName) {
+    return '$bossName 出现了！';
+  }
+
+  @override
+  String get bossStoryFightButton => '战斗！';
+
+  @override
+  String get howToPlayTitle => '玩法说明';
+
+  @override
+  String get howToPlayStep1Title => '选择都道府县';
+
+  @override
+  String get howToPlayStep1Description => '从地图上选择想挑战的都道府县，准备出击。';
+
+  @override
+  String get howToPlayStep2Title => '建造设施进行防御';
+
+  @override
+  String get howToPlayStep2Description => '使用金币在道路周围建造设施，阻止敌人前进。';
+
+  @override
+  String get howToPlayStep3Title => '击败首领';
+
+  @override
+  String get howToPlayStep3Description => '每个都道府县都有象征当地的首领。挺过所有波次后即可击败首领。';
+
+  @override
+  String get howToPlayStep4Title => '分数与排行榜';
+
+  @override
+  String get howToPlayStep4Description => '分数取决于通关时间和失误次数。在排行榜画面与全国玩家一较高下吧。';
+
+  @override
+  String get howToPlayStep5Title => '在图鉴中回顾';
+
+  @override
+  String get howToPlayStep5Description => '通关的都道府县会记录在图鉴中，也可以查看击败的首领和成就。';
+
+  @override
+  String get howToPlaySettingsTile => '玩法说明';
+
+  @override
+  String get howToPlaySettingsSubtitle => '查看游戏的基本规则';
+
+  @override
+  String get premiumPlanTitle => '高级方案';
+
+  @override
+  String get premiumPlanTitlePurchased => '高级方案（已购买）';
+
+  @override
+  String get premiumPlanSubtitle => '去广告＋地图解锁一次搞定，更划算';
+
+  @override
+  String get premiumPlanSubtitlePurchased => '已隐藏广告并解锁全部地图';
+
+  @override
+  String get premiumPlanBenefitsHeading => '高级方案特典';
+
+  @override
+  String get premiumPlanBenefitAdsFreeTitle => '完全隐藏广告';
+
+  @override
+  String get premiumPlanBenefitAdsFreeDescription => '游戏中及结果画面的横幅广告、插页广告将不再显示。';
+
+  @override
+  String get premiumPlanBenefitMapUnlockTitle => '解锁全部都道府县地图';
+
+  @override
+  String get premiumPlanBenefitMapUnlockDescription =>
+      '全部47个都道府县、地方对决、历史对决关卡随时可玩。';
+
+  @override
+  String get premiumPlanBenefitFutureTitle => '今后的追加特典';
+
+  @override
+  String get premiumPlanBenefitFutureDescription => '今后追加的高级限定内容与功能也可依次使用。';
+
+  @override
+  String get premiumPlanDescriptionNote => '比单独购买去广告和地图解锁更划算的组合方案。';
+
+  @override
+  String get premiumPlanPurchasedMessage => '您已购买高级方案，感谢您的购买！';
+
+  @override
+  String get premiumPlanPriceLabel => '价格';
+
+  @override
+  String get premiumPlanBuyButton => '购买高级方案';
+
+  @override
+  String get hometownLabel => '出身地（用于都道府县对抗排行榜）';
+
+  @override
+  String get hometownNotSet => '未设置';
+
+  @override
+  String get rankingEmptyGlobal => '暂无排行榜数据。快通关成为第一名吧！';
+
+  @override
+  String get rankingEmptyPrefecture => '暂无排行榜数据。';
+
+  @override
   String get kanaLabel => '假名：';
 
   @override
@@ -1068,5 +1176,4 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get prefectureName47 => '冲绳县';
-
 }

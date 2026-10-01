@@ -5,12 +5,13 @@ import 'package:geography_puzzle_king/config/monetization_config.dart';
 import 'package:geography_puzzle_king/models/td_model.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
 import 'package:geography_puzzle_king/providers/monetization_provider.dart';
-import 'package:geography_puzzle_king/screens/game/game_screen.dart';
+import 'package:geography_puzzle_king/screens/game/boss_story_screen.dart';
 import 'package:geography_puzzle_king/services/td_engine.dart';
 import 'package:geography_puzzle_king/utils/badge_data.dart';
 import 'package:geography_puzzle_king/utils/history_stage_data.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/utils/region_data.dart';
+import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
 import 'package:geography_puzzle_king/widgets/stage_locked_dialog.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
@@ -65,6 +66,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
             _buildHistoryStageTab(),
           ],
         ),
+        bottomNavigationBar: const BannerAdBar(),
       ),
     );
   }
@@ -492,7 +494,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => GameScreen(
+                        builder: (_) => BossStoryScreen(
                           prefectureCode: '',
                           difficulty: _selectedDifficulty,
                           regionCode: region.code,
@@ -836,7 +838,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => GameScreen(
+                        builder: (_) => BossStoryScreen(
                           prefectureCode: '',
                           difficulty: _selectedDifficulty,
                           regionCode: stage.code,
@@ -1257,7 +1259,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => GameScreen(
+                        builder: (_) => BossStoryScreen(
                           prefectureCode: pref.code,
                           difficulty: _selectedDifficulty,
                         ),

@@ -4,6 +4,7 @@ import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 import 'package:geography_puzzle_king/providers/auth_provider.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
+import 'package:geography_puzzle_king/screens/pokedex/pokedex_screen.dart';
 import 'package:geography_puzzle_king/services/audio_service.dart';
 import 'package:geography_puzzle_king/services/tutorial_service.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
@@ -287,14 +288,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         const SizedBox(width: AppSpacing.sm),
         _statCard('⭐', l10n.totalScore, _compact(stats.totalScore), AppColors.accent),
         const SizedBox(width: AppSpacing.sm),
-        _statCard('🏅', l10n.achievements, '$unlocked/${achievements.length}', AppColors.secondary),
+        _statCard(
+          '🏅',
+          l10n.achievements,
+          '$unlocked/${achievements.length}',
+          AppColors.secondary,
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const PokedexScreen(initialTabIndex: 2),
+              ),
+            );
+          },
+        ),
       ],
     );
   }
 
-  Widget _statCard(String emoji, String label, String value, Color color) {
+  Widget _statCard(String emoji, String label, String value, Color color, {VoidCallback? onTap}) {
     return Expanded(
-      child: Container(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.large),
+        child: Container(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
         decoration: BoxDecoration(
           color: AppColors.surface,
@@ -321,6 +337,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             Text(label, style: AppTextStyles.bodySmall),
           ],
+        ),
         ),
       ),
     );

@@ -9,6 +9,7 @@ import 'package:geography_puzzle_king/utils/badge_data.dart';
 import 'package:geography_puzzle_king/utils/history_stage_data.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/utils/region_data.dart';
+import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 class ResultScreen extends ConsumerStatefulWidget {
@@ -99,11 +100,14 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           clearedPrefectures:
               ref.read(prefectureRecordsProvider).valueOrNull?.length ?? 0,
         );
-        final pref = _prefecture;
-        if (pref != null) {
+        // 都道府県対抗ランキングは「プレイしたステージの県」ではなく、
+        // プレイヤーが設定画面で選んだ「出身地（hometownCode）」に加算する。
+        // 未設定（''）の間は集計対象にできないため送信しない。
+        final hometown = getPrefectureByCode(user.hometownCode);
+        if (hometown != null) {
           service.submitPrefectureScore(
-            prefectureCode: pref.code,
-            prefectureName: pref.name,
+            prefectureCode: hometown.code,
+            prefectureName: hometown.name,
             uid: user.uid,
             score: widget.score,
           );
@@ -221,8 +225,9 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
             ],
           ),
         ),
+        ),
+        bottomNavigationBar: const BannerAdBar(),
       ),
-    ),
     );
   }
 

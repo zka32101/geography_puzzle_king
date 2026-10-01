@@ -3,6 +3,7 @@ import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 import 'package:geography_puzzle_king/services/ranking_service.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
+import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
 
 class RankingScreen extends StatefulWidget {
   const RankingScreen({Key? key}) : super(key: key);
@@ -120,6 +121,7 @@ class _RankingScreenState extends State<RankingScreen>
           _buildPrefectureRankingTab(l10n),
         ],
       ),
+      bottomNavigationBar: const BannerAdBar(),
     );
   }
 
@@ -136,7 +138,7 @@ class _RankingScreenState extends State<RankingScreen>
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: Text(
-                'まだランキングデータがありません。ゲームをクリアして最初のランカーになろう！',
+                l10n.rankingEmptyGlobal,
                 style: AppTextStyles.bodySmall,
                 textAlign: TextAlign.center,
               ),
@@ -250,7 +252,7 @@ class _RankingScreenState extends State<RankingScreen>
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: Text(
-                'まだランキングデータがありません。',
+                l10n.rankingEmptyPrefecture,
                 style: AppTextStyles.bodySmall,
                 textAlign: TextAlign.center,
               ),

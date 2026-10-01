@@ -2478,7 +2478,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
       final cx = (ePos.dx + 0.5) * cellSize;
       final cy = (ePos.dy + 0.5) * cellSize;
 
-      final imagePath = enemyTypeImages[enemy.enemyType.name];
+      final imagePath = enemy.isBoss
+          ? (getBossImage(
+                  prefCode: _gameState.prefCode, regionCode: widget.regionCode) ??
+              enemyTypeImages[enemy.enemyType.name])
+          : enemyTypeImages[enemy.enemyType.name];
       if (imagePath == null || imagePath.isEmpty) continue;
 
       final radius = (enemy.isBoss ? 0.44 : 0.3) * cellSize;

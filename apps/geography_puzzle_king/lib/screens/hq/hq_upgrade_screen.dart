@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/models/hq_upgrade_model.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
+import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 /// 本部強化画面: クリアで貯まる研究ポイントを使い、全プレイ共通の永続強化を購入する
@@ -23,6 +24,7 @@ class HqUpgradeScreen extends ConsumerWidget {
             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
+      bottomNavigationBar: const BannerAdBar(),
       body: SafeArea(
         child: Column(
           children: [

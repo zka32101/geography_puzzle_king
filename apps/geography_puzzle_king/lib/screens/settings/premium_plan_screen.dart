@@ -3,30 +3,33 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/providers/monetization_provider.dart';
-import 'package:geography_puzzle_king/services/purchase_service.dart';
-
-// NOTE: このスクリーンのテキストはひとまず日本語ハードコードで実装している。
-// l10n化（app_localizations.dart / .arbへの追加）は別途対応すること。
-// 他エージェントがl10n生成ファイルを同時編集している可能性があるため、
-// このタスクではapp_localizations*.dartへの変更を避けている。
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 /// プレミアムプランの特典・価格を説明し、購入導線を提供する画面。
-///
-/// 実際のストア商品登録（Google Play Console / App Store Connect）は
-/// このタスクの範囲外。[kPremiumPlanProductId] のプレースホルダー定義のみ
-/// 用意しており、ストア側で商品が未作成の間はこの画面の「購入する」ボタンは
-/// 「現在購入できません」表示になる（クラッシュはしない）。
 class PremiumPlanScreen extends ConsumerWidget {
   const PremiumPlanScreen({Key? key}) : super(key: key);
 
-  static const _benefits = <_Benefit>[
-    _Benefit(icon: Icons.block, title: '広告完全非表示', description: 'プレイ中・結果画面のバナー広告・インタースティシャル広告が表示されなくなります。'),
-    _Benefit(icon: Icons.map, title: '全都道府県マップ解放', description: '47都道府県すべて・地方決戦・歴史決戦ステージがいつでもプレイ可能になります。'),
-    _Benefit(icon: Icons.auto_awesome, title: '今後の追加特典', description: '今後追加されるプレミアム限定コンテンツ・機能も順次利用できます。'),
-  ];
+  List<_Benefit> _benefits(AppLocalizations l10n) => [
+        _Benefit(
+          icon: Icons.block,
+          title: l10n.premiumPlanBenefitAdsFreeTitle,
+          description: l10n.premiumPlanBenefitAdsFreeDescription,
+        ),
+        _Benefit(
+          icon: Icons.map,
+          title: l10n.premiumPlanBenefitMapUnlockTitle,
+          description: l10n.premiumPlanBenefitMapUnlockDescription,
+        ),
+        _Benefit(
+          icon: Icons.auto_awesome,
+          title: l10n.premiumPlanBenefitFutureTitle,
+          description: l10n.premiumPlanBenefitFutureDescription,
+        ),
+      ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final isPremium = ref.watch(premiumPlanProvider);
     final productAsync = ref.watch(premiumPlanProductProvider);
 
@@ -38,19 +41,19 @@ class PremiumPlanScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(context),
+              _buildHeader(context, l10n),
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('プレミアムプランの特典', style: AppTextStyles.headline3),
+                    Text(l10n.premiumPlanBenefitsHeading, style: AppTextStyles.headline3),
                     const SizedBox(height: AppSpacing.sm),
-                    ..._benefits.map(_buildBenefitTile),
+                    ..._benefits(l10n).map(_buildBenefitTile),
                     const SizedBox(height: AppSpacing.lg),
-                    Text('広告除去・マップ解放を個別に購入するよりお得な統合プランです。', style: AppTextStyles.bodySmall),
+                    Text(l10n.premiumPlanDescriptionNote, style: AppTextStyles.bodySmall),
                     const SizedBox(height: AppSpacing.xl),
-                    _buildPurchaseCard(context, ref, isPremium, productAsync),
+                    _buildPurchaseCard(context, ref, l10n, isPremium, productAsync),
                   ],
                 ),
               ),
@@ -61,7 +64,7 @@ class PremiumPlanScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(
@@ -84,10 +87,10 @@ class PremiumPlanScreen extends ConsumerWidget {
           const SizedBox(width: AppSpacing.xs),
           const Text('👑', style: TextStyle(fontSize: 26)),
           const SizedBox(width: AppSpacing.sm),
-          const Expanded(
+          Expanded(
             child: Text(
-              'プレミアムプラン',
-              style: TextStyle(
+              l10n.premiumPlanTitle,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -142,6 +145,7 @@ class PremiumPlanScreen extends ConsumerWidget {
   Widget _buildPurchaseCard(
     BuildContext context,
     WidgetRef ref,
+    AppLocalizations l10n,
     bool isPremium,
     AsyncValue<ProductDetails?> productAsync,
   ) {
@@ -150,14 +154,14 @@ class PremiumPlanScreen extends ConsumerWidget {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.large),
         elevation: 2,
-        child: const Padding(
-          padding: EdgeInsets.all(AppSpacing.lg),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Row(
             children: [
-              Icon(Icons.check_circle, color: AppColors.success),
-              SizedBox(width: AppSpacing.md),
+              const Icon(Icons.check_circle, color: AppColors.success),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
-                child: Text('プレミアムプラン購入済みです。ご購入ありがとうございます！', style: AppTextStyles.subtitle1),
+                child: Text(l10n.premiumPlanPurchasedMessage, style: AppTextStyles.subtitle1),
               ),
             ],
           ),
@@ -178,20 +182,19 @@ class PremiumPlanScreen extends ConsumerWidget {
               child: CircularProgressIndicator(),
             ),
           ),
-          error: (_, __) => const Text('ストアに接続できませんでした。時間をおいて再度お試しください。', style: AppTextStyles.bodySmall),
+          error: (_, __) => Text(l10n.storeConnectionError, style: AppTextStyles.bodySmall),
           data: (product) {
-            // ストア未登録時のプレースホルダー価格表示。
-            final priceLabel = product?.price ?? '¥900（予定）';
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('価格', style: AppTextStyles.subtitle1),
-                    Text(priceLabel, style: AppTextStyles.headline3.copyWith(color: AppColors.primary)),
-                  ],
-                ),
+                if (product != null)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(l10n.premiumPlanPriceLabel, style: AppTextStyles.subtitle1),
+                      Text(product.price, style: AppTextStyles.headline3.copyWith(color: AppColors.primary)),
+                    ],
+                  ),
                 const SizedBox(height: AppSpacing.md),
                 SizedBox(
                   width: double.infinity,
@@ -210,16 +213,9 @@ class PremiumPlanScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(AppRadius.medium),
                       ),
                     ),
-                    child: Text(product == null ? '現在購入できません' : 'プレミアムプランを購入する'),
+                    child: Text(product == null ? l10n.notAvailableNow : l10n.premiumPlanBuyButton),
                   ),
                 ),
-                if (product == null) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  const Text(
-                    '※ストア側での商品登録が完了すると購入できるようになります。',
-                    style: AppTextStyles.bodySmall,
-                  ),
-                ],
               ],
             );
           },
