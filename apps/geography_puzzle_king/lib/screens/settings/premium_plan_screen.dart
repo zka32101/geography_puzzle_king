@@ -155,6 +155,7 @@ class PremiumPlanScreen extends ConsumerWidget {
   Widget _buildPurchaseCard(
     BuildContext context,
     WidgetRef ref,
+    AppLocalizations l10n,
     bool isPremium,
     AsyncValue<ProductDetails?> productAsync,
   ) {
