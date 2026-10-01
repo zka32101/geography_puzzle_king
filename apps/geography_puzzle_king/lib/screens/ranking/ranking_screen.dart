@@ -47,7 +47,7 @@ class _RankingScreenState extends State<RankingScreen>
     final tops = await Future.wait(allPrefectures.map(
       (pref) => _rankingService.fetchTopForPrefecture(
         prefectureCode: pref.code,
-        prefectureName: pref.name,
+        prefectureName: pref.nameRaw,
       ),
     ));
     final results = tops

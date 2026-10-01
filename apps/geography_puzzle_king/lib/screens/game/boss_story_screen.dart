@@ -6,6 +6,7 @@ import 'package:geography_puzzle_king/utils/game_assets.dart';
 import 'package:geography_puzzle_king/utils/history_stage_data.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/utils/region_data.dart';
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
 
 /// 出撃前に対戦相手のボスを紹介するストーリー導入画面。
 ///
@@ -40,7 +41,7 @@ class BossStoryScreen extends StatelessWidget {
     }
     if (regionCode.isNotEmpty) {
       final region = getRegionByCode(regionCode);
-      return region == null ? '' : '${region.name}地方の覇権を賭けた戦い。${region.bossName}が立ちはだかる！';
+      return region == null ? '' : tl.bossStoryRegion(region.name, region.bossName);
     }
     final pref = getPrefectureByCode(prefectureCode);
     return pref?.funFact ?? '';

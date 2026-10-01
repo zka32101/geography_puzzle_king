@@ -749,5 +749,335 @@
         "type": "int"
       }
     }
+  },
+  "saidHistory": "“{name}的决战！守护历史！”",
+  "@saidHistory": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saidRegion": "“{name}地区的决战！全力以赴！”",
+  "@saidRegion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saidPref": "“我来守护{name}！交给我吧！”",
+  "@saidPref": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerHistoryBoss": "{emoji} {boss}降临！",
+  "@bannerHistoryBoss": {
+    "placeholders": {
+      "emoji": {
+        "type": "String"
+      },
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerHistoryFinal": "历史决战「{name}」最终决战！",
+  "@bannerHistoryFinal": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerRegionBoss": "{emoji} {boss}登场！",
+  "@bannerRegionBoss": {
+    "placeholders": {
+      "emoji": {
+        "type": "String"
+      },
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerRegionFinal": "地区决战「{name}」最终决战！",
+  "@bannerRegionFinal": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerPrefBoss": "👹 {boss}登场！",
+  "@bannerPrefBoss": {
+    "placeholders": {
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerBossSkill": "小心技能「{skill}」",
+  "@bannerBossSkill": {
+    "placeholders": {
+      "skill": {
+        "type": "String"
+      }
+    }
+  },
+  "waveRegionElite": "{emoji} {region}地区的精锐逼近…",
+  "@waveRegionElite": {
+    "placeholders": {
+      "emoji": {
+        "type": "String"
+      },
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "waveGeoEnemy": "{icon} {geo}的敌人逼近…",
+  "@waveGeoEnemy": {
+    "placeholders": {
+      "icon": {
+        "type": "String"
+      },
+      "geo": {
+        "type": "String"
+      }
+    }
+  },
+  "saidWaveHistory": "“第{wave}波！历史的威胁袭来！”",
+  "@saidWaveHistory": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "saidWaveRegion": "“第{wave}波，地区最强的敌人来了！”",
+  "@saidWaveRegion": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "saidWave": "“第{wave}波，出发！”",
+  "@saidWave": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "combo5": "🔥5连击！+{bonus}🪙",
+  "@combo5": {
+    "placeholders": {
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "combo10": "💥10连击！！+{bonus}🪙",
+  "@combo10": {
+    "placeholders": {
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "comboN": "⚡{count}连击！！！+{bonus}🪙",
+  "@comboN": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "cheerBonus": "助威 +{bonus}🪙",
+  "@cheerBonus": {
+    "placeholders": {
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "saidSpecialtyPower": "“{specialty}之力，出击！”",
+  "@saidSpecialtyPower": {
+    "placeholders": {
+      "specialty": {
+        "type": "String"
+      }
+    }
+  },
+  "quizCapitalQuestion": "{name}的县厅所在地是？",
+  "@quizCapitalQuestion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "synergyBonus": "✨协同 +{pct}%",
+  "@synergyBonus": {
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "resultSecretsTitle": "📚 {name}的秘密",
+  "@resultSecretsTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "resultPopulationApprox": "约 {man} 万人",
+  "@resultPopulationApprox": {
+    "placeholders": {
+      "man": {
+        "type": "int"
+      }
+    }
+  },
+  "resultTerrain": "{icon} 地形",
+  "@resultTerrain": {
+    "placeholders": {
+      "icon": {
+        "type": "String"
+      }
+    }
+  },
+  "resultCompanionJoined": "{name}成为了伙伴！",
+  "@resultCompanionJoined": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bossStoryRegion": "争夺{region}地区霸权之战。{boss}拦住了去路！",
+  "@bossStoryRegion": {
+    "placeholders": {
+      "region": {
+        "type": "String"
+      },
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "recordClearsCount": "{n}次",
+  "@recordClearsCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "recordPointsCount": "{n}分",
+  "@recordPointsCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "dateYmd": "{y}年{m}月{d}日",
+  "@dateYmd": {
+    "placeholders": {
+      "y": {
+        "type": "int"
+      },
+      "m": {
+        "type": "int"
+      },
+      "d": {
+        "type": "int"
+      }
+    }
+  },
+  "triviaCapital": "{name}的县厅所在地是{capital}。",
+  "@triviaCapital": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "capital": {
+        "type": "String"
+      }
+    }
+  },
+  "triviaArea": "面积约{area}km²，在全国也很有特点。",
+  "@triviaArea": {
+    "placeholders": {
+      "area": {
+        "type": "int"
+      }
+    }
+  },
+  "triviaPopulation": "约有{man}万人居住在这里。",
+  "@triviaPopulation": {
+    "placeholders": {
+      "man": {
+        "type": "int"
+      }
+    }
+  },
+  "triviaSpecialty": "特产「{item}」尤其有名。",
+  "@triviaSpecialty": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "triviaGeography": "地形为「{geo}」类型，所以敌人也很有当地特色。",
+  "@triviaGeography": {
+    "placeholders": {
+      "geo": {
+        "type": "String"
+      }
+    }
+  },
+  "detailWithSpecialty": "位于{region}地区，以「{geo}」类型地形为特色的县。以{items}等特产闻名，以县厅所在地{capital}为中心十分繁华。",
+  "@detailWithSpecialty": {
+    "placeholders": {
+      "region": {
+        "type": "String"
+      },
+      "geo": {
+        "type": "String"
+      },
+      "items": {
+        "type": "String"
+      },
+      "capital": {
+        "type": "String"
+      }
+    }
+  },
+  "detailNoSpecialty": "位于{region}地区，以「{geo}」类型地形为特色的县。县厅所在地是{capital}。",
+  "@detailNoSpecialty": {
+    "placeholders": {
+      "region": {
+        "type": "String"
+      },
+      "geo": {
+        "type": "String"
+      },
+      "capital": {
+        "type": "String"
+      }
+    }
   }
 }

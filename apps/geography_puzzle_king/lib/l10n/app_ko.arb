@@ -749,5 +749,335 @@
         "type": "int"
       }
     }
+  },
+  "saidHistory": "\"{name}의 결전이다! 역사를 지켜라!\"",
+  "@saidHistory": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saidRegion": "\"{name} 지방의 결전이다! 전력으로 싸우자!\"",
+  "@saidRegion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saidPref": "\"{name}을(를) 지킬 거야! 나한테 맡겨!\"",
+  "@saidPref": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerHistoryBoss": "{emoji} {boss} 강림!",
+  "@bannerHistoryBoss": {
+    "placeholders": {
+      "emoji": {
+        "type": "String"
+      },
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerHistoryFinal": "역사 결전 「{name}」 최종 결전!",
+  "@bannerHistoryFinal": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerRegionBoss": "{emoji} {boss} 등장!",
+  "@bannerRegionBoss": {
+    "placeholders": {
+      "emoji": {
+        "type": "String"
+      },
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerRegionFinal": "지방 결전 「{name}」 최종 결전!",
+  "@bannerRegionFinal": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerPrefBoss": "👹 {boss} 등장!",
+  "@bannerPrefBoss": {
+    "placeholders": {
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "bannerBossSkill": "스킬 「{skill}」을(를) 경계하라",
+  "@bannerBossSkill": {
+    "placeholders": {
+      "skill": {
+        "type": "String"
+      }
+    }
+  },
+  "waveRegionElite": "{emoji} {region} 지방의 정예가 다가온다…",
+  "@waveRegionElite": {
+    "placeholders": {
+      "emoji": {
+        "type": "String"
+      },
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "waveGeoEnemy": "{icon} {geo}의 적이 다가온다…",
+  "@waveGeoEnemy": {
+    "placeholders": {
+      "icon": {
+        "type": "String"
+      },
+      "geo": {
+        "type": "String"
+      }
+    }
+  },
+  "saidWaveHistory": "\"웨이브 {wave}! 역사의 위협이 몰려온다!\"",
+  "@saidWaveHistory": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "saidWaveRegion": "\"웨이브 {wave}, 지방 최강의 적이 온다!\"",
+  "@saidWaveRegion": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "saidWave": "\"웨이브 {wave}, 간다!\"",
+  "@saidWave": {
+    "placeholders": {
+      "wave": {
+        "type": "int"
+      }
+    }
+  },
+  "combo5": "🔥5콤보! +{bonus}🪙",
+  "@combo5": {
+    "placeholders": {
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "combo10": "💥10콤보!! +{bonus}🪙",
+  "@combo10": {
+    "placeholders": {
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "comboN": "⚡{count}콤보!!! +{bonus}🪙",
+  "@comboN": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "cheerBonus": "응원 +{bonus}🪙",
+  "@cheerBonus": {
+    "placeholders": {
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "saidSpecialtyPower": "\"{specialty} 파워, 가라!\"",
+  "@saidSpecialtyPower": {
+    "placeholders": {
+      "specialty": {
+        "type": "String"
+      }
+    }
+  },
+  "quizCapitalQuestion": "{name}의 현청 소재지는?",
+  "@quizCapitalQuestion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "synergyBonus": "✨시너지 +{pct}%",
+  "@synergyBonus": {
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "resultSecretsTitle": "📚 {name}의 비밀",
+  "@resultSecretsTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "resultPopulationApprox": "약 {man}만 명",
+  "@resultPopulationApprox": {
+    "placeholders": {
+      "man": {
+        "type": "int"
+      }
+    }
+  },
+  "resultTerrain": "{icon} 지형",
+  "@resultTerrain": {
+    "placeholders": {
+      "icon": {
+        "type": "String"
+      }
+    }
+  },
+  "resultCompanionJoined": "{name}이(가) 동료가 되었다!",
+  "@resultCompanionJoined": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bossStoryRegion": "{region} 지방의 패권을 건 싸움. {boss}이(가) 앞을 가로막는다!",
+  "@bossStoryRegion": {
+    "placeholders": {
+      "region": {
+        "type": "String"
+      },
+      "boss": {
+        "type": "String"
+      }
+    }
+  },
+  "recordClearsCount": "{n}회",
+  "@recordClearsCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "recordPointsCount": "{n}점",
+  "@recordPointsCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "dateYmd": "{y}년 {m}월 {d}일",
+  "@dateYmd": {
+    "placeholders": {
+      "y": {
+        "type": "int"
+      },
+      "m": {
+        "type": "int"
+      },
+      "d": {
+        "type": "int"
+      }
+    }
+  },
+  "triviaCapital": "{name}의 현청 소재지는 {capital}야.",
+  "@triviaCapital": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "capital": {
+        "type": "String"
+      }
+    }
+  },
+  "triviaArea": "면적은 약 {area}km². 전국에서도 특징적인 넓이야.",
+  "@triviaArea": {
+    "placeholders": {
+      "area": {
+        "type": "int"
+      }
+    }
+  },
+  "triviaPopulation": "약 {man}만 명이 살고 있어.",
+  "@triviaPopulation": {
+    "placeholders": {
+      "man": {
+        "type": "int"
+      }
+    }
+  },
+  "triviaSpecialty": "특산품 「{item}」이(가) 특히 유명해.",
+  "@triviaSpecialty": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "triviaGeography": "지형은 「{geo}」 타입. 그래서 적도 그 땅답지.",
+  "@triviaGeography": {
+    "placeholders": {
+      "geo": {
+        "type": "String"
+      }
+    }
+  },
+  "detailWithSpecialty": "{region} 지방에 위치한 「{geo}」 타입 지형이 특징인 현. 특산품으로 {items} 등이 알려져 있고, 현청 소재지 {capital}을(를) 중심으로 활기차.",
+  "@detailWithSpecialty": {
+    "placeholders": {
+      "region": {
+        "type": "String"
+      },
+      "geo": {
+        "type": "String"
+      },
+      "items": {
+        "type": "String"
+      },
+      "capital": {
+        "type": "String"
+      }
+    }
+  },
+  "detailNoSpecialty": "{region} 지방에 위치한 「{geo}」 타입 지형이 특징인 현. 현청 소재지는 {capital}야.",
+  "@detailNoSpecialty": {
+    "placeholders": {
+      "region": {
+        "type": "String"
+      },
+      "geo": {
+        "type": "String"
+      },
+      "capital": {
+        "type": "String"
+      }
+    }
   }
 }

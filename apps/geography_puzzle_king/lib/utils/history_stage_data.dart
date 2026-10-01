@@ -1,29 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
 
 class HistoryStageData {
   final String code;
-  final String name;
-  final String subTitle;
+  final String _name;
+  String get name => tr(_name);
+  final String _subTitle;
+  String get subTitle => tr(_subTitle);
   final String emoji;
   final Color color;
-  final String bossName;
+  final String _bossName;
+  String get bossName => tr(_bossName);
   final String bossEmoji;
-  final String bossSkill;
+  final String _bossSkill;
+  String get bossSkill => tr(_bossSkill);
   final int totalWaves;
-  final String lore;
+  final String _lore;
+  String get lore => tr(_lore);
 
   const HistoryStageData({
     required this.code,
-    required this.name,
-    required this.subTitle,
+    required String name,
+    required String subTitle,
     required this.emoji,
     required this.color,
-    required this.bossName,
+    required String bossName,
     required this.bossEmoji,
-    required this.bossSkill,
+    required String bossSkill,
     required this.totalWaves,
-    required this.lore,
-  });
+    required String lore,
+  }) : _name = name, _subTitle = subTitle, _bossName = bossName, _bossSkill = bossSkill, _lore = lore;
 }
 
 const List<HistoryStageData> allHistoryStages = [

@@ -1226,4 +1226,189 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get premiumStoreNotReady =>
       '* Purchasing becomes available once the store listing is set up.';
+
+  @override
+  String saidHistory(String name) {
+    return '\"The decisive battle of $name! Protect history!\"';
+  }
+
+  @override
+  String saidRegion(String name) {
+    return '\"The $name region showdown! Give it everything!\"';
+  }
+
+  @override
+  String saidPref(String name) {
+    return '\"I\'ll protect $name! Leave it to me!\"';
+  }
+
+  @override
+  String bannerHistoryBoss(String emoji, String boss) {
+    return '$emoji $boss descends!';
+  }
+
+  @override
+  String bannerHistoryFinal(String name) {
+    return 'History Battle \"$name\" – final showdown!';
+  }
+
+  @override
+  String bannerRegionBoss(String emoji, String boss) {
+    return '$emoji $boss appears!';
+  }
+
+  @override
+  String bannerRegionFinal(String name) {
+    return 'Region Battle \"$name\" – final showdown!';
+  }
+
+  @override
+  String bannerPrefBoss(String boss) {
+    return '👹 $boss appears!';
+  }
+
+  @override
+  String bannerBossSkill(String skill) {
+    return 'Beware of the skill \"$skill\"';
+  }
+
+  @override
+  String waveRegionElite(String emoji, String region) {
+    return '$emoji Elite forces of $region approach…';
+  }
+
+  @override
+  String waveGeoEnemy(String icon, String geo) {
+    return '$icon $geo enemies approach…';
+  }
+
+  @override
+  String saidWaveHistory(int wave) {
+    return '\"Wave $wave! The threats of history are coming!\"';
+  }
+
+  @override
+  String saidWaveRegion(int wave) {
+    return '\"Wave $wave – the region\'s strongest enemy is coming!\"';
+  }
+
+  @override
+  String saidWave(int wave) {
+    return '\"Wave $wave, here we go!\"';
+  }
+
+  @override
+  String combo5(int bonus) {
+    return '🔥5 combo! +$bonus🪙';
+  }
+
+  @override
+  String combo10(int bonus) {
+    return '💥10 combo!! +$bonus🪙';
+  }
+
+  @override
+  String comboN(int count, int bonus) {
+    return '⚡$count combo!!! +$bonus🪙';
+  }
+
+  @override
+  String cheerBonus(int bonus) {
+    return 'Cheer +$bonus🪙';
+  }
+
+  @override
+  String saidSpecialtyPower(String specialty) {
+    return '\"$specialty power, go!\"';
+  }
+
+  @override
+  String quizCapitalQuestion(String name) {
+    return 'What is the capital of $name?';
+  }
+
+  @override
+  String synergyBonus(int pct) {
+    return '✨Synergy +$pct%';
+  }
+
+  @override
+  String resultSecretsTitle(String name) {
+    return '📚 Secrets of $name';
+  }
+
+  @override
+  String resultPopulationApprox(int man) {
+    return 'About ${man}0,000 people';
+  }
+
+  @override
+  String resultTerrain(String icon) {
+    return '$icon Terrain';
+  }
+
+  @override
+  String resultCompanionJoined(String name) {
+    return '$name joined your team!';
+  }
+
+  @override
+  String bossStoryRegion(String region, String boss) {
+    return 'A battle for supremacy of the $region region. $boss stands in your way!';
+  }
+
+  @override
+  String recordClearsCount(int n) {
+    return '$n times';
+  }
+
+  @override
+  String recordPointsCount(int n) {
+    return '$n pts';
+  }
+
+  @override
+  String dateYmd(int y, int m, int d) {
+    return '$y/$m/$d';
+  }
+
+  @override
+  String triviaCapital(String name, String capital) {
+    return 'The capital of $name is $capital.';
+  }
+
+  @override
+  String triviaArea(int area) {
+    return 'Its area is about $area km² – a distinctive size even nationwide.';
+  }
+
+  @override
+  String triviaPopulation(int man) {
+    return 'About ${man}0,000 people live here.';
+  }
+
+  @override
+  String triviaSpecialty(String item) {
+    return 'Its specialty \"$item\" is especially famous.';
+  }
+
+  @override
+  String triviaGeography(String geo) {
+    return 'The terrain is \"$geo\" type, so the enemies match the land.';
+  }
+
+  @override
+  String detailWithSpecialty(
+    String region,
+    String geo,
+    String items,
+    String capital,
+  ) {
+    return 'Located in the $region region, a prefecture known for its \"$geo\" terrain. Famous for $items, it bustles around its capital, $capital.';
+  }
+
+  @override
+  String detailNoSpecialty(String region, String geo, String capital) {
+    return 'Located in the $region region, a prefecture known for its \"$geo\" terrain. Its capital is $capital.';
+  }
 }

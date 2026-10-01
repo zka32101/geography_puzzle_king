@@ -1,18 +1,22 @@
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
+
 // このファイルは自動生成の補助を経て作成されています。
 // 各都道府県ごとに最低3問のクイズ（県庁所在地・特産品・地方/地理）を持たせ、
 // ゲーム開始時にランダムで1問選ぶために利用します（GameScreen 側で使用）。
 
 /// 都道府県クイズ1問分のデータ
 class Quiz {
-  final String question;
-  final List<String> options;
+  final String _question;
+  String get question => tr(_question);
+  final List<String> _options;
+  List<String> get options => _options.map(tr).toList();
   final int correctIndex;
 
   const Quiz({
-    required this.question,
-    required this.options,
+    required String question,
+    required List<String> options,
     required this.correctIndex,
-  });
+  }) : _question = question, _options = options;
 }
 
 /// 都道府県コード（'01'〜'47'）ごとのクイズ一覧。各県最低3問。

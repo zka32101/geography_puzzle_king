@@ -15,6 +15,7 @@ import 'package:geography_puzzle_king/utils/history_stage_data.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/utils/region_data.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
 
 // ─── ビジュアルエフェクト データクラス ───────────────────────────────────
 
@@ -95,7 +96,7 @@ class _ShopItem {
   final int cost;
   final String effectKey;
 
-  const _ShopItem({
+  _ShopItem({
     required this.emoji,
     required this.name,
     required this.description,
@@ -104,13 +105,13 @@ class _ShopItem {
   });
 }
 
-const _allShopItems = [
-  _ShopItem(emoji: '💊', name: '応急修理',   description: '+2 HP回復',           cost: 60,  effectKey: 'heal2'),
-  _ShopItem(emoji: '💰', name: '金の稲穂',   description: '+120コイン',           cost: 0,   effectKey: 'coins120'),
-  _ShopItem(emoji: '⚔️', name: '施設強化',   description: '全施設ダメージ+30%',   cost: 80,  effectKey: 'dmgBonus'),
-  _ShopItem(emoji: '🛡️', name: '防衛バリア', description: '次3回の敵侵入を防ぐ',  cost: 120, effectKey: 'shield3'),
-  _ShopItem(emoji: '🌀', name: '速度低下',   description: '敵速度-25%（以降永続）', cost: 70,  effectKey: 'speedDown'),
-  _ShopItem(emoji: '🔧', name: '施設整備',   description: '全施設クールダウンリセット', cost: 80, effectKey: 'facilityRepair'),
+List<_ShopItem> get _allShopItems => [
+  _ShopItem(emoji: '💊', name: tr('応急修理'),   description: tr('+2 HP回復'),           cost: 60,  effectKey: 'heal2'),
+  _ShopItem(emoji: '💰', name: tr('金の稲穂'),   description: tr('+120コイン'),           cost: 0,   effectKey: 'coins120'),
+  _ShopItem(emoji: '⚔️', name: tr('施設強化'),   description: tr('全施設ダメージ+30%'),   cost: 80,  effectKey: 'dmgBonus'),
+  _ShopItem(emoji: '🛡️', name: tr('防衛バリア'), description: tr('次3回の敵侵入を防ぐ'),  cost: 120, effectKey: 'shield3'),
+  _ShopItem(emoji: '🌀', name: tr('速度低下'),   description: tr('敵速度-25%（以降永続）'), cost: 70,  effectKey: 'speedDown'),
+  _ShopItem(emoji: '🔧', name: tr('施設整備'),   description: tr('全施設クールダウンリセット'), cost: 80, effectKey: 'facilityRepair'),
 ];
 
 // ─── スキルシステム ──────────────────────────────────────────────────────
@@ -121,7 +122,7 @@ class _SkillChoice {
   final String description;
   final String effectKey;
 
-  const _SkillChoice({
+  _SkillChoice({
     required this.emoji,
     required this.name,
     required this.description,
@@ -129,11 +130,11 @@ class _SkillChoice {
   });
 }
 
-const _waveSkillChoices = [
-  _SkillChoice(emoji: '💪', name: '攻撃力UP', description: '次ウェーブ施設ダメージ+25%', effectKey: 'waveAtkBonus'),
-  _SkillChoice(emoji: '📏', name: '射程UP', description: '次ウェーブ全施設射程+1セル', effectKey: 'waveRangeBonus'),
-  _SkillChoice(emoji: '🪙', name: 'コイン獲得', description: '次ウェーブ敵撃破時コイン+20%', effectKey: 'waveCoinBonus'),
-  _SkillChoice(emoji: '⚡', name: '攻撃速度UP', description: '次ウェーブ全施設攻撃速度+15%', effectKey: 'waveAtkSpeedBonus'),
+List<_SkillChoice> get _waveSkillChoices => [
+  _SkillChoice(emoji: '💪', name: tr('攻撃力UP'), description: tr('次ウェーブ施設ダメージ+25%'), effectKey: 'waveAtkBonus'),
+  _SkillChoice(emoji: '📏', name: tr('射程UP'), description: tr('次ウェーブ全施設射程+1セル'), effectKey: 'waveRangeBonus'),
+  _SkillChoice(emoji: '🪙', name: tr('コイン獲得'), description: tr('次ウェーブ敵撃破時コイン+20%'), effectKey: 'waveCoinBonus'),
+  _SkillChoice(emoji: '⚡', name: tr('攻撃速度UP'), description: tr('次ウェーブ全施設攻撃速度+15%'), effectKey: 'waveAtkSpeedBonus'),
 ];
 
 // ─── クイズ ───────────────────────────────────────────────────────────────
@@ -320,11 +321,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
     final region = _region;
     final p = _prefecture;
     if (history != null) {
-      _say('「${history.name}の決戦だ！歴史を守れ！」', 4.0);
+      _say(tl.saidHistory(history.name), 4.0);
     } else if (region != null) {
-      _say('「${region.name}地方の決戦だ！全力で戦うぞ！」', 4.0);
+      _say(tl.saidRegion(region.name), 4.0);
     } else if (p != null) {
-      _say('「${p.name}を守るぞ！ぼくにまかせて！」', 4.0);
+      _say(tl.saidPref(p.name), 4.0);
     }
   }
 
@@ -359,7 +360,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
     // 迫力ある全画面演出
     _triggerShake(18, duration: 0.7);
     _audio.playVictory();
-    _say('「くらえ！ 必殺・領土防衛ッ！」', 3.0);
+    _say(tr('「くらえ！ 必殺・領土防衛ッ！」'), 3.0);
 
     // 全敵に大ダメージ（各敵の最大HPの70%）＋撃破エフェクト
     final path = _gameState.path;
@@ -421,14 +422,14 @@ class _GameScreenState extends ConsumerState<GameScreen>
       _bannerIsBoss = isBossWave;
       if (isBossWave) {
         if (history != null) {
-          _bannerTitle = '${history.bossEmoji} ${history.bossName} 降臨！';
-          _bannerSub = '歴史決戦「${history.name}」最終決戦！';
+          _bannerTitle = tl.bannerHistoryBoss(history.bossEmoji, history.bossName);
+          _bannerSub = tl.bannerHistoryFinal(history.name);
         } else if (region != null) {
-          _bannerTitle = '${region.bossEmoji} ${region.bossName} 登場！';
-          _bannerSub = '地方決戦「${region.name}」最終決戦！';
+          _bannerTitle = tl.bannerRegionBoss(region.bossEmoji, region.bossName);
+          _bannerSub = tl.bannerRegionFinal(region.name);
         } else if (pref != null) {
-          _bannerTitle = '👹 ${pref.boss.name} 登場！';
-          _bannerSub = 'スキル「${pref.boss.skill}」に警戒せよ';
+          _bannerTitle = tl.bannerPrefBoss(pref.boss.name);
+          _bannerSub = tl.bannerBossSkill(pref.boss.skill);
         }
       } else {
         // 特殊ウェーブ判定（あれば予告を優先表示）
@@ -443,25 +444,25 @@ class _GameScreenState extends ConsumerState<GameScreen>
             : history != null
                 ? '${history.emoji} ${history.subTitle}'
                 : region != null
-                    ? '${region.emoji} ${region.name}地方の精鋭が迫る…'
+                    ? tl.waveRegionElite(region.emoji, region.name)
                     : pref != null
-                        ? '${pref.geographyIcon} ${pref.geographyName}の敵が迫る…'
-                        : '敵が迫る…';
+                        ? tl.waveGeoEnemy(pref.geographyIcon, pref.geographyName)
+                        : tr('敵が迫る…');
       }
     });
     _bannerCtrl.forward(from: 0);
     if (isBossWave) {
       _triggerShake(10, duration: 0.6);
-      _say('「ボスが来た…ここがふんばりどころ！」', 4.0);
+      _say(tr('「ボスが来た…ここがふんばりどころ！」'), 4.0);
     } else if (history != null) {
-      _say('「ウェーブ$wave！歴史の脅威が押し寄せる！」', 3.0);
+      _say(tl.saidWaveHistory(wave), 3.0);
     } else if (region != null) {
-      _say('「ウェーブ$wave、地方最強の敵が来るぞ！」', 3.0);
+      _say(tl.saidWaveRegion(wave), 3.0);
     } else if (pref != null) {
       final mod = TdEngine.waveModifier(
           _gameState.prefCode, wave, _gameState.totalWaves);
       final line = _waveModifierLine(mod);
-      _say(line ?? '「ウェーブ$wave、いくよ！」', 3.0);
+      _say(line ?? tl.saidWave(wave), 3.0);
     }
   }
 
@@ -469,13 +470,13 @@ class _GameScreenState extends ConsumerState<GameScreen>
   (String, String)? _waveModifierInfo(String mod) {
     switch (mod) {
       case 'elite':
-        return ('💪 精鋭ウェーブ', '⚠️ 装甲を固めた強敵が来る！火力で押し切れ');
+        return (tr('💪 精鋭ウェーブ'), tr('⚠️ 装甲を固めた強敵が来る！火力で押し切れ'));
       case 'swarm':
-        return ('🐝 大群ウェーブ', '💨 数で押し寄せる！取りこぼしに注意');
+        return (tr('🐝 大群ウェーブ'), tr('💨 数で押し寄せる！取りこぼしに注意'));
       case 'blitz':
-        return ('⚡ 電撃ウェーブ', '💨 高速の敵！射程と足止めがカギ');
+        return (tr('⚡ 電撃ウェーブ'), tr('💨 高速の敵！射程と足止めがカギ'));
       case 'bounty':
-        return ('💰 ボーナスウェーブ', '🪙 撃破報酬2倍！稼ぎのチャンス');
+        return (tr('💰 ボーナスウェーブ'), tr('🪙 撃破報酬2倍！稼ぎのチャンス'));
       default:
         return null;
     }
@@ -485,13 +486,13 @@ class _GameScreenState extends ConsumerState<GameScreen>
   String? _waveModifierLine(String mod) {
     switch (mod) {
       case 'elite':
-        return '「精鋭部隊だ…気を引き締めて！」';
+        return tr('「精鋭部隊だ…気を引き締めて！」');
       case 'swarm':
-        return '「うわっ、すごい数！囲まれるな！」';
+        return tr('「うわっ、すごい数！囲まれるな！」');
       case 'blitz':
-        return '「速い！止められるか…！？」';
+        return tr('「速い！止められるか…！？」');
       case 'bounty':
-        return '「チャンスだ！コインをがっぽり稼ごう！」';
+        return tr('「チャンスだ！コインをがっぽり稼ごう！」');
       default:
         return null;
     }
@@ -682,7 +683,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
           _gameState = _gameState.copyWith(coins: _gameState.coins + bonus);
           _floatingTexts.add(_FloatingText(
             pos: Offset(ex + 0.5, ey - 0.5),
-            text: '🔥5コンボ! +$bonus🪙',
+            text: tl.combo5(bonus),
             color: Colors.orangeAccent,
             maxLife: 1.5,
           ));
@@ -691,7 +692,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
           _gameState = _gameState.copyWith(coins: _gameState.coins + bonus);
           _floatingTexts.add(_FloatingText(
             pos: Offset(ex + 0.5, ey - 0.5),
-            text: '💥10コンボ!! +$bonus🪙',
+            text: tl.combo10(bonus),
             color: Colors.redAccent,
             maxLife: 1.8,
           ));
@@ -701,7 +702,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
           _gameState = _gameState.copyWith(coins: _gameState.coins + bonus);
           _floatingTexts.add(_FloatingText(
             pos: Offset(ex + 0.5, ey - 0.5),
-            text: '⚡${_comboCount}コンボ!!! +$bonus🪙',
+            text: tl.comboN(_comboCount, bonus),
             color: Colors.purpleAccent,
             maxLife: 2.0,
           ));
@@ -723,7 +724,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
         final goalPos = _gameState.path.last;
         _floatingTexts.add(_FloatingText(
           pos: Offset(goalPos.col + 0.5, goalPos.row + 0.5),
-          text: '🛡️ガード!',
+          text: tr('🛡️ガード!'),
           color: Colors.cyanAccent,
           maxLife: 1.2,
         ));
@@ -738,19 +739,19 @@ class _GameScreenState extends ConsumerState<GameScreen>
           String skillText;
           switch (skillName) {
             case 'speedBurst':
-              skillText = '⚡速度UP!';
+              skillText = tr('⚡速度UP!');
               break;
             case 'hpRegen':
-              skillText = '💚回復!';
+              skillText = tr('💚回復!');
               break;
             case 'summon':
-              skillText = '👾増援!';
+              skillText = tr('👾増援!');
               break;
             case 'stunFacility':
-              skillText = '🌀施設停止!';
+              skillText = tr('🌀施設停止!');
               break;
             default:
-              skillText = '✨スキル!';
+              skillText = tr('✨スキル!');
           }
           _floatingTexts.add(_FloatingText(
             pos: Offset(bx + 0.5, by + 0.5),
@@ -859,17 +860,17 @@ class _GameScreenState extends ConsumerState<GameScreen>
         final goal = _gameState.path.last;
         _floatingTexts.add(_FloatingText(
           pos: Offset(goal.col + 0.5, goal.row - 0.2),
-          text: '応援 +$bonus🪙',
+          text: tl.cheerBonus(bonus),
           color: Colors.lightGreenAccent,
           maxLife: 1.2,
         ));
         if (pref != null) {
           final specialty =
-              pref.specialties.isNotEmpty ? pref.specialties.first : '名産';
+              pref.specialties.isNotEmpty ? pref.specialties.first : tr('名産');
           final cheers = [
-            '「$specialtyパワー、いっけー！」',
-            '「その調子！おうえんするよ！」',
-            '「まだまだ守れる、がんばろう！」',
+            tl.saidSpecialtyPower(specialty),
+            tr('「その調子！おうえんするよ！」'),
+            tr('「まだまだ守れる、がんばろう！」'),
           ];
           _say(cheers[_rng.nextInt(cheers.length)], 2.5);
         }
@@ -1047,7 +1048,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       ..shuffle(_rng);
     final options = [pref.capitalCity, ...wrongList.take(3)]..shuffle(_rng);
     return Quiz(
-      question: '${pref.name}の県庁所在地は？',
+      question: tl.quizCapitalQuestion(pref.name),
       options: options,
       correctIndex: options.indexOf(pref.capitalCity),
     );
@@ -1193,7 +1194,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
               }
               _floatingTexts.add(_FloatingText(
                 pos: Offset(pos.col + 0.5, pos.row - 0.3),
-                text: '✨シナジー +$pct%',
+                text: tl.synergyBonus(pct),
                 color: Colors.cyanAccent,
                 maxLife: 1.5,
               ));
@@ -2023,7 +2024,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
   Widget _buildCompanionBubble() {
     final pref = _prefecture;
     final emoji = pref?.companionEmoji ?? '🐾';
-    final name = pref?.companion.name ?? '相棒';
+    final name = pref?.companion.name ?? tr('相棒');
     return Positioned(
       left: 8,
       right: 8,
@@ -2100,8 +2101,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                const Text(
-                  '📝 クイズ！+40コイン',
+                Text(
+                  tr('📝 クイズ！+40コイン'),
                   style: TextStyle(
                       color: Colors.amber,
                       fontWeight: FontWeight.bold,
@@ -2154,8 +2155,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
                       _quizSelectedIndex == quiz.correctIndex
-                          ? '🎉 正解！+40🪙'
-                          : '❌ 残念！',
+                          ? tr('🎉 正解！+40🪙')
+                          : tr('❌ 残念！'),
                       style: TextStyle(
                           color: _quizSelectedIndex == quiz.correctIndex
                               ? Colors.amber

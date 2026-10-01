@@ -2267,6 +2267,227 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'※ストア側での商品登録が完了すると購入できるようになります。'**
   String get premiumStoreNotReady;
+
+  /// No description provided for @saidHistory.
+  ///
+  /// In ja, this message translates to:
+  /// **'「{name}の決戦だ！歴史を守れ！」'**
+  String saidHistory(String name);
+
+  /// No description provided for @saidRegion.
+  ///
+  /// In ja, this message translates to:
+  /// **'「{name}地方の決戦だ！全力で戦うぞ！」'**
+  String saidRegion(String name);
+
+  /// No description provided for @saidPref.
+  ///
+  /// In ja, this message translates to:
+  /// **'「{name}を守るぞ！ぼくにまかせて！」'**
+  String saidPref(String name);
+
+  /// No description provided for @bannerHistoryBoss.
+  ///
+  /// In ja, this message translates to:
+  /// **'{emoji} {boss} 降臨！'**
+  String bannerHistoryBoss(String emoji, String boss);
+
+  /// No description provided for @bannerHistoryFinal.
+  ///
+  /// In ja, this message translates to:
+  /// **'歴史決戦「{name}」最終決戦！'**
+  String bannerHistoryFinal(String name);
+
+  /// No description provided for @bannerRegionBoss.
+  ///
+  /// In ja, this message translates to:
+  /// **'{emoji} {boss} 登場！'**
+  String bannerRegionBoss(String emoji, String boss);
+
+  /// No description provided for @bannerRegionFinal.
+  ///
+  /// In ja, this message translates to:
+  /// **'地方決戦「{name}」最終決戦！'**
+  String bannerRegionFinal(String name);
+
+  /// No description provided for @bannerPrefBoss.
+  ///
+  /// In ja, this message translates to:
+  /// **'👹 {boss} 登場！'**
+  String bannerPrefBoss(String boss);
+
+  /// No description provided for @bannerBossSkill.
+  ///
+  /// In ja, this message translates to:
+  /// **'スキル「{skill}」に警戒せよ'**
+  String bannerBossSkill(String skill);
+
+  /// No description provided for @waveRegionElite.
+  ///
+  /// In ja, this message translates to:
+  /// **'{emoji} {region}地方の精鋭が迫る…'**
+  String waveRegionElite(String emoji, String region);
+
+  /// No description provided for @waveGeoEnemy.
+  ///
+  /// In ja, this message translates to:
+  /// **'{icon} {geo}の敵が迫る…'**
+  String waveGeoEnemy(String icon, String geo);
+
+  /// No description provided for @saidWaveHistory.
+  ///
+  /// In ja, this message translates to:
+  /// **'「ウェーブ{wave}！歴史の脅威が押し寄せる！」'**
+  String saidWaveHistory(int wave);
+
+  /// No description provided for @saidWaveRegion.
+  ///
+  /// In ja, this message translates to:
+  /// **'「ウェーブ{wave}、地方最強の敵が来るぞ！」'**
+  String saidWaveRegion(int wave);
+
+  /// No description provided for @saidWave.
+  ///
+  /// In ja, this message translates to:
+  /// **'「ウェーブ{wave}、いくよ！」'**
+  String saidWave(int wave);
+
+  /// No description provided for @combo5.
+  ///
+  /// In ja, this message translates to:
+  /// **'🔥5コンボ! +{bonus}🪙'**
+  String combo5(int bonus);
+
+  /// No description provided for @combo10.
+  ///
+  /// In ja, this message translates to:
+  /// **'💥10コンボ!! +{bonus}🪙'**
+  String combo10(int bonus);
+
+  /// No description provided for @comboN.
+  ///
+  /// In ja, this message translates to:
+  /// **'⚡{count}コンボ!!! +{bonus}🪙'**
+  String comboN(int count, int bonus);
+
+  /// No description provided for @cheerBonus.
+  ///
+  /// In ja, this message translates to:
+  /// **'応援 +{bonus}🪙'**
+  String cheerBonus(int bonus);
+
+  /// No description provided for @saidSpecialtyPower.
+  ///
+  /// In ja, this message translates to:
+  /// **'「{specialty}パワー、いっけー！」'**
+  String saidSpecialtyPower(String specialty);
+
+  /// No description provided for @quizCapitalQuestion.
+  ///
+  /// In ja, this message translates to:
+  /// **'{name}の県庁所在地は？'**
+  String quizCapitalQuestion(String name);
+
+  /// No description provided for @synergyBonus.
+  ///
+  /// In ja, this message translates to:
+  /// **'✨シナジー +{pct}%'**
+  String synergyBonus(int pct);
+
+  /// No description provided for @resultSecretsTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'📚 {name} のひみつ'**
+  String resultSecretsTitle(String name);
+
+  /// No description provided for @resultPopulationApprox.
+  ///
+  /// In ja, this message translates to:
+  /// **'約 {man} 万人'**
+  String resultPopulationApprox(int man);
+
+  /// No description provided for @resultTerrain.
+  ///
+  /// In ja, this message translates to:
+  /// **'{icon} 地形'**
+  String resultTerrain(String icon);
+
+  /// No description provided for @resultCompanionJoined.
+  ///
+  /// In ja, this message translates to:
+  /// **'{name} が仲間になった！'**
+  String resultCompanionJoined(String name);
+
+  /// No description provided for @bossStoryRegion.
+  ///
+  /// In ja, this message translates to:
+  /// **'{region}地方の覇権を賭けた戦い。{boss}が立ちはだかる！'**
+  String bossStoryRegion(String region, String boss);
+
+  /// No description provided for @recordClearsCount.
+  ///
+  /// In ja, this message translates to:
+  /// **'{n}回'**
+  String recordClearsCount(int n);
+
+  /// No description provided for @recordPointsCount.
+  ///
+  /// In ja, this message translates to:
+  /// **'{n}点'**
+  String recordPointsCount(int n);
+
+  /// No description provided for @dateYmd.
+  ///
+  /// In ja, this message translates to:
+  /// **'{y}年{m}月{d}日'**
+  String dateYmd(int y, int m, int d);
+
+  /// No description provided for @triviaCapital.
+  ///
+  /// In ja, this message translates to:
+  /// **'{name}の県庁所在地は{capital}だよ。'**
+  String triviaCapital(String name, String capital);
+
+  /// No description provided for @triviaArea.
+  ///
+  /// In ja, this message translates to:
+  /// **'面積は約{area}km²。全国でも特徴的な広さなんだ。'**
+  String triviaArea(int area);
+
+  /// No description provided for @triviaPopulation.
+  ///
+  /// In ja, this message translates to:
+  /// **'人口は約{man}万人が暮らしているよ。'**
+  String triviaPopulation(int man);
+
+  /// No description provided for @triviaSpecialty.
+  ///
+  /// In ja, this message translates to:
+  /// **'名産品の「{item}」がとくに有名なんだ。'**
+  String triviaSpecialty(String item);
+
+  /// No description provided for @triviaGeography.
+  ///
+  /// In ja, this message translates to:
+  /// **'地形は「{geo}」タイプ。だから敵もその土地らしいんだ。'**
+  String triviaGeography(String geo);
+
+  /// No description provided for @detailWithSpecialty.
+  ///
+  /// In ja, this message translates to:
+  /// **'{region}地方に位置する「{geo}」タイプの地形が特徴の県。名産品は{items}などが知られていて、県庁所在地の{capital}を中心ににぎわっているよ。'**
+  String detailWithSpecialty(
+    String region,
+    String geo,
+    String items,
+    String capital,
+  );
+
+  /// No description provided for @detailNoSpecialty.
+  ///
+  /// In ja, this message translates to:
+  /// **'{region}地方に位置する「{geo}」タイプの地形が特徴の県。県庁所在地は{capital}だよ。'**
+  String detailNoSpecialty(String region, String geo, String capital);
 }
 
 class _AppLocalizationsDelegate

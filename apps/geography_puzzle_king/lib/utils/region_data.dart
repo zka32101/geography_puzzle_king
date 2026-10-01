@@ -1,27 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
 
 class RegionData {
   final String code;
-  final String name;
+  final String _name;
+  String get name => tr(_name);
+  String get nameRaw => _name;
   final String emoji;
   final Color color;
   final List<String> prefectureCodes;
-  final String bossName;
+  final String _bossName;
+  String get bossName => tr(_bossName);
   final String bossEmoji;
-  final String bossSkill;
+  final String _bossSkill;
+  String get bossSkill => tr(_bossSkill);
   final int difficultyRating;
 
   const RegionData({
     required this.code,
-    required this.name,
+    required String name,
     required this.emoji,
     required this.color,
     required this.prefectureCodes,
-    required this.bossName,
+    required String bossName,
     required this.bossEmoji,
-    required this.bossSkill,
+    required String bossSkill,
     required this.difficultyRating,
-  });
+  }) : _name = name, _bossName = bossName, _bossSkill = bossSkill;
 }
 
 const List<RegionData> allRegions = [

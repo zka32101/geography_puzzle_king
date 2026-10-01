@@ -10,7 +10,8 @@ import 'package:geography_puzzle_king/screens/game/boss_story_screen.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
 import 'package:geography_puzzle_king/widgets/stage_locked_dialog.dart';
-import 'package:geography_puzzle_king/l10n/app_localizations.dart';
+import 'package:geography_puzzle_king/l10n/app_localizations.dart';
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
 
 class PrefectureSelectionScreen extends ConsumerStatefulWidget {
   const PrefectureSelectionScreen({Key? key}) : super(key: key);
@@ -83,14 +84,14 @@ class _PrefectureSelectionScreenState
     final l10n = AppLocalizations.of(context)!;
     final regions = [
       ('', l10n.regionAll),
-      ('hokkaido', '北海道'),
-      ('tohoku', '東北'),
-      ('kanto', '関東'),
-      ('chubu', '中部'),
-      ('kansai', '近畿'),
-      ('chugoku', '中国'),
-      ('shikoku', '四国'),
-      ('kyushu', '九州'),
+      ('hokkaido', tr('北海道')),
+      ('tohoku', tr('東北')),
+      ('kanto', tr('関東')),
+      ('chubu', tr('中部')),
+      ('kansai', tr('近畿')),
+      ('chugoku', tr('中国')),
+      ('shikoku', tr('四国')),
+      ('kyushu', tr('九州')),
     ];
 
     return SingleChildScrollView(
