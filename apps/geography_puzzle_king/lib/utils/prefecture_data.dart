@@ -825,17 +825,17 @@ extension PrefectureGeographyX on PrefectureData {
   String get difficultyLabel {
     switch (difficultyRating) {
       case 1:
-        return '超簡単';
+        return tr('超簡単');
       case 2:
-        return '簡単';
+        return tr('簡単');
       case 3:
-        return '普通';
+        return tr('普通');
       case 4:
-        return '難しい';
+        return tr('難しい');
       case 5:
-        return '超難しい';
+        return tr('超難しい');
       default:
-        return '普通';
+        return tr('普通');
     }
   }
 
