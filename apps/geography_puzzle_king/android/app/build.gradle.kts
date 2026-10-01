@@ -1,8 +1,15 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
     id("com.google.gms.google-services")
+}
+
+val keystoreProperties = Properties().apply {
+    val f = rootProject.file("key.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
 }
 
 android {
@@ -25,17 +32,25 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            keyAlias = "release-key"
-            keyPassword = "petitworks2026"
-            storeFile = file(System.getProperty("user.home") + "/.android/release-key.jks")
-            storePassword = "petitworks2026"
+        // 署名情報は android/key.properties（gitignore済み）から読む。
+        // 無い環境（CI等）ではreleaseのsigningConfigを使わず、debug署名にフォールバックする。
+        if (keystoreProperties.isNotEmpty()) {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = if (keystoreProperties.isNotEmpty()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
             // R8がFirebase ComponentRegistrar/WorkManagerのRoomクラスを
             // リフレクション経由の生成ということに気づかず削除・難読化し、
             // 起動直後に "Failed to create an instance of
