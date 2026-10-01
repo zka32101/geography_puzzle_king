@@ -2648,7 +2648,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(type.emoji, style: const TextStyle(fontSize: 20)),
+            _facilityIcon(type, 26),
             Text(
               type.localizedLabel(l10n),
               style: TextStyle(
@@ -2699,7 +2699,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(type.emoji, style: const TextStyle(fontSize: 18)),
+              _facilityIcon(type, 24),
               Text(
                 type.localizedLabel(l10n),
                 style: TextStyle(
@@ -2843,6 +2843,26 @@ class _GameScreenState extends ConsumerState<GameScreen>
       ),
     );
   }
+}
+
+/// 施設ボタン用のアイコン。盤面に置かれたときと同じ画像を使い、
+/// 画像が無い／読み込めない場合は絵文字にフォールバックする。
+Widget _facilityIcon(FacilityType type, double size) {
+  final path = facilityTypeImages[type.name];
+  if (path == null || path.isEmpty) {
+    return Text(type.emoji, style: TextStyle(fontSize: size * 0.8));
+  }
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(size * 0.2),
+    child: Image.asset(
+      path,
+      width: size,
+      height: size,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) =>
+          Text(type.emoji, style: TextStyle(fontSize: size * 0.8)),
+    ),
+  );
 }
 
 // ─── CustomPainter ────────────────────────────────────────────────────────
