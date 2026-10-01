@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// オンラインランキング（Firestore）サービス。
 ///
@@ -23,19 +24,34 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// }
 /// ```
 ///
-/// 注意: このアプリの現行の認証(`lib/providers/auth_provider.dart`)は
-/// Firebase Authを実際には使わないローカル疑似認証（`User.uid`は
-/// `local_xxx`形式のローカル生成ID）。pubspec.yamlにfirebase_authの
-/// 依存はあるが、ログイン画面からのFirebase Auth連携は未実装のため、
-/// このサービスは暫定的に [User.uid] / [User.nickname] をそのまま
-/// Firestoreドキュメントのキー・表示名として利用する。将来的に
-/// Firebase Authへ移行する場合は、上記ルールの`request.auth.uid`と
-/// 実際に送信する`uid`が一致するよう認証フローを接続すること。
+/// 認証について: このアプリのログイン(`lib/providers/auth_provider.dart`)は
+/// 端末内だけのローカル疑似認証（`User.uid` は `local_xxx`）で、Firebase Auth は使わない。
+/// 一方 Firestore ルールは `request.auth.uid == uid` を要求するため、ランキングへ
+/// 書き込む際は **Firebase 匿名認証**でサインインし、その `uid` をドキュメントIDに使う
+/// （[_ensureUid]）。呼び出し側が渡す `uid`（ローカルID）は使用しない。
+/// 匿名認証は Firebase コンソールで有効化されている必要がある。無効のときは
+/// 例外を握りつぶし、ゲーム進行には影響させない（ランキングに載らないだけ）。
 class RankingService {
   RankingService({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseFirestore _firestore;
+
+  /// Firestore ルールを満たす（`request.auth.uid == uid`）ための匿名サインイン。
+  /// すでにサインイン済みならその uid を返し、失敗したら null を返す。
+  Future<String?> _ensureUid() async {
+    try {
+      final auth = FirebaseAuth.instance;
+      final current = auth.currentUser;
+      if (current != null) return current.uid;
+      final cred = await auth.signInAnonymously();
+      return cred.user?.uid;
+    } catch (e) {
+      // ignore: avoid_print
+      print('RankingService._ensureUid failed: $e');
+      return null;
+    }
+  }
 
   CollectionReference<Map<String, dynamic>> get _globalRankingRef =>
       _firestore.collection('rankings');
@@ -60,21 +76,24 @@ class RankingService {
     required int clearedPrefectures,
   }) async {
     try {
-      final docRef = _globalRankingRef.doc(uid);
-      await _firestore.runTransaction((tx) async {
-        final snapshot = await tx.get(docRef);
-        final currentBest = (snapshot.data()?['score'] as num?)?.toInt() ?? 0;
-        if (score < currentBest) {
-          // ベストスコアを下回る場合は上書きしない。
-          return;
-        }
-        tx.set(docRef, {
-          'nickname': nickname,
-          'score': score,
-          'clearedPrefectures': clearedPrefectures,
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      });
+      final authUid = await _ensureUid();
+      if (authUid == null) return;
+      final docRef = _globalRankingRef.doc(authUid);
+      // 自分のドキュメントだけを更新するため競合は起きない。runTransaction は
+      // 実機で「transaction object cannot be used after its update callback」の
+      // ネイティブAssertionでアプリごと落ちたため使わず、読んでから書く。
+      final snapshot = await docRef.get();
+      final currentBest = (snapshot.data()?['score'] as num?)?.toInt() ?? 0;
+      if (score < currentBest) {
+        // ベストスコアを下回る場合は上書きしない。
+        return;
+      }
+      await docRef.set({
+        'nickname': nickname,
+        'score': score,
+        'clearedPrefectures': clearedPrefectures,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
     } catch (e) {
       // オフライン・権限エラー等はゲーム進行に影響させず握りつぶす。
       // ignore: avoid_print
@@ -90,17 +109,17 @@ class RankingService {
     required int score,
   }) async {
     try {
-      final docRef = _prefectureRankingRef(prefectureCode).doc(uid);
-      await _firestore.runTransaction((tx) async {
-        final snapshot = await tx.get(docRef);
-        final currentBest = (snapshot.data()?['score'] as num?)?.toInt() ?? 0;
-        if (score < currentBest) return;
-        tx.set(docRef, {
-          'prefectureName': prefectureName,
-          'score': score,
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      });
+      final authUid = await _ensureUid();
+      if (authUid == null) return;
+      final docRef = _prefectureRankingRef(prefectureCode).doc(authUid);
+      final snapshot = await docRef.get();
+      final currentBest = (snapshot.data()?['score'] as num?)?.toInt() ?? 0;
+      if (score < currentBest) return;
+      await docRef.set({
+        'prefectureName': prefectureName,
+        'score': score,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
     } catch (e) {
       // ignore: avoid_print
       print('RankingService.submitPrefectureScore failed: $e');
