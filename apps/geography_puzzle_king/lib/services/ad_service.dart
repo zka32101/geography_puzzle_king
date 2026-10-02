@@ -38,7 +38,18 @@ class AdService {
   InterstitialAd? _interstitialAd;
   bool _interstitialLoading = false;
 
-  static Future<void> initialize() => MobileAds.instance.initialize();
+  /// 子供向け（Families Policy）として広告をリクエストする。
+  /// 年齢制限付き・G レーティングのみ、パーソナライズなし。
+  static Future<void> initialize() async {
+    await MobileAds.instance.updateRequestConfiguration(
+      RequestConfiguration(
+        tagForChildDirectedTreatment: TagForChildDirectedTreatment.yes,
+        tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.yes,
+        maxAdContentRating: MaxAdContentRating.g,
+      ),
+    );
+    await MobileAds.instance.initialize();
+  }
 
   BannerAd createBannerAd({
     required void Function() onLoadFailed,

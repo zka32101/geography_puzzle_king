@@ -1085,5 +1085,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "parentGateTitle": "保護者の方へ",
+  "parentGateMessage": "購入は保護者の方が操作してください。答えを入力してください。",
+  "parentGateCancel": "キャンセル",
+  "parentGateOk": "確認",
+  "parentGateWrong": "答えが違います"
 }

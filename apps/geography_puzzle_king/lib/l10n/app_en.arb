@@ -1085,5 +1085,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "parentGateTitle": "For parents",
+  "parentGateMessage": "Purchases must be made by a parent. Please enter the answer.",
+  "parentGateCancel": "Cancel",
+  "parentGateOk": "OK",
+  "parentGateWrong": "Incorrect answer"
 }

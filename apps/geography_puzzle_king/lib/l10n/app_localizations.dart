@@ -2488,6 +2488,36 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'{region}地方に位置する「{geo}」タイプの地形が特徴の県。県庁所在地は{capital}だよ。'**
   String detailNoSpecialty(String region, String geo, String capital);
+
+  /// No description provided for @parentGateTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'保護者の方へ'**
+  String get parentGateTitle;
+
+  /// No description provided for @parentGateMessage.
+  ///
+  /// In ja, this message translates to:
+  /// **'購入は保護者の方が操作してください。答えを入力してください。'**
+  String get parentGateMessage;
+
+  /// No description provided for @parentGateCancel.
+  ///
+  /// In ja, this message translates to:
+  /// **'キャンセル'**
+  String get parentGateCancel;
+
+  /// No description provided for @parentGateOk.
+  ///
+  /// In ja, this message translates to:
+  /// **'確認'**
+  String get parentGateOk;
+
+  /// No description provided for @parentGateWrong.
+  ///
+  /// In ja, this message translates to:
+  /// **'答えが違います'**
+  String get parentGateWrong;
 }
 
 class _AppLocalizationsDelegate

@@ -1,3 +1,4 @@
+import '../../widgets/parent_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -215,6 +216,7 @@ class PremiumPlanScreen extends ConsumerWidget {
                         : () async {
                             final service = ref.read(purchaseServiceProvider);
                             if (service == null) return;
+                            if (!await showParentGate(context)) return;
                             await service.buyNonConsumable(product);
                           },
                     style: FilledButton.styleFrom(
