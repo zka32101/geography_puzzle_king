@@ -1411,4 +1411,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String detailNoSpecialty(String region, String geo, String capital) {
     return 'Located in the $region region, a prefecture known for its \"$geo\" terrain. Its capital is $capital.';
   }
+
+  @override
+  String get parentGateTitle => 'For parents';
+
+  @override
+  String get parentGateMessage =>
+      'Purchases must be made by a parent. Please enter the answer.';
+
+  @override
+  String get parentGateCancel => 'Cancel';
+
+  @override
+  String get parentGateOk => 'OK';
+
+  @override
+  String get parentGateWrong => 'Incorrect answer';
 }

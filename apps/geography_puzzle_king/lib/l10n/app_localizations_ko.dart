@@ -1385,4 +1385,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String detailNoSpecialty(String region, String geo, String capital) {
     return '$region 지방에 위치한 「$geo」 타입 지형이 특징인 현. 현청 소재지는 $capital야.';
   }
+
+  @override
+  String get parentGateTitle => '보호자 확인';
+
+  @override
+  String get parentGateMessage => '구매는 보호자가 진행해 주세요. 정답을 입력해 주세요.';
+
+  @override
+  String get parentGateCancel => '취소';
+
+  @override
+  String get parentGateOk => '확인';
+
+  @override
+  String get parentGateWrong => '정답이 아닙니다';
 }

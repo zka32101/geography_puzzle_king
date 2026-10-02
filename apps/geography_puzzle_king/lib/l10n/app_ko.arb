@@ -1079,5 +1079,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "parentGateTitle": "보호자 확인",
+  "parentGateMessage": "구매는 보호자가 진행해 주세요. 정답을 입력해 주세요.",
+  "parentGateCancel": "취소",
+  "parentGateOk": "확인",
+  "parentGateWrong": "정답이 아닙니다"
 }

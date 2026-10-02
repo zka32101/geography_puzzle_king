@@ -1378,4 +1378,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String detailNoSpecialty(String region, String geo, String capital) {
     return '位于$region地区，以「$geo」类型地形为特色的县。县厅所在地是$capital。';
   }
+
+  @override
+  String get parentGateTitle => '家长确认';
+
+  @override
+  String get parentGateMessage => '购买需由家长操作。请输入答案。';
+
+  @override
+  String get parentGateCancel => '取消';
+
+  @override
+  String get parentGateOk => '确认';
+
+  @override
+  String get parentGateWrong => '答案不正确';
 }

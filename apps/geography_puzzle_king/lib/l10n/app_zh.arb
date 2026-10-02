@@ -1079,5 +1079,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "parentGateTitle": "家长确认",
+  "parentGateMessage": "购买需由家长操作。请输入答案。",
+  "parentGateCancel": "取消",
+  "parentGateOk": "确认",
+  "parentGateWrong": "答案不正确"
 }

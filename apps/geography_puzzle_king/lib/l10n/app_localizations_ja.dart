@@ -1384,4 +1384,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String detailNoSpecialty(String region, String geo, String capital) {
     return '$region地方に位置する「$geo」タイプの地形が特徴の県。県庁所在地は$capitalだよ。';
   }
+
+  @override
+  String get parentGateTitle => '保護者の方へ';
+
+  @override
+  String get parentGateMessage => '購入は保護者の方が操作してください。答えを入力してください。';
+
+  @override
+  String get parentGateCancel => 'キャンセル';
+
+  @override
+  String get parentGateOk => '確認';
+
+  @override
+  String get parentGateWrong => '答えが違います';
 }
