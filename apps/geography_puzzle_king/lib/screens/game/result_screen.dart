@@ -98,8 +98,11 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           uid: user.uid,
           nickname: user.nickname,
           score: widget.score,
-          clearedPrefectures:
-              ref.read(prefectureRecordsProvider).valueOrNull?.length ?? 0,
+          // recordClear は非同期で保存前の件数になり得るため、今回の県を必ず含めて数える。
+          clearedPrefectures: <String>{
+            ...?ref.read(prefectureRecordsProvider).valueOrNull?.keys,
+            if (widget.regionCode.isEmpty) widget.prefectureCode,
+          }.length,
         );
         // 都道府県対抗ランキングは「プレイしたステージの県」ではなく、
         // プレイヤーが設定画面で選んだ「出身地（hometownCode）」に加算する。
