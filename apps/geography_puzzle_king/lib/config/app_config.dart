@@ -12,7 +12,7 @@ class AppConfig {
 
   // アプリバージョン
   static const String appVersion = '1.0.0';
-  static const int buildNumber = 10;
+  static const int buildNumber = 11;
 
   // 対応OS
   static const int minIosVersion = 14;
