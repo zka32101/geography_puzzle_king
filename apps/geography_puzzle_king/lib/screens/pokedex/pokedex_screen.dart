@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/models/achievement_model.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
+import 'package:geography_puzzle_king/providers/prefecture_records_provider.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
@@ -170,6 +171,9 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
 
   Widget _buildStatisticsTab(AppLocalizations l10n) {
     final stats = ref.watch(gameStatsProvider);
+    // クリア県数は累積カウンターではなく県ごとの記録から数える（重複クリア対策）。
+    final clearedCount =
+        ref.watch(prefectureRecordsProvider).valueOrNull?.length ?? 0;
     final hours = stats.totalPlayTime ~/ 60;
     final minutes = stats.totalPlayTime % 60;
 
@@ -183,7 +187,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
           _buildStatCard(
             icon: Icons.location_on,
             title: l10n.statClearedPrefCount,
-            value: '${stats.totalClearedPrefectures} / ${allPrefectures.length}',
+            value: '$clearedCount / ${allPrefectures.length}',
             color: AppColors.primary,
           ),
           const SizedBox(height: AppSpacing.md),
