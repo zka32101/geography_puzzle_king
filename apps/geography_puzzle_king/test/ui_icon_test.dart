@@ -7,6 +7,9 @@ void main() {
     expect(containsIconEmoji('🪙 100'), isTrue);
     expect(containsIconEmoji('⚔FE0F 攻撃'), isTrue);
     expect(containsIconEmoji('🗾'), isTrue);
+    expect(containsIconEmoji('🌊 ⛩️ 🏔️'), isTrue);
+    // ZWJ 絵文字（🐻\u200D❄️）の途中の ❄ は置き換えない。
+    expect(containsIconEmoji('🐻\u200D❄️'), isFalse);
     expect(containsIconEmoji('🗺️ マップ'), isTrue);
     expect(containsIconEmoji('ふつうの文字'), isFalse);
   });
