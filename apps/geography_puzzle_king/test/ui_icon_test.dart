@@ -5,6 +5,8 @@ import 'package:geography_puzzle_king/widgets/ui_icon.dart';
 void main() {
   test('containsIconEmoji detects target emoji incl. variation selector', () {
     expect(containsIconEmoji('🪙 100'), isTrue);
+    expect(containsIconEmoji('⚔FE0F 攻撃'), isTrue);
+    expect(containsIconEmoji('🗾'), isTrue);
     expect(containsIconEmoji('🗺️ マップ'), isTrue);
     expect(containsIconEmoji('ふつうの文字'), isFalse);
   });

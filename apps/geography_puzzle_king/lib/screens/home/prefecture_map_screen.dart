@@ -503,7 +503,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                       ),
                     );
                   },
-                  icon: const Text('⚔️', style: TextStyle(fontSize: 18)),
+                  icon: const IconText('⚔️', style: TextStyle(fontSize: 18)),
                   label: IconText(l10n.startRegionBattleButton, style: AppTextStyles.button),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: region.color,
@@ -1267,7 +1267,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                       ),
                     );
                   },
-                  icon: const Text('⚔️', style: TextStyle(fontSize: 18)),
+                  icon: const IconText('⚔️', style: TextStyle(fontSize: 18)),
                   label: IconText(l10n.startDefenseButton, style: AppTextStyles.button),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,

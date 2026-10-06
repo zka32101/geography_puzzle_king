@@ -149,7 +149,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         children: [
           Row(
             children: [
-              const Text('🗾', style: TextStyle(fontSize: 30)),
+              const IconText('🗾', style: TextStyle(fontSize: 30)),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Column(
@@ -245,7 +245,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: const Center(
-                  child: Text('⚔️', style: TextStyle(fontSize: 26)),
+                  child: IconText('⚔️', style: TextStyle(fontSize: 26)),
                 ),
               ),
               const SizedBox(width: AppSpacing.md),

@@ -146,7 +146,7 @@ class BossStoryScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  icon: const Text('⚔️', style: TextStyle(fontSize: 18)),
+                  icon: const IconText('⚔️', style: TextStyle(fontSize: 18)),
                   label: IconText(l10n.bossStoryFightButton, style: AppTextStyles.button.copyWith(color: Colors.black)),
                 ),
               ),
