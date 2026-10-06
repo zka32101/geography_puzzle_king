@@ -97,7 +97,7 @@ class PremiumPlanScreen extends ConsumerWidget {
             icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           ),
           const SizedBox(width: AppSpacing.xs),
-          const Text('👑', style: TextStyle(fontSize: 26)),
+          const IconText('👑', style: TextStyle(fontSize: 26)),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: IconText(

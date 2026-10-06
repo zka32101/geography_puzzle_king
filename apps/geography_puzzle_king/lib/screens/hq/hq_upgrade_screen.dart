@@ -21,7 +21,7 @@ class HqUpgradeScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF0F1620),
         elevation: 0,
-        title: Text('🏛️ ${l10n.hqUpgrade}',
+        title: IconText('🏛️ ${l10n.hqUpgrade}',
             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),

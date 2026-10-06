@@ -351,7 +351,7 @@ class _PrefectureSelectionScreenState
     if (imagePath == null) {
       return const SizedBox(
         height: 150,
-        child: Center(child: Text('👹')),
+        child: Center(child: IconText('👹')),
       );
     }
     return ClipRRect(
@@ -365,7 +365,7 @@ class _PrefectureSelectionScreenState
             return Container(
               height: 150,
               color: Colors.grey.shade300,
-              child: const Center(child: Text('👹')),
+              child: const Center(child: IconText('👹')),
             );
           },
         ),
