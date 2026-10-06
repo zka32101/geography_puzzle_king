@@ -9,7 +9,11 @@ enum UiIconKind {
   trophy('trophy', '🏆'),
   castle('castle', '🏯'),
   book('book', '📖'),
-  mapScroll('mapscroll', '🗺');
+  mapScroll('mapscroll', '🗺'),
+  sword('sword', '⚔'),
+  lightning('lightning', '⚡'),
+  explosion('explosion', '💥'),
+  japanMap('japanmap', '🗾');
 
   const UiIconKind(this.fileName, this.emoji);
 
@@ -41,7 +45,7 @@ class UiIcon extends StatelessWidget {
 }
 
 // 文字列中の絵文字（異体字セレクタ U+FE0F つきも）を探す正規表現。
-final RegExp _kIconEmojiPattern = RegExp('(🪙|🛡|💨|⭐|🏆|🏯|📖|🗺)\uFE0F?');
+final RegExp _kIconEmojiPattern = RegExp('(🪙|🛡|💨|⭐|🏆|🏯|📖|🗺|⚔|⚡|💥|🗾)\uFE0F?');
 
 UiIconKind? _kindOfEmoji(String emoji) {
   final base = emoji.replaceAll('\uFE0F', '');
@@ -54,7 +58,7 @@ UiIconKind? _kindOfEmoji(String emoji) {
 /// 文字列に、置き換え対象の絵文字が含まれるか。
 bool containsIconEmoji(String text) => _kIconEmojiPattern.hasMatch(text);
 
-/// [Text] の代わりに使う。文字列中の絵文字（🪙🛡💨⭐🏆🏯📖🗺）を画像のアイコンに
+/// [Text] の代わりに使う。文字列中の絵文字（🪙🛡💨⭐🏆🏯📖🗺⚔⚡💥🗾）を画像のアイコンに
 /// 置き換えて表示する。絵文字が含まれない文字列は、そのまま [Text] と同じ表示。
 class IconText extends StatelessWidget {
   const IconText(

@@ -2437,7 +2437,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color.withOpacity(0.6)),
       ),
-      child: Text(
+      child: IconText(
         '${combo >= 10 ? "💥" : "🔥"}$combo COMBO',
         style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold),
       ),
@@ -2773,7 +2773,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
         ),
         child: Row(
           children: [
-            Text(
+            IconText(
               ready ? '🔥' : '⚡',
               style: const TextStyle(fontSize: 16),
             ),
