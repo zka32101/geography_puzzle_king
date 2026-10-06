@@ -1,3 +1,4 @@
+import '../../widgets/ui_icon.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:geography_puzzle_king/data/japan_prefecture_boundaries.dart';
@@ -226,7 +227,7 @@ class _JapanMapWidgetState extends State<JapanMapWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        IconText(
           l10n.japanMapLabel,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
@@ -261,7 +262,7 @@ class _JapanMapWidgetState extends State<JapanMapWidget> {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
+        IconText(
           l10n.mapDataAttribution,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: Colors.grey.shade600,

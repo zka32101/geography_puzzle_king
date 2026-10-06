@@ -10,6 +10,7 @@ import 'package:geography_puzzle_king/services/tutorial_service.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
 import 'package:geography_puzzle_king/i18n/content_tr.dart';
+import '../../widgets/ui_icon.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -46,8 +47,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('📖 ${tutorialStep.title}'),
-        content: Text(tutorialStep.description),
+        title: IconText('📖 ${tutorialStep.title}'),
+        content: IconText(tutorialStep.description),
         actions: [
           if (step < 5)
             TextButton(
@@ -57,7 +58,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 if (mounted) Future.delayed(const Duration(milliseconds: 300),
                   () => _showTutorialStep(tutorialService));
               },
-              child: Text(tr('次へ')),
+              child: IconText(tr('次へ')),
             )
           else
             ElevatedButton(
@@ -65,7 +66,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 await tutorialService.completeTutorial();
                 Navigator.pop(ctx);
               },
-              child: Text(tr('完了')),
+              child: IconText(tr('完了')),
             ),
         ],
       ),
@@ -154,7 +155,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    IconText(
                       l10n.appSubtitle,
                       style: const TextStyle(
                         color: Colors.white,
@@ -163,7 +164,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         letterSpacing: 1,
                       ),
                     ),
-                    Text(
+                    IconText(
                       l10n.commanderName(nickname),
                       style: const TextStyle(color: Colors.white70, fontSize: 13),
                     ),
@@ -177,7 +178,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              IconText(
                 l10n.nationalConquest,
                 style: const TextStyle(
                   color: Colors.white,
@@ -185,7 +186,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              Text(
+              IconText(
                 l10n.clearedOfTotal(cleared, total),
                 style: const TextStyle(
                   color: AppColors.accent,
@@ -253,7 +254,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    IconText(
                       l10n.deploy,
                       style: const TextStyle(
                         color: Colors.white,
@@ -261,7 +262,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text(
+                    IconText(
                       l10n.deploySubtitle,
                       style: const TextStyle(color: Colors.white70, fontSize: 12),
                     ),
@@ -326,9 +327,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         child: Column(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 22)),
+            IconText(emoji, style: const TextStyle(fontSize: 22)),
             const SizedBox(height: 4),
-            Text(
+            IconText(
               value,
               style: TextStyle(
                 fontSize: 18,
@@ -336,7 +337,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color: color,
               ),
             ),
-            Text(label, style: AppTextStyles.bodySmall),
+            IconText(label, style: AppTextStyles.bodySmall),
           ],
         ),
         ),
@@ -383,11 +384,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: Text(emoji, style: const TextStyle(fontSize: 24)),
+                child: IconText(emoji, style: const TextStyle(fontSize: 24)),
               ),
             ),
             const SizedBox(height: AppSpacing.sm),
-            Text(
+            IconText(
               label,
               style: AppTextStyles.subtitle2.copyWith(
                 fontWeight: FontWeight.w600,

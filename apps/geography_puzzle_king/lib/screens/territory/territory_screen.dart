@@ -1,3 +1,4 @@
+import '../../widgets/ui_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
@@ -19,7 +20,7 @@ class TerritoryScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.territoryMapTitle),
+        title: IconText(l10n.territoryMapTitle),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -117,7 +118,7 @@ class TerritoryScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                IconText(
                   l10n.territoryUnificationLabel,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
@@ -175,7 +176,7 @@ class TerritoryScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            IconText(
               l10n.statsSectionTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
@@ -197,8 +198,8 @@ class TerritoryScreen extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label),
-          Text(
+          IconText(label),
+          IconText(
             value,
             style: const TextStyle(
               fontWeight: FontWeight.bold,

@@ -1,3 +1,4 @@
+import '../../widgets/ui_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
@@ -46,9 +47,9 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
       appBar: AppBar(
         title: Row(
           children: [
-            const Text('📖', style: TextStyle(fontSize: 20)),
+            const IconText('📖', style: TextStyle(fontSize: 20)),
             const SizedBox(width: AppSpacing.sm),
-            Text(l10n.pokedexTitle),
+            IconText(l10n.pokedexTitle),
           ],
         ),
         backgroundColor: Colors.transparent,
@@ -109,7 +110,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    IconText(
                       l10n.clearProgressLabel,
                       style: AppTextStyles.subtitle1,
                     ),
@@ -182,7 +183,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l10n.learningStatsTitle, style: AppTextStyles.headline3),
+          IconText(l10n.learningStatsTitle, style: AppTextStyles.headline3),
           const SizedBox(height: AppSpacing.lg),
           _buildStatCard(
             icon: Icons.location_on,
@@ -212,7 +213,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
             color: Colors.purple,
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text(l10n.clearsByDifficultyLabel, style: AppTextStyles.subtitle1),
+          IconText(l10n.clearsByDifficultyLabel, style: AppTextStyles.subtitle1),
           const SizedBox(height: AppSpacing.md),
           Row(
             children: [
@@ -240,7 +241,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
         child: Column(
           children: [
             Text('$count', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color)),
-            Text(label, style: AppTextStyles.bodySmall),
+            IconText(label, style: AppTextStyles.bodySmall),
           ],
         ),
       ),
@@ -289,9 +290,9 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: AppTextStyles.bodySmall),
+                IconText(title, style: AppTextStyles.bodySmall),
                 const SizedBox(height: AppSpacing.xs),
-                Text(value, style: AppTextStyles.headline3),
+                IconText(value, style: AppTextStyles.headline3),
               ],
             ),
           ],
@@ -310,7 +311,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(l10n.achievementsTitle, style: AppTextStyles.headline3),
+              IconText(l10n.achievementsTitle, style: AppTextStyles.headline3),
               Text(
                 '$unlocked / ${achievements.length}',
                 style: AppTextStyles.subtitle1,
@@ -332,14 +333,14 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
                     a.isUnlocked ? a.emoji : '🔒',
                     style: const TextStyle(fontSize: 28),
                   ),
-                  title: Text(
+                  title: IconText(
                     tr(a.title),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: a.isUnlocked ? null : AppColors.textSecondary,
                     ),
                   ),
-                  subtitle: Text(tr(a.description), style: AppTextStyles.bodySmall),
+                  subtitle: IconText(tr(a.description), style: AppTextStyles.bodySmall),
                   trailing: a.isUnlocked && a.unlockedAt != null
                       ? Text(
                           '${a.unlockedAt!.month}/${a.unlockedAt!.day}',
@@ -398,7 +399,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
               ],
             ),
             const SizedBox(height: 3),
-            Text(
+            IconText(
               prefecture.name,
               style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
@@ -407,7 +408,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
             ),
             if (best != null) ...[
               const SizedBox(height: 2),
-              Text(
+              IconText(
                 _formatNumber(best),
                 style: const TextStyle(fontSize: 10, color: AppColors.accent, fontWeight: FontWeight.bold),
               ),
@@ -437,7 +438,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
         borderRadius: BorderRadius.circular(3),
       ),
       child: Center(
-        child: Text(
+        child: IconText(
           label,
           style: TextStyle(
             fontSize: 9,
@@ -457,7 +458,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(prefecture.name),
+        title: IconText(prefecture.name),
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -493,7 +494,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
                 style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Row(children: [
-              Text(l10n.clearedDifficultiesLabel),
+              IconText(l10n.clearedDifficultiesLabel),
               ...['easy', 'normal', 'hard'].map((d) {
                 final labels = {'easy': 'E', 'normal': 'N', 'hard': 'H'};
                 final colors = {'easy': Colors.green, 'normal': Colors.blue, 'hard': Colors.red};
@@ -511,7 +512,7 @@ class _PokedexScreenState extends ConsumerState<PokedexScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(l10n.closeButton),
+            child: IconText(l10n.closeButton),
           ),
         ],
       ),

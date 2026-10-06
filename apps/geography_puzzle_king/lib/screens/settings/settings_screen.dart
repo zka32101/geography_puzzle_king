@@ -1,3 +1,4 @@
+import '../../widgets/ui_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/app_config.dart';
@@ -241,11 +242,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
+                                    IconText(
                                       l10n.version,
                                       style: AppTextStyles.subtitle1,
                                     ),
-                                    Text(
+                                    IconText(
                                       AppConfig.appVersion,
                                       style: AppTextStyles.subtitle1,
                                     ),
@@ -255,11 +256,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
+                                    IconText(
                                       l10n.buildNumber,
                                       style: AppTextStyles.subtitle1,
                                     ),
-                                    Text(
+                                    IconText(
                                       AppConfig.buildNumber.toString(),
                                       style: AppTextStyles.subtitle1,
                                     ),
@@ -381,7 +382,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           itemBuilder: (context, index) {
             final pref = allPrefectures[index];
             return ListTile(
-              title: Text(pref.name),
+              title: IconText(pref.name),
               trailing: pref.code == user.hometownCode
                   ? const Icon(Icons.check, color: AppColors.primary)
                   : null,
@@ -411,7 +412,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         await service.restorePurchases();
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.restorePurchasesChecking)),
+          SnackBar(content: IconText(l10n.restorePurchasesChecking)),
         );
       },
     );
@@ -429,7 +430,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-            child: Text(title, style: AppTextStyles.headline3),
+            child: IconText(title, style: AppTextStyles.headline3),
           ),
           Material(
             color: AppColors.surface,
@@ -478,10 +479,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppTextStyles.subtitle1),
+                  IconText(title, style: AppTextStyles.subtitle1),
                   if (subtitle != null) ...[
                     const SizedBox(height: 2),
-                    Text(subtitle, style: AppTextStyles.bodySmall),
+                    IconText(subtitle, style: AppTextStyles.bodySmall),
                   ],
                 ],
               ),
@@ -561,7 +562,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             .map(
               (e) => DropdownMenuItem(
                 value: e.key,
-                child: Text(e.value),
+                child: IconText(e.value),
               ),
             )
             .toList(),
@@ -576,7 +577,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.changePlayerName),
+        title: IconText(l10n.changePlayerName),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -593,7 +594,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const Icon(Icons.warning, color: Colors.orange, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
+                    child: IconText(
                       l10n.personalInfoWarning,
                       style: const TextStyle(fontSize: 12, color: Colors.orange),
                     ),
@@ -618,7 +619,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
+            child: IconText(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -629,7 +630,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               });
               Navigator.pop(context);
             },
-            child: Text(l10n.save),
+            child: IconText(l10n.save),
           ),
         ],
       ),

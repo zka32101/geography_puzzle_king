@@ -12,6 +12,7 @@ import 'package:geography_puzzle_king/utils/region_data.dart';
 import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 import 'package:geography_puzzle_king/i18n/content_tr.dart';
+import '../../widgets/ui_icon.dart';
 
 class ResultScreen extends ConsumerStatefulWidget {
   final String prefectureCode;
@@ -170,12 +171,12 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                Text(
+                IconText(
                   _diffLabel,
                   style: const TextStyle(color: Colors.white54, fontSize: 14),
                 ),
               ] else if (pref != null) ...[
-                Text(
+                IconText(
                   pref.name,
                   style: const TextStyle(
                     color: Colors.white70,
@@ -183,7 +184,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                Text(
+                IconText(
                   _diffLabel,
                   style: const TextStyle(color: Colors.white54, fontSize: 14),
                 ),
@@ -278,7 +279,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Text(
+            IconText(
               l10n.pointsSuffix,
               style: const TextStyle(color: Colors.white54, fontSize: 14),
             ),
@@ -299,11 +300,11 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
   Widget _buildStat(String label, String value) {
     return Column(
       children: [
-        Text(label,
+        IconText(label,
             style:
                 const TextStyle(color: Colors.white54, fontSize: 12)),
         const SizedBox(height: 4),
-        Text(value,
+        IconText(value,
             style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -335,10 +336,10 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
             ),
             child: Row(
               children: [
-                Text(pref.geographyIcon,
+                IconText(pref.geographyIcon,
                     style: const TextStyle(fontSize: 22)),
                 const SizedBox(width: 8),
-                Text(
+                IconText(
                   l10n.learnAboutPrefHeader(pref.name),
                   style: const TextStyle(
                       color: Colors.white,
@@ -420,14 +421,14 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            IconText(
                               l10n.companionJoinedMessage(pref.companion.name),
                               style: const TextStyle(
                                   color: Colors.amber,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13),
                             ),
-                            Text(
+                            IconText(
                               pref.companion.description,
                               style: const TextStyle(
                                   color: Colors.white70, fontSize: 11),
@@ -469,9 +470,9 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
             ),
             child: Row(
               children: [
-                Text(icon, style: const TextStyle(fontSize: 13)),
+                IconText(icon, style: const TextStyle(fontSize: 13)),
                 const SizedBox(width: 4),
-                Text(title,
+                IconText(title,
                     style: TextStyle(
                         color: color,
                         fontSize: 12,
@@ -542,9 +543,9 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(b.emoji, style: const TextStyle(fontSize: 14)),
+                    IconText(b.emoji, style: const TextStyle(fontSize: 14)),
                     const SizedBox(width: 4),
-                    Text(b.name,
+                    IconText(b.name,
                         style: TextStyle(
                             color: b.color,
                             fontSize: 11,
@@ -569,7 +570,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            IconText(
               tl.resultSecretsTitle(pref.name),
               style: const TextStyle(
                   color: Colors.amber,
@@ -599,7 +600,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                   const Text('💡', style: TextStyle(fontSize: 16)),
                   const SizedBox(width: 6),
                   Expanded(
-                    child: Text(
+                    child: IconText(
                       pref.trivia,
                       style: const TextStyle(
                           color: Colors.white, fontSize: 12, height: 1.4),
@@ -625,14 +626,14 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        IconText(
                           tl.resultCompanionJoined(pref.companion.name),
                           style: const TextStyle(
                               color: Colors.amber,
                               fontWeight: FontWeight.bold,
                               fontSize: 13),
                         ),
-                        Text(
+                        IconText(
                           pref.companion.description,
                           style: const TextStyle(
                               color: Colors.white70, fontSize: 11),
@@ -662,17 +663,17 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           children: [
             Row(
               children: [
-                Text(region.bossEmoji, style: const TextStyle(fontSize: 28)),
+                IconText(region.bossEmoji, style: const TextStyle(fontSize: 28)),
                 const SizedBox(width: 8),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l10n.bossDefeatedLine(region.bossName),
+                    IconText(l10n.bossDefeatedLine(region.bossName),
                         style: const TextStyle(
                             color: Colors.amber,
                             fontWeight: FontWeight.bold,
                             fontSize: 14)),
-                    Text(l10n.regionConqueredLine(region.name),
+                    IconText(l10n.regionConqueredLine(region.name),
                         style: const TextStyle(
                             color: Colors.white70, fontSize: 12)),
                   ],
@@ -702,20 +703,20 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           children: [
             Row(
               children: [
-                Text(stage.bossEmoji, style: const TextStyle(fontSize: 28)),
+                IconText(stage.bossEmoji, style: const TextStyle(fontSize: 28)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      IconText(
                         l10n.bossDefeatedLine(stage.bossName),
                         style: TextStyle(
                             color: stage.color,
                             fontWeight: FontWeight.bold,
                             fontSize: 14),
                       ),
-                      Text(
+                      IconText(
                         l10n.stageClearedLine(stage.name),
                         style: const TextStyle(
                             color: Colors.white70, fontSize: 12),
@@ -733,7 +734,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                 color: Colors.amber.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(AppRadius.medium),
               ),
-              child: Text(
+              child: IconText(
                 l10n.historyMasterAchievedBanner,
                 style: const TextStyle(
                     color: Colors.amber,
@@ -755,11 +756,11 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
         children: [
           SizedBox(
             width: 90,
-            child: Text(label,
+            child: IconText(label,
                 style: const TextStyle(color: Colors.white54, fontSize: 12)),
           ),
           Expanded(
-            child: Text(value,
+            child: IconText(value,
                 style:
                     const TextStyle(color: Colors.white, fontSize: 12)),
           ),
@@ -778,7 +779,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
           child: ElevatedButton.icon(
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(Icons.replay),
-            label: Text(l10n.retryButton,
+            label: IconText(l10n.retryButton,
                 style: const TextStyle(fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white24,
@@ -799,7 +800,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               Navigator.of(context).pushReplacementNamed('/map');
             },
             icon: const Icon(Icons.map),
-            label: Text(l10n.backToMapButton,
+            label: IconText(l10n.backToMapButton,
                 style: const TextStyle(fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,

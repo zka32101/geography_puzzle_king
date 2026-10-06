@@ -1,3 +1,4 @@
+import '../../widgets/ui_icon.dart';
 import '../../widgets/parent_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,11 +49,11 @@ class PremiumPlanScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l10n.premiumPlanBenefitsHeading, style: AppTextStyles.headline3),
+                    IconText(l10n.premiumPlanBenefitsHeading, style: AppTextStyles.headline3),
                     const SizedBox(height: AppSpacing.sm),
                     ..._benefits(l10n).map(_buildBenefitTile),
                     const SizedBox(height: AppSpacing.lg),
-                    Text(l10n.premiumPlanDescriptionNote(kFreePrefectureCodes.length), style: AppTextStyles.bodySmall),
+                    IconText(l10n.premiumPlanDescriptionNote(kFreePrefectureCodes.length), style: AppTextStyles.bodySmall),
                     const SizedBox(height: AppSpacing.xl),
                     _buildPurchaseCard(context, ref, l10n, isPremium, productAsync),
                     if (!isPremium)
@@ -62,7 +63,7 @@ class PremiumPlanScreen extends ConsumerWidget {
                             final service = ref.read(purchaseServiceProvider);
                             await service?.restorePurchases();
                           },
-                          child: Text(l10n.restorePurchases),
+                          child: IconText(l10n.restorePurchases),
                         ),
                       ),
                   ],
@@ -99,7 +100,7 @@ class PremiumPlanScreen extends ConsumerWidget {
           const Text('👑', style: TextStyle(fontSize: 26)),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
-            child: Text(
+            child: IconText(
               l10n.premiumPlanTitle,
               style: const TextStyle(
                 color: Colors.white,
@@ -140,9 +141,9 @@ class PremiumPlanScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(benefit.title, style: AppTextStyles.subtitle1),
+                    IconText(benefit.title, style: AppTextStyles.subtitle1),
                     const SizedBox(height: 2),
-                    Text(benefit.description, style: AppTextStyles.bodySmall),
+                    IconText(benefit.description, style: AppTextStyles.bodySmall),
                   ],
                 ),
               ),
@@ -172,7 +173,7 @@ class PremiumPlanScreen extends ConsumerWidget {
               Icon(Icons.check_circle, color: AppColors.success),
               SizedBox(width: AppSpacing.md),
               Expanded(
-                child: Text(l10n.premiumPlanPurchasedMessage, style: AppTextStyles.subtitle1),
+                child: IconText(l10n.premiumPlanPurchasedMessage, style: AppTextStyles.subtitle1),
               ),
             ],
           ),
@@ -193,7 +194,7 @@ class PremiumPlanScreen extends ConsumerWidget {
               child: CircularProgressIndicator(),
             ),
           ),
-          error: (_, __) => Text(l10n.premiumStoreError, style: AppTextStyles.bodySmall),
+          error: (_, __) => IconText(l10n.premiumStoreError, style: AppTextStyles.bodySmall),
           data: (product) {
             // ストア未登録時のプレースホルダー価格表示。
             final priceLabel = product?.price ?? '\$3';
@@ -203,8 +204,8 @@ class PremiumPlanScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(l10n.premiumPlanPriceLabel, style: AppTextStyles.subtitle1),
-                    Text(priceLabel, style: AppTextStyles.headline3.copyWith(color: AppColors.primary)),
+                    IconText(l10n.premiumPlanPriceLabel, style: AppTextStyles.subtitle1),
+                    IconText(priceLabel, style: AppTextStyles.headline3.copyWith(color: AppColors.primary)),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -231,7 +232,7 @@ class PremiumPlanScreen extends ConsumerWidget {
                 ),
                 if (product == null) ...[
                   const SizedBox(height: AppSpacing.sm),
-                  Text(
+                  IconText(
                     l10n.premiumStoreNotReady,
                     style: AppTextStyles.bodySmall,
                   ),

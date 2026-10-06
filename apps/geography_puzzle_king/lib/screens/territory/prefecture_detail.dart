@@ -1,3 +1,4 @@
+import '../../widgets/ui_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/models/prefecture_record.dart';
@@ -40,7 +41,7 @@ class PrefectureDetailSheet extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    IconText(
                       prefecture.name,
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
@@ -68,14 +69,14 @@ class PrefectureDetailSheet extends StatelessWidget {
                       padding: const EdgeInsets.all(AppSpacing.lg),
                       child: Column(
                         children: [
-                          Text(
+                          IconText(
                             tr('未クリア'),
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               color: Colors.grey.shade600,
                             ),
                           ),
                           const SizedBox(height: AppSpacing.sm),
-                          Text(
+                          IconText(
                             tr('この県を防衛してクリアしよう！'),
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Colors.grey.shade700,
@@ -144,7 +145,7 @@ class PrefectureDetailSheet extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                IconText(
                   tr('経験値'),
                   style: Theme.of(context).textTheme.labelMedium,
                 ),
@@ -209,7 +210,7 @@ class PrefectureDetailSheet extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            IconText(
               tr('県情報'),
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
@@ -236,11 +237,11 @@ class PrefectureDetailSheet extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
+          IconText(
             label,
             style: Theme.of(context).textTheme.labelMedium,
           ),
-          Text(
+          IconText(
             value,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
               fontWeight: FontWeight.bold,
@@ -258,13 +259,13 @@ class PrefectureDetailSheet extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
+          IconText(
             label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: Colors.grey.shade700,
             ),
           ),
-          Text(
+          IconText(
             value,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               fontWeight: FontWeight.bold,

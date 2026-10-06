@@ -1,3 +1,4 @@
+import '../../widgets/ui_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
@@ -45,7 +46,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: Text(l10n.selectPrefectureTitle),
+          title: IconText(l10n.selectPrefectureTitle),
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           bottom: TabBar(
@@ -125,15 +126,15 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
           child: Row(
             children: [
-              Text(l10n.countSuffix(_filteredPrefectures.length),
+              IconText(l10n.countSuffix(_filteredPrefectures.length),
                   style: AppTextStyles.bodySmall),
               const Spacer(),
               const Icon(Icons.check_circle, size: 14, color: AppColors.success),
               const SizedBox(width: 2),
-              Text(l10n.legendConquered, style: AppTextStyles.bodySmall),
+              IconText(l10n.legendConquered, style: AppTextStyles.bodySmall),
               const SizedBox(width: AppSpacing.sm),
-              const Text('⭐', style: TextStyle(fontSize: 11)),
-              Text(l10n.legendDifficulty, style: AppTextStyles.bodySmall),
+              const IconText('⭐', style: TextStyle(fontSize: 11)),
+              IconText(l10n.legendDifficulty, style: AppTextStyles.bodySmall),
             ],
           ),
         ),
@@ -186,8 +187,8 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(b.emoji, style: const TextStyle(fontSize: 18)),
-                Text(b.name,
+                IconText(b.emoji, style: const TextStyle(fontSize: 18)),
+                IconText(b.name,
                     style: TextStyle(
                         color: b.color,
                         fontSize: 9,
@@ -219,10 +220,10 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               ),
               child: Row(
                 children: [
-                  const Text('🗺️', style: TextStyle(fontSize: 20)),
+                  const IconText('🗺️', style: TextStyle(fontSize: 20)),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
-                    child: Text(
+                    child: IconText(
                       l10n.regionUnlockHint,
                       style: AppTextStyles.bodySmall,
                     ),
@@ -268,7 +269,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               // 地方アイコン（ロック時グレーアウト）
               Opacity(
                 opacity: unlocked ? 1.0 : 0.35,
-                child: Text(region.emoji, style: const TextStyle(fontSize: 36)),
+                child: IconText(region.emoji, style: const TextStyle(fontSize: 36)),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
@@ -277,7 +278,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                   children: [
                     Row(
                       children: [
-                        Text(
+                        IconText(
                           region.name,
                           style: TextStyle(
                             color: unlocked ? AppColors.textPrimary : AppColors.textSecondary,
@@ -318,7 +319,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                           ),
                         ),
                         const SizedBox(width: 6),
-                        Text(
+                        IconText(
                           l10n.clearedOfTotalPref(clearedCount, region.prefectureCodes.length),
                           style: TextStyle(
                             color: unlocked ? region.color : AppColors.textSecondary,
@@ -385,10 +386,10 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               Center(
                 child: Column(
                   children: [
-                    Text(region.emoji, style: const TextStyle(fontSize: 48)),
+                    IconText(region.emoji, style: const TextStyle(fontSize: 48)),
                     const SizedBox(height: AppSpacing.xs),
-                    Text(l10n.regionBattleHeader(region.name), style: AppTextStyles.headline2),
-                    Text(l10n.regionBattleSubheader(TdEngine.regionTotalWaves),
+                    IconText(l10n.regionBattleHeader(region.name), style: AppTextStyles.headline2),
+                    IconText(l10n.regionBattleSubheader(TdEngine.regionTotalWaves),
                         style: AppTextStyles.subtitle2),
                   ],
                 ),
@@ -407,7 +408,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     children: [
                       const Icon(Icons.military_tech, color: AppColors.success),
                       const SizedBox(width: AppSpacing.sm),
-                      Text(l10n.conqueredBanner, style: AppTextStyles.subtitle2.copyWith(color: AppColors.success)),
+                      IconText(l10n.conqueredBanner, style: AppTextStyles.subtitle2.copyWith(color: AppColors.success)),
                     ],
                   ),
                 ),
@@ -421,14 +422,14 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                 ),
                 child: Row(
                   children: [
-                    Text(region.bossEmoji, style: const TextStyle(fontSize: 32)),
+                    IconText(region.bossEmoji, style: const TextStyle(fontSize: 32)),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(l10n.bossLabel(region.bossName), style: AppTextStyles.subtitle1),
-                          Text(l10n.bossSkillLabel(region.bossSkill), style: AppTextStyles.bodySmall),
+                          IconText(l10n.bossLabel(region.bossName), style: AppTextStyles.subtitle1),
+                          IconText(l10n.bossSkillLabel(region.bossSkill), style: AppTextStyles.bodySmall),
                         ],
                       ),
                     ),
@@ -437,7 +438,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
               // 対象都道府県
-              Text(l10n.targetPrefecturesHeader(region.prefectureCodes.length), style: AppTextStyles.subtitle2),
+              IconText(l10n.targetPrefecturesHeader(region.prefectureCodes.length), style: AppTextStyles.subtitle2),
               const SizedBox(height: AppSpacing.sm),
               Wrap(
                 spacing: 4,
@@ -473,7 +474,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               ),
               const SizedBox(height: AppSpacing.lg),
               // 難度選択
-              Text(l10n.selectDifficultyLabel, style: AppTextStyles.subtitle1),
+              IconText(l10n.selectDifficultyLabel, style: AppTextStyles.subtitle1),
               const SizedBox(height: AppSpacing.sm),
               Row(
                 children: [
@@ -503,7 +504,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     );
                   },
                   icon: const Text('⚔️', style: TextStyle(fontSize: 18)),
-                  label: Text(l10n.startRegionBattleButton, style: AppTextStyles.button),
+                  label: IconText(l10n.startRegionBattleButton, style: AppTextStyles.button),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: region.color,
                     shape: RoundedRectangleBorder(
@@ -559,7 +560,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               ),
               const SizedBox(height: AppSpacing.sm),
               if (!allHardDone) ...[
-                Text(
+                IconText(
                   l10n.historyUnlockHint,
                   style: const TextStyle(
                       color: Colors.white60, fontSize: 12, height: 1.4),
@@ -577,7 +578,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
+                IconText(
                   l10n.hardClearedProgress(hardCount),
                   style: const TextStyle(color: Colors.white54, fontSize: 11),
                 ),
@@ -625,7 +626,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                 ),
                 child: Center(
                   child: isUnlocked
-                      ? Text(stage.emoji,
+                      ? IconText(stage.emoji,
                           style: const TextStyle(fontSize: 28))
                       : const Icon(Icons.lock, color: Colors.white38, size: 24),
                 ),
@@ -656,7 +657,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                               color: AppColors.success.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(l10n.conqueredBadge,
+                            child: IconText(l10n.conqueredBadge,
                                 style: const TextStyle(
                                     color: AppColors.success,
                                     fontSize: 10,
@@ -665,7 +666,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                       ],
                     ),
                     if (isUnlocked) ...[
-                      Text(
+                      IconText(
                         stage.subTitle,
                         style: const TextStyle(
                             color: Colors.white54, fontSize: 12),
@@ -673,10 +674,10 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Text(stage.bossEmoji,
+                          IconText(stage.bossEmoji,
                               style: const TextStyle(fontSize: 14)),
                           const SizedBox(width: 4),
-                          Text(
+                          IconText(
                             l10n.bossWaveCount(stage.bossName, stage.totalWaves),
                             style: const TextStyle(
                                 color: Colors.white38, fontSize: 11),
@@ -744,10 +745,10 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               Center(
                 child: Column(
                   children: [
-                    Text(stage.emoji, style: const TextStyle(fontSize: 52)),
+                    IconText(stage.emoji, style: const TextStyle(fontSize: 52)),
                     const SizedBox(height: AppSpacing.xs),
-                    Text(stage.name, style: AppTextStyles.headline2),
-                    Text(stage.subTitle, style: AppTextStyles.subtitle2),
+                    IconText(stage.name, style: AppTextStyles.headline2),
+                    IconText(stage.subTitle, style: AppTextStyles.subtitle2),
                   ],
                 ),
               ),
@@ -764,7 +765,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     children: [
                       const Icon(Icons.military_tech, color: AppColors.success),
                       const SizedBox(width: AppSpacing.sm),
-                      Text(l10n.historyConqueredBanner,
+                      IconText(l10n.historyConqueredBanner,
                           style: AppTextStyles.subtitle2
                               .copyWith(color: AppColors.success)),
                     ],
@@ -779,7 +780,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                   borderRadius: BorderRadius.circular(AppRadius.medium),
                   border: Border.all(color: stage.color.withOpacity(0.3)),
                 ),
-                child: Text(
+                child: IconText(
                   stage.lore,
                   style: const TextStyle(
                       color: Colors.white70, fontSize: 13, height: 1.6),
@@ -796,17 +797,17 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                 ),
                 child: Row(
                   children: [
-                    Text(stage.bossEmoji, style: const TextStyle(fontSize: 32)),
+                    IconText(stage.bossEmoji, style: const TextStyle(fontSize: 32)),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(l10n.bossLabel(stage.bossName),
+                          IconText(l10n.bossLabel(stage.bossName),
                               style: AppTextStyles.subtitle1),
-                          Text(l10n.bossSkillLabel(stage.bossSkill),
+                          IconText(l10n.bossSkillLabel(stage.bossSkill),
                               style: AppTextStyles.bodySmall),
-                          Text(l10n.wavesUltraHard(stage.totalWaves),
+                          IconText(l10n.wavesUltraHard(stage.totalWaves),
                               style: AppTextStyles.bodySmall),
                         ],
                       ),
@@ -815,7 +816,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
-              Text(l10n.selectDifficultyLabel, style: AppTextStyles.subtitle1),
+              IconText(l10n.selectDifficultyLabel, style: AppTextStyles.subtitle1),
               const SizedBox(height: AppSpacing.sm),
               Row(
                 children: [
@@ -846,8 +847,8 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                       ),
                     );
                   },
-                  icon: Text(stage.emoji, style: const TextStyle(fontSize: 18)),
-                  label: Text(l10n.startHistoryBattleButton, style: AppTextStyles.button),
+                  icon: IconText(stage.emoji, style: const TextStyle(fontSize: 18)),
+                  label: IconText(l10n.startHistoryBattleButton, style: AppTextStyles.button),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: stage.color,
                     shape: RoundedRectangleBorder(
@@ -935,7 +936,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                       color: AppColors.accent.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Text(l10n.exclusiveBadge,
+                    child: IconText(l10n.exclusiveBadge,
                         style: const TextStyle(
                             fontSize: 8,
                             fontWeight: FontWeight.bold,
@@ -955,10 +956,10 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(pref.geographyIcon,
+                    IconText(pref.geographyIcon,
                         style: const TextStyle(fontSize: 24)),
                     const SizedBox(height: 2),
-                    Text(
+                    IconText(
                       pref.localizedName(l10n),
                       style: AppTextStyles.bodySmall.copyWith(
                         fontWeight: FontWeight.bold,
@@ -982,7 +983,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     ),
                     const SizedBox(height: 2),
                     // 地形名（小さく）
-                    Text(
+                    IconText(
                       pref.geographyName,
                       style: TextStyle(
                         color: diffColor.withOpacity(0.75),
@@ -1011,7 +1012,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
         color: cleared ? activeColor : AppColors.divider.withOpacity(0.4),
       ),
       child: Center(
-        child: Text(
+        child: IconText(
           label,
           style: TextStyle(
             fontSize: 7,
@@ -1028,7 +1029,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
     return Padding(
       padding: const EdgeInsets.only(right: AppSpacing.sm),
       child: FilterChip(
-        label: Text(label),
+        label: IconText(label),
         selected: isSelected,
         onSelected: (_) => setState(() => _selectedRegion = region),
         selectedColor: AppColors.primary.withOpacity(0.2),
@@ -1089,10 +1090,10 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               Center(
                 child: Column(
                   children: [
-                    Text(pref.geographyIcon, style: const TextStyle(fontSize: 40)),
+                    IconText(pref.geographyIcon, style: const TextStyle(fontSize: 40)),
                     const SizedBox(height: AppSpacing.xs),
-                    Text(pref.localizedName(l10n), style: AppTextStyles.headline2),
-                    Text(pref.kana, style: AppTextStyles.subtitle2),
+                    IconText(pref.localizedName(l10n), style: AppTextStyles.headline2),
+                    IconText(pref.kana, style: AppTextStyles.subtitle2),
                   ],
                 ),
               ),
@@ -1112,11 +1113,11 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(l10n.difficultyLabel, style: AppTextStyles.bodySmall),
+                          IconText(l10n.difficultyLabel, style: AppTextStyles.bodySmall),
                           const SizedBox(height: 2),
-                          Text(pref.difficultyStars,
+                          IconText(pref.difficultyStars,
                               style: const TextStyle(fontSize: 14)),
-                          Text(
+                          IconText(
                             pref.difficultyLabel,
                             style: TextStyle(
                               color: diffColor,
@@ -1134,12 +1135,12 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(left: AppSpacing.md),
-                            child: Text(l10n.terrainLabel, style: AppTextStyles.bodySmall),
+                            child: IconText(l10n.terrainLabel, style: AppTextStyles.bodySmall),
                           ),
                           const SizedBox(height: 2),
                           Padding(
                             padding: const EdgeInsets.only(left: AppSpacing.md),
-                            child: Text(
+                            child: IconText(
                               _geographyName(pref.geography),
                               style: AppTextStyles.subtitle1,
                             ),
@@ -1222,12 +1223,12 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     Row(
                       children: [
                         const Text('👹 ', style: TextStyle(fontSize: 16)),
-                        Text(l10n.bossLabel(pref.boss.name),
+                        IconText(l10n.bossLabel(pref.boss.name),
                             style: AppTextStyles.subtitle1),
                       ],
                     ),
                     const SizedBox(height: AppSpacing.xs),
-                    Text(
+                    IconText(
                       l10n.bossStatsLine(pref.boss.baseHp, pref.boss.baseAttack, pref.boss.skill),
                       style: AppTextStyles.bodySmall,
                     ),
@@ -1237,7 +1238,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
               const SizedBox(height: AppSpacing.lg),
 
               // 難度選択
-              Text(l10n.selectDifficultyLabel, style: AppTextStyles.subtitle1),
+              IconText(l10n.selectDifficultyLabel, style: AppTextStyles.subtitle1),
               const SizedBox(height: AppSpacing.sm),
               Row(
                 children: [
@@ -1267,7 +1268,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     );
                   },
                   icon: const Text('⚔️', style: TextStyle(fontSize: 18)),
-                  label: Text(l10n.startDefenseButton, style: AppTextStyles.button),
+                  label: IconText(l10n.startDefenseButton, style: AppTextStyles.button),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
@@ -1298,7 +1299,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
       ),
       child: Row(
         children: [
-          Text(type.emoji, style: const TextStyle(fontSize: 32)),
+          IconText(type.emoji, style: const TextStyle(fontSize: 32)),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
@@ -1310,8 +1311,8 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                   ],
                 ),
                 const SizedBox(height: 2),
-                Text(type.label, style: AppTextStyles.subtitle1),
-                Text(_exclusiveDescription(type, l10n), style: AppTextStyles.bodySmall),
+                IconText(type.label, style: AppTextStyles.subtitle1),
+                IconText(_exclusiveDescription(type, l10n), style: AppTextStyles.bodySmall),
               ],
             ),
           ),
@@ -1333,10 +1334,10 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
       ),
       child: Row(
         children: [
-          Text(type.emoji, style: const TextStyle(fontSize: 26)),
+          IconText(type.emoji, style: const TextStyle(fontSize: 26)),
           const SizedBox(width: AppSpacing.md),
           Expanded(
-            child: Text(
+            child: IconText(
               l10n.industryBonusLine(type.label, pct),
               style: AppTextStyles.bodyMedium,
             ),
@@ -1354,8 +1355,8 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: AppTextStyles.bodySmall),
-            Text(value, style: AppTextStyles.subtitle2.copyWith(color: AppColors.textPrimary)),
+            IconText(title, style: AppTextStyles.bodySmall),
+            IconText(value, style: AppTextStyles.subtitle2.copyWith(color: AppColors.textPrimary)),
           ],
         ),
       ],
@@ -1381,7 +1382,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
             borderRadius: BorderRadius.circular(AppRadius.medium),
           ),
         ),
-        child: Text(
+        child: IconText(
           label,
           style: TextStyle(
             color: color,
