@@ -1222,7 +1222,7 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                   children: [
                     Row(
                       children: [
-                        const Text('👹 ', style: TextStyle(fontSize: 16)),
+                        const IconText('👹 ', style: TextStyle(fontSize: 16)),
                         IconText(l10n.bossLabel(pref.boss.name),
                             style: AppTextStyles.subtitle1),
                       ],

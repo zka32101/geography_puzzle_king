@@ -415,7 +415,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Text('🐾', style: TextStyle(fontSize: 20)),
+                      const IconText('🐾', style: TextStyle(fontSize: 20)),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Column(
@@ -620,7 +620,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               ),
               child: Row(
                 children: [
-                  const Text('🐾', style: TextStyle(fontSize: 20)),
+                  const IconText('🐾', style: TextStyle(fontSize: 20)),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Column(

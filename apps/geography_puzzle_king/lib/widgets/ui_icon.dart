@@ -20,7 +20,17 @@ enum UiIconKind {
   forest('forest', '🌲'),
   fuji('fuji', '🗻'),
   snow('snow', '❄'),
-  rice('rice', '🌾');
+  rice('rice', '🌾'),
+  oni('oni', '👹'),
+  crown('crown', '👑'),
+  fire('fire', '🔥'),
+  park('park', '🏞'),
+  museum('museum', '🏛'),
+  city('city', '🌆'),
+  tower('tower', '🗼'),
+  palm('palm', '🌴'),
+  factory('factory', '🏭'),
+  paw('paw', '🐾');
 
   const UiIconKind(this.fileName, this.emoji);
 
@@ -52,7 +62,7 @@ class UiIcon extends StatelessWidget {
 }
 
 // 文字列中の絵文字（異体字セレクタ U+FE0F つきも）を探す正規表現。
-final RegExp _kIconEmojiPattern = RegExp('(?<!\u200D)(🪙|🛡|💨|⭐|🏆|🏯|📖|🗺|⚔|⚡|💥|🗾|🌊|⛩|🏔|🌲|🗻|❄|🌾)\uFE0F?');
+final RegExp _kIconEmojiPattern = RegExp('(?<!\u200D)(🪙|🛡|💨|⭐|🏆|🏯|📖|🗺|⚔|⚡|💥|🗾|🌊|⛩|🏔|🌲|🗻|❄|🌾|👹|👑|🔥|🏞|🏛|🌆|🗼|🌴|🏭|🐾)\uFE0F?');
 
 UiIconKind? _kindOfEmoji(String emoji) {
   final base = emoji.replaceAll('\uFE0F', '');
