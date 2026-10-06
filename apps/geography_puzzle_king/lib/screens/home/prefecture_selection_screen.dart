@@ -12,6 +12,7 @@ import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
 import 'package:geography_puzzle_king/widgets/stage_locked_dialog.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 import 'package:geography_puzzle_king/i18n/content_tr.dart';
+import '../../widgets/ui_icon.dart';
 
 class PrefectureSelectionScreen extends ConsumerStatefulWidget {
   const PrefectureSelectionScreen({Key? key}) : super(key: key);
@@ -40,7 +41,7 @@ class _PrefectureSelectionScreenState
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(l10n.selectPrefectureTitle),
+        title: IconText(l10n.selectPrefectureTitle),
         centerTitle: true,
         backgroundColor: AppColors.surface,
         elevation: 2,
@@ -153,9 +154,9 @@ class _PrefectureSelectionScreenState
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(pref.geographyIcon, style: const TextStyle(fontSize: 32)),
+                      IconText(pref.geographyIcon, style: const TextStyle(fontSize: 32)),
                       const SizedBox(height: 8),
-                      Text(
+                      IconText(
                         pref.name,
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                         maxLines: 1,
@@ -203,7 +204,7 @@ class _PrefectureSelectionScreenState
         color: cleared ? Colors.amber : Colors.grey.shade300,
       ),
       child: Center(
-        child: Text(
+        child: IconText(
           label,
           style: TextStyle(
             fontSize: 8,
@@ -247,7 +248,7 @@ class _PrefectureSelectionScreenState
             ),
             child: Column(
               children: [
-                Text(
+                IconText(
                   pref.name,
                   style: const TextStyle(
                     fontSize: 18,
@@ -258,7 +259,7 @@ class _PrefectureSelectionScreenState
                 // ボスキャラ画像
                 _buildBossImage(pref),
                 const SizedBox(height: 12),
-                Text(
+                IconText(
                   l10n.bossLabel(pref.boss.name),
                   style: const TextStyle(fontSize: 14),
                 ),
@@ -268,7 +269,7 @@ class _PrefectureSelectionScreenState
           const SizedBox(height: AppSpacing.lg),
 
           // 難度選択ボタン
-          Text(
+          IconText(
             l10n.selectDifficultyLabel,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           ),
@@ -306,7 +307,7 @@ class _PrefectureSelectionScreenState
             onPressed: isAvailable ? () => _startGame(context, pref, difficulty) : null,
             child: Column(
               children: [
-                Text(
+                IconText(
                   getDifficultyLabel(difficulty, l10n),
                   style: TextStyle(
                     color: isAvailable ? Colors.white : Colors.white54,
@@ -315,7 +316,7 @@ class _PrefectureSelectionScreenState
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
+                IconText(
                   getDifficultyDescription(difficulty, l10n),
                   style: TextStyle(
                     color: isAvailable ? Colors.white : Colors.white54,

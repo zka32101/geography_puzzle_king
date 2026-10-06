@@ -1,3 +1,4 @@
+import '../../widgets/ui_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/config/legal_content.dart';
@@ -21,7 +22,7 @@ class LegalTextScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(title),
+        title: IconText(title),
         backgroundColor: AppColors.heroTop,
         foregroundColor: Colors.white,
       ),
@@ -29,7 +30,7 @@ class LegalTextScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
-            Text(title, style: AppTextStyles.headline2),
+            IconText(title, style: AppTextStyles.headline2),
             const SizedBox(height: AppSpacing.xs),
             Text(
               '最終更新日: $updatedAt',
@@ -37,12 +38,12 @@ class LegalTextScreen extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             for (final section in sections) ...[
-              Text(
+              IconText(
                 section.heading,
                 style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: AppSpacing.sm),
-              Text(section.body, style: AppTextStyles.bodyMedium),
+              IconText(section.body, style: AppTextStyles.bodyMedium),
               const SizedBox(height: AppSpacing.lg),
             ],
           ],

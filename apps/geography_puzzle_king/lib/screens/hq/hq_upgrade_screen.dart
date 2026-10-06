@@ -1,3 +1,4 @@
+import '../../widgets/ui_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
@@ -45,7 +46,7 @@ class HqUpgradeScreen extends ConsumerWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(l10n.researchPointsLabel,
+                      IconText(l10n.researchPointsLabel,
                           style: const TextStyle(color: Colors.white70, fontSize: 12)),
                       Text('${hq.researchPoints}',
                           style: const TextStyle(
@@ -55,7 +56,7 @@ class HqUpgradeScreen extends ConsumerWidget {
                     ],
                   ),
                   const Spacer(),
-                  Text(l10n.researchPointsHint,
+                  IconText(l10n.researchPointsHint,
                       style: const TextStyle(color: Colors.white54, fontSize: 11)),
                 ],
               ),
@@ -100,7 +101,7 @@ class HqUpgradeScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Text(track.title(l10n),
+              IconText(track.title(l10n),
                   style: const TextStyle(
                       color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
               const Spacer(),
@@ -110,13 +111,13 @@ class HqUpgradeScreen extends ConsumerWidget {
                   color: Colors.amberAccent.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(l10n.levelFraction(level, HqUpgradeTrackX.maxLevel),
+                child: IconText(l10n.levelFraction(level, HqUpgradeTrackX.maxLevel),
                     style: const TextStyle(color: Colors.amberAccent, fontSize: 11)),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          Text(track.description(l10n),
+          IconText(track.description(l10n),
               style: const TextStyle(color: Colors.white54, fontSize: 12)),
           const SizedBox(height: 8),
           ClipRRect(
@@ -131,7 +132,7 @@ class HqUpgradeScreen extends ConsumerWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              Text(l10n.currentEffectLabel(currentEffect),
+              IconText(l10n.currentEffectLabel(currentEffect),
                   style: const TextStyle(color: Colors.greenAccent, fontSize: 12)),
               const Spacer(),
               SizedBox(

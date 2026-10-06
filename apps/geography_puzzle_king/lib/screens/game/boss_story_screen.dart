@@ -1,3 +1,4 @@
+import '../../widgets/ui_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
@@ -97,12 +98,12 @@ class BossStoryScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
+                          IconText(
                             l10n.bossStoryAppears(_bossName),
                             style: AppTextStyles.headline2.copyWith(color: Colors.white),
                           ),
                           const SizedBox(height: AppSpacing.sm),
-                          Text(
+                          IconText(
                             _flavorText,
                             style: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
                           ),
@@ -146,7 +147,7 @@ class BossStoryScreen extends StatelessWidget {
                     );
                   },
                   icon: const Text('⚔️', style: TextStyle(fontSize: 18)),
-                  label: Text(l10n.bossStoryFightButton, style: AppTextStyles.button.copyWith(color: Colors.black)),
+                  label: IconText(l10n.bossStoryFightButton, style: AppTextStyles.button.copyWith(color: Colors.black)),
                 ),
               ),
             ),

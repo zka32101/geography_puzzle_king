@@ -1,3 +1,4 @@
+import '../../widgets/ui_icon.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -905,7 +906,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                IconText(
                   l10n.waveClearShopTitle(waveNumber),
                   style: const TextStyle(
                       color: Colors.amber,
@@ -913,7 +914,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                       fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                Text(l10n.chooseOneItemHint,
+                IconText(l10n.chooseOneItemHint,
                     style: const TextStyle(color: Colors.white54, fontSize: 12)),
                 const SizedBox(height: 12),
                 ..._currentShopItems.map((item) {
@@ -947,26 +948,26 @@ class _GameScreenState extends ConsumerState<GameScreen>
                         ),
                         child: Row(
                           children: [
-                            Text(item.emoji,
+                            IconText(item.emoji,
                                 style: const TextStyle(fontSize: 22)),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(item.name,
+                                  IconText(item.name,
                                       style: const TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 14)),
-                                  Text(item.description,
+                                  IconText(item.description,
                                       style: const TextStyle(
                                           color: Colors.white60,
                                           fontSize: 11)),
                                 ],
                               ),
                             ),
-                            Text(
+                            IconText(
                               item.cost == 0 ? l10n.freeLabel : '🪙${item.cost}',
                               style: TextStyle(
                                   color: canAfford
@@ -988,7 +989,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     setState(() => _shopOpen = false);
                     _ticker.start();
                   },
-                  child: Text(l10n.skipButton,
+                  child: IconText(l10n.skipButton,
                       style: const TextStyle(color: Colors.white54, fontSize: 13)),
                 ),
               ],
@@ -1213,7 +1214,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(reason),
+              content: IconText(reason),
               duration: const Duration(seconds: 2),
               backgroundColor: Colors.red.shade800,
             ),
@@ -1242,7 +1243,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(reason),
+              content: IconText(reason),
               duration: const Duration(seconds: 2),
               backgroundColor: Colors.red.shade800,
             ),
@@ -1275,7 +1276,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 // ヘッダー
-                Text(
+                IconText(
                   '⭐ ${l10n.selectWaveSkillButton}',
                   style: const TextStyle(
                     color: Colors.white,
@@ -1284,7 +1285,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
+                IconText(
                   l10n.effectAppliesNextWaveHint,
                   style: const TextStyle(color: Colors.white54, fontSize: 12),
                 ),
@@ -1313,14 +1314,14 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     child: Row(
                       children: [
                         // スキルアイコン
-                        Text(skill.emoji, style: const TextStyle(fontSize: 32)),
+                        IconText(skill.emoji, style: const TextStyle(fontSize: 32)),
                         const SizedBox(width: 12),
                         // スキル名と説明
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              IconText(
                                 skill.name,
                                 style: const TextStyle(
                                   color: Colors.white,
@@ -1329,7 +1330,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                                 ),
                               ),
                               const SizedBox(height: 2),
-                              Text(
+                              IconText(
                                 skill.description,
                                 style: const TextStyle(
                                   color: Colors.white54,
@@ -1392,7 +1393,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        IconText(
                           current.type.localizedLabel(l10n),
                           style: const TextStyle(
                               color: Colors.white,
@@ -1494,10 +1495,10 @@ class _GameScreenState extends ConsumerState<GameScreen>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(icon, style: const TextStyle(fontSize: 18)),
-        Text(label,
+        IconText(icon, style: const TextStyle(fontSize: 18)),
+        IconText(label,
             style: const TextStyle(color: Colors.white54, fontSize: 10)),
-        Text(value,
+        IconText(value,
             style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -1582,18 +1583,18 @@ class _GameScreenState extends ConsumerState<GameScreen>
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFF1A2332),
-        title: Text(l10n.quitConfirmTitle,
+        title: IconText(l10n.quitConfirmTitle,
             style: const TextStyle(color: Colors.white)),
-        content: Text(l10n.quitConfirmBody,
+        content: IconText(l10n.quitConfirmBody,
             style: const TextStyle(color: Colors.white70)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.continueButton, style: const TextStyle(color: Colors.white54)),
+            child: IconText(l10n.continueButton, style: const TextStyle(color: Colors.white54)),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.abortButton, style: const TextStyle(color: Colors.redAccent)),
+            child: IconText(l10n.abortButton, style: const TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
@@ -1640,13 +1641,13 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     const BoxConstraints(minWidth: 36, minHeight: 36),
               ),
               if (history != null) ...[
-                Text(history.emoji, style: const TextStyle(fontSize: 16)),
+                IconText(history.emoji, style: const TextStyle(fontSize: 16)),
                 const SizedBox(width: 4),
               ] else if (region != null) ...[
-                Text(region.emoji, style: const TextStyle(fontSize: 16)),
+                IconText(region.emoji, style: const TextStyle(fontSize: 16)),
                 const SizedBox(width: 4),
               ] else if (pref != null) ...[
-                Text(pref.geographyIcon, style: const TextStyle(fontSize: 16)),
+                IconText(pref.geographyIcon, style: const TextStyle(fontSize: 16)),
                 const SizedBox(width: 4),
               ],
               Expanded(
@@ -1673,7 +1674,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                           color: history.color.withOpacity(0.25),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: Text(
+                        child: IconText(
                           l10n.historyBattleWaveBadge(history.totalWaves),
                           style: TextStyle(
                             color: history.color,
@@ -1689,7 +1690,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                           color: region.color.withOpacity(0.25),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: Text(
+                        child: IconText(
                           l10n.regionBattleWaveBadge,
                           style: TextStyle(
                             color: region.color,
@@ -1702,7 +1703,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(pref.difficultyStars,
+                          IconText(pref.difficultyStars,
                               style: const TextStyle(fontSize: 9)),
                           const SizedBox(width: 4),
                           Container(
@@ -1712,7 +1713,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                               color: diffColor.withOpacity(0.18),
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: Text(
+                            child: IconText(
                               pref.difficultyLabel,
                               style: TextStyle(
                                 color: diffColor,
@@ -1730,7 +1731,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('🪙', style: TextStyle(fontSize: 16)),
+                  const IconText('🪙', style: TextStyle(fontSize: 16)),
                   Text(
                     ' ${_gameState.coins}',
                     style: const TextStyle(
@@ -1982,7 +1983,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
+                          IconText(
                             _bannerTitle,
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -2001,7 +2002,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Text(
+                          IconText(
                             _bannerSub,
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -2044,7 +2045,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 border: Border.all(color: Colors.white24, width: 1),
               ),
               child: Center(
-                child: Text(emoji, style: const TextStyle(fontSize: 24)),
+                child: IconText(emoji, style: const TextStyle(fontSize: 24)),
               ),
             ),
             const SizedBox(width: 8),
@@ -2061,7 +2062,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    IconText(
                       name,
                       style: const TextStyle(
                         color: AppColors.accent,
@@ -2069,7 +2070,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text(
+                    IconText(
                       _companionLine,
                       style: const TextStyle(
                           color: Colors.white, fontSize: 13),
@@ -2103,7 +2104,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                Text(
+                IconText(
                   tr('📝 クイズ！+40コイン'),
                   style: TextStyle(
                       color: Colors.amber,
@@ -2111,7 +2112,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                       fontSize: 15),
                 ),
                 const SizedBox(height: 12),
-                Text(
+                IconText(
                   quiz.question,
                   style: const TextStyle(
                       color: Colors.white,
@@ -2144,7 +2145,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)),
                         ),
-                        child: Text(
+                        child: IconText(
                           e.value,
                           style: const TextStyle(color: Colors.white),
                         ),
@@ -2155,7 +2156,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                 if (_quizSelectedIndex != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: Text(
+                    child: IconText(
                       _quizSelectedIndex == quiz.correctIndex
                           ? tr('🎉 正解！+40🪙')
                           : tr('❌ 残念！'),
@@ -2270,7 +2271,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: Text(
+                  child: IconText(
                     '⭐ ${l10n.selectWaveSkillButton}',
                     style: const TextStyle(
                         color: Colors.purpleAccent,
@@ -2326,7 +2327,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: Text(
+                  child: IconText(
                     l10n.startNowButton,
                     style: TextStyle(
                         color: Colors.black,
@@ -2389,11 +2390,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            IconText(
               l10n.waveCounter(_gameState.currentWave, _gameState.totalWaves),
               style: const TextStyle(color: Colors.white54, fontSize: 10),
             ),
-            Text(
+            IconText(
               l10n.remainingEnemies(remaining),
               style: const TextStyle(color: Colors.white54, fontSize: 10),
             ),
@@ -2420,7 +2421,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
       children: [
         Icon(icon, color: color, size: 15),
         const SizedBox(width: 4),
-        Text(label,
+        IconText(label,
             style: TextStyle(
                 color: color, fontSize: 13, fontWeight: FontWeight.bold)),
       ],
@@ -2594,12 +2595,12 @@ class _GameScreenState extends ConsumerState<GameScreen>
       ),
       child: Row(
         children: [
-          Text(
+          IconText(
             l10n.nextWavePreviewLabel(nextWave),
             style: const TextStyle(color: Colors.white38, fontSize: 11),
           ),
           const SizedBox(width: 6),
-          Text(
+          IconText(
             l10n.enemyCountSuffix(waveDef.enemyCount),
             style: const TextStyle(color: Colors.white60, fontSize: 11),
           ),
@@ -2667,7 +2668,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             _facilityIcon(type, 26),
-            Text(
+            IconText(
               type.localizedLabel(l10n),
               style: TextStyle(
                 color: canAfford ? Colors.white : Colors.white30,
@@ -2676,7 +2677,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            Text(
+            IconText(
               '🪙${type.cost}',
               style: TextStyle(
                 color: canAfford ? Colors.amberAccent : Colors.white30,
@@ -2718,14 +2719,14 @@ class _GameScreenState extends ConsumerState<GameScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               _facilityIcon(type, 24),
-              Text(
+              IconText(
                 type.localizedLabel(l10n),
                 style: TextStyle(
                   color: canAfford ? Colors.white : Colors.white30,
                   fontSize: 9,
                 ),
               ),
-              Text(
+              IconText(
                 '🪙${type.cost}',
                 style: TextStyle(
                   color: canAfford ? Colors.amber : Colors.white30,
@@ -2847,8 +2848,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(speedIcon, style: const TextStyle(fontSize: 16)),
-            Text(
+            IconText(speedIcon, style: const TextStyle(fontSize: 16)),
+            IconText(
               speedLabel,
               style: TextStyle(
                 color: speedColor,
@@ -2868,7 +2869,7 @@ class _GameScreenState extends ConsumerState<GameScreen>
 Widget _facilityIcon(FacilityType type, double size) {
   final path = facilityTypeImages[type.name];
   if (path == null || path.isEmpty) {
-    return Text(type.emoji, style: TextStyle(fontSize: size * 0.8));
+    return IconText(type.emoji, style: TextStyle(fontSize: size * 0.8));
   }
   return ClipRRect(
     borderRadius: BorderRadius.circular(size * 0.2),
@@ -2878,7 +2879,7 @@ Widget _facilityIcon(FacilityType type, double size) {
       height: size,
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) =>
-          Text(type.emoji, style: TextStyle(fontSize: size * 0.8)),
+          IconText(type.emoji, style: TextStyle(fontSize: size * 0.8)),
     ),
   );
 }

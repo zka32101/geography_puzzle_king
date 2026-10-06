@@ -1,3 +1,4 @@
+import '../../widgets/ui_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
@@ -84,7 +85,7 @@ class HowToPlayScreen extends StatelessWidget {
           const Text('📘', style: TextStyle(fontSize: 26)),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
-            child: Text(
+            child: IconText(
               l10n.howToPlayTitle,
               style: const TextStyle(
                 color: Colors.white,
@@ -109,15 +110,15 @@ class HowToPlayScreen extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(step.emoji, style: const TextStyle(fontSize: 28)),
+            IconText(step.emoji, style: const TextStyle(fontSize: 28)),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(step.title, style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold)),
+                  IconText(step.title, style: AppTextStyles.subtitle1.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(step.description, style: AppTextStyles.bodySmall),
+                  IconText(step.description, style: AppTextStyles.bodySmall),
                 ],
               ),
             ),

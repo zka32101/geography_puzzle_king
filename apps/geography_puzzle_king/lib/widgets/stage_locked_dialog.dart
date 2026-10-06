@@ -1,3 +1,4 @@
+import 'ui_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/config/monetization_config.dart';
@@ -12,12 +13,12 @@ Future<void> showStageLockedDialog(BuildContext context) {
   return showDialog<void>(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: Text(l10n.stageLockedTitle),
-      content: Text(l10n.stageLockedBody(kFreePrefectureCodes.length)),
+      title: IconText(l10n.stageLockedTitle),
+      content: IconText(l10n.stageLockedBody(kFreePrefectureCodes.length)),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(ctx).pop(),
-          child: Text(l10n.cancel),
+          child: IconText(l10n.cancel),
         ),
         FilledButton(
           onPressed: () {
@@ -27,7 +28,7 @@ Future<void> showStageLockedDialog(BuildContext context) {
             );
           },
           style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
-          child: Text(l10n.goToPurchaseButton),
+          child: IconText(l10n.goToPurchaseButton),
         ),
       ],
     ),

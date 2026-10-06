@@ -1,3 +1,4 @@
+import 'ui_icon.dart';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -19,11 +20,11 @@ Future<bool> showParentGate(BuildContext context) async {
       String? error;
       return StatefulBuilder(
         builder: (ctx, setState) => AlertDialog(
-          title: Text(l10n.parentGateTitle),
+          title: IconText(l10n.parentGateTitle),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(l10n.parentGateMessage),
+              IconText(l10n.parentGateMessage),
               const SizedBox(height: 12),
               Text('$a × $b = ?', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               TextField(
@@ -36,7 +37,7 @@ Future<bool> showParentGate(BuildContext context) async {
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.parentGateCancel)),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: IconText(l10n.parentGateCancel)),
             FilledButton(
               onPressed: () {
                 if (int.tryParse(controller.text) == a * b) {
@@ -45,7 +46,7 @@ Future<bool> showParentGate(BuildContext context) async {
                   setState(() => error = l10n.parentGateWrong);
                 }
               },
-              child: Text(l10n.parentGateOk),
+              child: IconText(l10n.parentGateOk),
             ),
           ],
         ),

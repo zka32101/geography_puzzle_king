@@ -1,3 +1,4 @@
+import '../../widgets/ui_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
@@ -85,9 +86,9 @@ class _RankingScreenState extends State<RankingScreen>
       appBar: AppBar(
         title: Row(
           children: [
-            const Text('🏆', style: TextStyle(fontSize: 20)),
+            const IconText('🏆', style: TextStyle(fontSize: 20)),
             const SizedBox(width: AppSpacing.sm),
-            Text(l10n.rankingTitle),
+            IconText(l10n.rankingTitle),
           ],
         ),
         backgroundColor: Colors.transparent,
@@ -137,7 +138,7 @@ class _RankingScreenState extends State<RankingScreen>
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Text(
+              child: IconText(
                 l10n.rankingEmptyGlobal,
                 style: AppTextStyles.bodySmall,
                 textAlign: TextAlign.center,
@@ -201,12 +202,12 @@ class _RankingScreenState extends State<RankingScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      IconText(
                         entry.nickname,
                         style: AppTextStyles.subtitle1,
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      Text(
+                      IconText(
                         l10n.rankingClearedCount(entry.clearedPrefectures),
                         style: AppTextStyles.bodySmall,
                       ),
@@ -223,7 +224,7 @@ class _RankingScreenState extends State<RankingScreen>
                         color: isMedal ? _getMedalColor(entry.rank) : null,
                       ),
                     ),
-                    Text(
+                    IconText(
                       l10n.pointsSuffix,
                       style: AppTextStyles.bodySmall,
                     ),
@@ -251,7 +252,7 @@ class _RankingScreenState extends State<RankingScreen>
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Text(
+              child: IconText(
                 l10n.rankingEmptyPrefecture,
                 style: AppTextStyles.bodySmall,
                 textAlign: TextAlign.center,
@@ -301,12 +302,12 @@ class _RankingScreenState extends State<RankingScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      IconText(
                         entry.prefectureName,
                         style: AppTextStyles.subtitle1,
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      Text(
+                      IconText(
                         l10n.rankingPlayerCount(entry.playerCount),
                         style: AppTextStyles.bodySmall,
                       ),
@@ -321,7 +322,7 @@ class _RankingScreenState extends State<RankingScreen>
                       '${entry.score}',
                       style: AppTextStyles.subtitle1,
                     ),
-                    Text(
+                    IconText(
                       l10n.pointsSuffix,
                       style: AppTextStyles.bodySmall,
                     ),
