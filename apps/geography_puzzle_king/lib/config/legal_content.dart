@@ -178,11 +178,11 @@ const List<LegalSection> kTermsOfServiceSections = [
   LegalSection(
     '第5条（広告表示）',
     '本アプリでは、無料でのサービス提供のため広告を表示します。'
-        '広告の表示を望まない場合は、本アプリ内の「広告を削除」機能（有料）をご利用いただけます。',
+        '広告の表示を望まない場合は、本アプリ内の「プレミアム」（有料・買い切り）をご利用いただけます。',
   ),
   LegalSection(
     '第6条（アプリ内課金）',
-    '本アプリの「広告を削除」機能は、Google Playを通じた買い切り型（非消費型）の有料機能です。'
+    '本アプリの「プレミアム」は、広告の非表示と全都道府県の解放を含む、Google Playを通じた買い切り型（非消費型）の有料機能です。'
         '購入手続き・決済はGoogle Playが行い、返金についてはGoogle Playの規約・ポリシーに従います。'
         '当方への直接のお申し出による返金には応じかねる場合があります。',
   ),
@@ -250,11 +250,11 @@ const List<LegalSection> kTermsOfServiceSectionsEn = [
   LegalSection(
     'Article 5 (Advertising)',
     'The App displays advertisements to support free access to its content. '
-        'If you would prefer not to see ads, you may use the paid "Remove Ads" feature within the App.',
+        'If you would prefer not to see ads, you may use the paid "Premium" (one-time purchase) within the App.',
   ),
   LegalSection(
     'Article 6 (In-App Purchases)',
-    'The App\'s "Remove Ads" feature is a one-time (non-consumable) paid feature purchased through Google Play. '
+    'The App\'s "Premium" is a one-time (non-consumable) paid feature, which removes ads and unlocks all prefectures, purchased through Google Play. '
         'Purchases and payment processing are handled by Google Play, and refunds are subject to Google Play\'s own terms and policies. '
         'We may not be able to accommodate refund requests made directly to us.',
   ),
