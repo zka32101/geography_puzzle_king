@@ -1,5 +1,6 @@
 import '../../widgets/ui_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:geography_puzzle_king/config/difficulty_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
 import 'package:geography_puzzle_king/config/monetization_config.dart';
@@ -974,11 +975,11 @@ class _PrefectureMapScreenState extends ConsumerState<PrefectureMapScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _diffStar(pref.code, 'easy',   'E', const Color(0xFF43A047)),
+                        _diffStar(pref.code, 'easy',   'E', DifficultyColors.easy),
                         const SizedBox(width: 2),
-                        _diffStar(pref.code, 'normal', 'N', const Color(0xFF1E88E5)),
+                        _diffStar(pref.code, 'normal', 'N', DifficultyColors.normal),
                         const SizedBox(width: 2),
-                        _diffStar(pref.code, 'hard',   'H', const Color(0xFFE53935)),
+                        _diffStar(pref.code, 'hard',   'H', DifficultyColors.hard),
                       ],
                     ),
                     const SizedBox(height: 2),

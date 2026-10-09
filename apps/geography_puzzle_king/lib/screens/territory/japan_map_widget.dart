@@ -1,9 +1,11 @@
 import '../../widgets/ui_icon.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:geography_puzzle_king/config/difficulty_colors.dart';
 import 'package:geography_puzzle_king/data/japan_prefecture_boundaries.dart';
 import 'package:geography_puzzle_king/models/prefecture_record.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
+import 'package:geography_puzzle_king/i18n/content_tr.dart';
 
 /// 都道府県ID（social_quiz_app 由来の境界データのキー）を
 /// JIS都道府県コード（'01'〜'47'）に対応させる並び順。
@@ -261,6 +263,8 @@ class _JapanMapWidgetState extends State<JapanMapWidget> {
             },
           ),
         ),
+        const SizedBox(height: 8),
+        const MapDifficultyLegend(),
         const SizedBox(height: 4),
         IconText(
           l10n.mapDataAttribution,
@@ -289,13 +293,7 @@ class _JapanMapPainter extends CustomPainter {
   });
 
   Color _colorFor(String code) {
-    final record = records[code];
-    if (record == null) return Colors.grey.shade300;
-    final level = record.currentLevel;
-    if (level >= 8) return Colors.amber.shade600;
-    if (level >= 5) return Colors.blue.shade600;
-    if (level >= 2) return Colors.orange.shade500;
-    return Colors.green.shade500;
+    return territoryColorFor(records[code]);
   }
 
   @override
@@ -358,4 +356,51 @@ class _JapanMapPainter extends CustomPainter {
         oldDelegate.records != records ||
         oldDelegate.selectedCode != selectedCode;
   }
+}
+
+
+/// 地図の色分け凡例（灰=未クリア / 緑=Easy / 青=Normal / 赤=Hard）。
+class MapDifficultyLegend extends StatelessWidget {
+  const MapDifficultyLegend({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final items = <(Color, String)>[
+      (DifficultyColors.uncleared, tr('未クリア')),
+      (DifficultyColors.easy, 'Easy'),
+      (DifficultyColors.normal, 'Normal'),
+      (DifficultyColors.hard, 'Hard'),
+    ];
+    return Wrap(
+      key: const Key('mapDifficultyLegend'),
+      spacing: 12,
+      runSpacing: 4,
+      children: [
+        for (final (color, label) in items)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 14,
+                height: 14,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(3),
+                  border: Border.all(color: Colors.grey.shade500, width: 0.5),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(label, style: Theme.of(context).textTheme.labelSmall),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+/// 県の記録から地図の塗り色を決める（本土・沖縄インセット共通）。
+/// 記録なし=灰、あれば最高クリア難易度の色（難易度不明は Easy 扱い）。
+Color territoryColorFor(PrefectureRecord? record) {
+  if (record == null) return DifficultyColors.uncleared;
+  return DifficultyColors.forDifficulty(record.highestDifficulty ?? 'easy');
 }

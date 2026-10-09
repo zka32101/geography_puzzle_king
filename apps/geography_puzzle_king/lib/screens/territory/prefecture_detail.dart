@@ -180,7 +180,12 @@ class PrefectureDetailSheet extends StatelessWidget {
             _buildRecordRow(
               context,
               tr('最高難易度'),
-              record!.highestDifficulty ?? tr('未挑戦'),
+              switch (record!.highestDifficulty) {
+                'easy' => 'Easy',
+                'normal' => 'Normal',
+                'hard' => 'Hard',
+                _ => tr('未挑戦'),
+              },
             ),
             _buildRecordRow(
               context,
