@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:cross_promo_kit/cross_promo_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -47,8 +50,8 @@ void main() async {
     if (e.code != 'duplicate-app') rethrow;
   }
 
-  // TODO: cross_promo_kit連携（別セッションで進行中）はpubspec.yamlの依存が
-  // 未整備のため一時的に無効化。パッケージ配置後にCrossPromoService.init()呼び出しを復元すること。
+  // 他アプリ紹介リスト（Remote Config）の取得。起動をブロックしないよう待たない。
+  unawaited(CrossPromoService.init());
 
   await AdService.initialize();
 
