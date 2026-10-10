@@ -1,3 +1,4 @@
+import 'package:cross_promo_kit/cross_promo_kit.dart';
 import '../../widgets/ui_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +14,7 @@ import 'package:geography_puzzle_king/screens/settings/legal_text_screen.dart';
 import 'package:geography_puzzle_king/screens/settings/premium_plan_screen.dart';
 import 'package:geography_puzzle_king/utils/prefecture_data.dart';
 import 'package:geography_puzzle_king/widgets/banner_ad_bar.dart';
+import 'package:geography_puzzle_king/widgets/parent_gate.dart';
 import 'package:geography_puzzle_king/l10n/app_localizations.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -278,9 +280,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           _buildRestoreTile(),
                         ],
                       ),
-                      // TODO: cross_promo_kit連携（別セッションで進行中）はpubspec.yamlの依存が
-                      // 未整備のため一時的に無効化。パッケージ配置後にCrossPromoSectionを復元すること。
-
+                      CrossPromoSection(
+                        currentAppId: 'com.yourwish.japanprefecuresgame',
+                        currentCategory: '小学コレ',
+                        isChildDirected: true,
+                        beforeOpenStore: (context) => showParentGate(context),
+                      ),
                       const SizedBox(height: AppSpacing.xl),
                     ],
                   ),
