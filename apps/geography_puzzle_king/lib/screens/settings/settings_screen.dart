@@ -1,3 +1,4 @@
+import 'package:app_common_kit/app_common_kit.dart' show TextScaleSetting, TextScaleStrings;
 import 'package:cross_promo_kit/cross_promo_kit.dart';
 import '../../widgets/ui_icon.dart';
 import 'package:flutter/material.dart';
@@ -147,6 +148,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               AudioService().setSfxEnabled(value);
                             },
                             showDivider: false,
+                          ),
+                        ],
+                      ),
+                      // 文字の大きさ（標準・大・特大）
+                      _buildSection(
+                        title: TextScaleStrings.forCode(_selectedLanguage).title,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                            child: TextScaleSetting(
+                              // 見出しは上のセクション名で出すので、部品内の見出しは空にする。
+                              strings: _textScaleStringsWithoutTitle(_selectedLanguage),
+                            ),
                           ),
                         ],
                       ),
@@ -424,6 +438,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   // ── セクション（ホーム画面と同じカード見た目：白背景・角丸・淡い影） ──
+  TextScaleStrings _textScaleStringsWithoutTitle(String code) {
+    final s = TextScaleStrings.forCode(code);
+    return TextScaleStrings(
+      title: '',
+      standard: s.standard,
+      large: s.large,
+      xLarge: s.xLarge,
+    );
+  }
+
   Widget _buildSection({
     required String title,
     required List<Widget> children,

@@ -1,3 +1,4 @@
+import 'package:app_common_kit/app_common_kit.dart' show applyAppTextScale, loadSavedTextScale;
 import 'dart:async';
 
 import 'package:cross_promo_kit/cross_promo_kit.dart';
@@ -29,6 +30,8 @@ import 'package:geography_puzzle_king/screens/hq/hq_upgrade_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // 文字の大きさ（アプリ内設定）を復元する
+  await loadSavedTextScale();
 
   // 縦画面固定（タワーディフェンスUIは縦画面前提のレイアウトのため）
   await SystemChrome.setPreferredOrientations([
@@ -97,6 +100,8 @@ class MyApp extends ConsumerWidget {
 
     return MaterialApp(
       title: '都道府県ゲーム',
+      // 文字の大きさ（設定画面で選ぶ）を端末の文字サイズに掛け合わせる。
+      builder: applyAppTextScale,
       locale: locale,
       localizationsDelegates: const [
         AppLocalizations.delegate,
