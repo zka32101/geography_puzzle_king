@@ -79,6 +79,12 @@ dependencies:
   google_mobile_ads: 9.0.0
   in_app_purchase: ^3.2.0
 
+  # 全アプリ共通基盤（文字の大きさ設定など）。タグ固定（ref: vX.Y.Z）。main は参照しない。
+  app_common_kit:
+    git:
+      url: https://github.com/zka32101/app_common_kit.git
+      ref: v3.10.0
+
   # クロスプロモ（他の小学コレアプリの紹介）
   cross_promo_kit:
     git:
