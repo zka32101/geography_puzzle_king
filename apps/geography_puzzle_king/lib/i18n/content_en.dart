@@ -163,6 +163,8 @@ const Map<String, String> kContentEn = {
   '「まだまだ守れる、がんばろう！」': '"We can still defend this, let\'s do our best!"',
   '相棒': 'Partner',
   '💡 ヒント（-20コイン）': '💡 Hint (-20 coins)',
+  '後で答える': 'Answer later',
+  '📝 クイズに答える': '📝 Answer the quiz',
   '📝 クイズ！+40コイン': '📝 Quiz! +40 coins',
   '🎉 正解！+40🪙': '🎉 Correct! +40🪙',
   '❌ 残念！': '❌ Too bad!',

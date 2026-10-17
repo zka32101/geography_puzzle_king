@@ -26,6 +26,9 @@ final Map<String, String> _codeToId = {
     (i + 1).toString().padLeft(2, '0'): _prefectureIdsInJisOrder[i],
 };
 
+/// JISコード('01'〜'47')から境界データを引く。ゲームのステージ背景など他画面から使う。
+PrefBoundary? prefBoundaryByCode(String code) => prefBoundaryMap[_codeToId[code]];
+
 const Map<String, String> prefectureEmojis = {
   '01': '🏔️', '02': '🌲', '03': '🌲', '04': '🏔️', '05': '🌲', '06': '🌊',
   '07': '🌲', '08': '🗻', '09': '⛩️', '10': '🏛️', '11': '🌆', '12': '🏞️',

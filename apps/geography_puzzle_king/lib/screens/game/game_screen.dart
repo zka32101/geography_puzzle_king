@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
+import 'package:geography_puzzle_king/data/japan_prefecture_boundaries.dart';
 import 'package:geography_puzzle_king/data/prefecture_quiz_data.dart';
+import 'package:geography_puzzle_king/screens/territory/japan_map_widget.dart' show prefBoundaryByCode;
 import 'package:geography_puzzle_king/models/td_model.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
 import 'package:geography_puzzle_king/providers/monetization_provider.dart';
@@ -227,6 +229,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
   // クイズ
   Quiz? _currentQuiz;
   bool _quizAnswered = false;
+  // 「後で」で閉じた状態。準備中・ウェーブ間のチップから再度開ける
+  bool _quizDeferred = false;
   int? _quizSelectedIndex;
   // ヒント使用で除外された選択肢(不正解2つ)
   final Set<int> _quizHiddenIndices = {};
@@ -1920,7 +1924,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
       );
 
       final quiz = _currentQuiz;
-      final showQuiz = quiz != null && !_quizAnswered && _gameState.phase == GamePhase.prep;
+      final canQuiz = quiz != null &&
+          !_quizAnswered &&
+          (_gameState.phase == GamePhase.prep ||
+              _gameState.phase == GamePhase.waveEnd);
+      final showQuiz = canQuiz && !_quizDeferred;
 
       return Stack(
         children: [
@@ -1931,6 +1939,20 @@ class _GameScreenState extends ConsumerState<GameScreen>
           if (_companionLineLife > 0) _buildCompanionBubble(),
           // クイズ（prepフェーズ）
           if (showQuiz) _buildQuizOverlay(quiz),
+          // 後回しにしたクイズを開き直すチップ
+          if (canQuiz && _quizDeferred)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: ActionChip(
+                backgroundColor: const Color(0xFF1A2332),
+                side: const BorderSide(color: Colors.amber),
+                avatar: const Icon(Icons.quiz, size: 18, color: Colors.amber),
+                label: IconText(tr('📝 クイズに答える'),
+                    style: const TextStyle(color: Colors.amber, fontSize: 12)),
+                onPressed: () => setState(() => _quizDeferred = false),
+              ),
+            ),
         ],
       );
     });
@@ -2180,6 +2202,12 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   );
                 }),
                 if (_quizSelectedIndex == null)
+                  TextButton(
+                    onPressed: () => setState(() => _quizDeferred = true),
+                    child: IconText(tr('後で答える'),
+                        style: const TextStyle(color: Colors.white70)),
+                  ),
+                if (_quizSelectedIndex == null)
                   TextButton.icon(
                     onPressed: _quizHiddenIndices.isEmpty &&
                             _gameState.coins >= _quizHintCost
@@ -2378,21 +2406,19 @@ class _GameScreenState extends ConsumerState<GameScreen>
           if (_gameState.phase == GamePhase.prep) ...[
             const SizedBox(height: 6),
             Builder(builder: (context) {
-              // クイズ未回答の間は「開始!」を押せないようにする
-              // (押せてしまうとクイズオーバーレイが消え、クイズに答えられなくなるため)
-              final quizPending = _currentQuiz != null && !_quizAnswered;
+              // クイズは後回しにできる。未回答のまま開始した場合も「後で答える」扱いにし、
+              // ウェーブ間のチップから答えられる。
               return SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: quizPending
-                      ? null
-                      : () {
-                          _spawner.reset();
-                          setState(() {
-                            _gameState = TdEngine.startWave(
-                                _gameState, widget.difficulty);
-                          });
-                        },
+                  onPressed: () {
+                    _spawner.reset();
+                    setState(() {
+                      _quizDeferred = true;
+                      _gameState = TdEngine.startWave(
+                          _gameState, widget.difficulty);
+                    });
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orangeAccent,
                     disabledBackgroundColor: Colors.white24,
@@ -2401,9 +2427,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
                         borderRadius: BorderRadius.circular(8)),
                   ),
                   child: Text(
-                    quizPending ? l10n.answerQuizPrompt : l10n.gameStartButton,
-                    style: TextStyle(
-                        color: quizPending ? Colors.white54 : Colors.black,
+                    l10n.gameStartButton,
+                    style: const TextStyle(
+                        color: Colors.black,
                         fontWeight: FontWeight.bold,
                         fontSize: 14),
                   ),
@@ -2959,6 +2985,7 @@ class _GameFieldPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     _drawGrid(canvas);
+    _drawPrefectureShape(canvas, size);
     _drawTerrainTint(canvas, size);
     _drawPath(canvas);
     _drawRangePreview(canvas);
@@ -3006,6 +3033,52 @@ class _GameFieldPainter extends CustomPainter {
   // ─── 地形ティント & 天候 ─────────────────────────────────────────────
 
   /// 地形に応じた薄い色のオーバーレイ（戦場の雰囲気づけ）
+  /// ステージ背景に、その都道府県の実際の形(本土＋主要な島)をうっすら敷く。
+  /// 試作: 形は見た目のみで、敵の通り道・施設の置き場所には影響しない。
+  /// 地方決戦・歴史ステージ(都道府県コードが県でない場合)は何も描かない。
+  void _drawPrefectureShape(Canvas canvas, Size size) {
+    final code = prefectureCode;
+    if (code == null) return;
+    final boundary = prefBoundaryByCode(code);
+    if (boundary == null || boundary.borders.isEmpty) return;
+
+    // 経度は緯度で補正(cos)し、フィールドに余白付きで収める
+    final cosLat = cos(boundary.center.lat * pi / 180);
+    var minX = double.infinity, minY = double.infinity;
+    var maxX = -double.infinity, maxY = -double.infinity;
+    for (final ring in boundary.borders) {
+      for (final p in ring) {
+        final x = p.lng * cosLat, y = -p.lat;
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+    final w = maxX - minX, h = maxY - minY;
+    if (w <= 0 || h <= 0) return;
+    final pad = cellSize;
+    final scale = min((size.width - 2 * pad) / w, (size.height - 2 * pad) / h);
+    final ox = (size.width - w * scale) / 2, oy = (size.height - h * scale) / 2;
+
+    final path = Path();
+    for (final ring in boundary.borders) {
+      if (ring.length < 3) continue;
+      path.addPolygon([
+        for (final p in ring)
+          Offset(ox + (p.lng * cosLat - minX) * scale,
+              oy + (-p.lat - minY) * scale)
+      ], true);
+    }
+    canvas.drawPath(path, Paint()..color = const Color(0xFF3E6B4A).withOpacity(0.35));
+    canvas.drawPath(
+        path,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2
+          ..color = const Color(0xFF9CCC9C).withOpacity(0.55));
+  }
+
   void _drawTerrainTint(Canvas canvas, Size size) {
     Color tint;
     switch (geography) {
