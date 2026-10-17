@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geography_puzzle_king/config/constants.dart';
+import 'package:geography_puzzle_king/data/japan_prefecture_boundaries.dart';
 import 'package:geography_puzzle_king/data/prefecture_quiz_data.dart';
+import 'package:geography_puzzle_king/screens/territory/japan_map_widget.dart' show prefBoundaryByCode;
 import 'package:geography_puzzle_king/models/td_model.dart';
 import 'package:geography_puzzle_king/providers/game_provider.dart';
 import 'package:geography_puzzle_king/providers/monetization_provider.dart';
@@ -2983,6 +2985,7 @@ class _GameFieldPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     _drawGrid(canvas);
+    _drawPrefectureShape(canvas, size);
     _drawTerrainTint(canvas, size);
     _drawPath(canvas);
     _drawRangePreview(canvas);
@@ -3030,6 +3033,52 @@ class _GameFieldPainter extends CustomPainter {
   // ─── 地形ティント & 天候 ─────────────────────────────────────────────
 
   /// 地形に応じた薄い色のオーバーレイ（戦場の雰囲気づけ）
+  /// ステージ背景に、その都道府県の実際の形(本土＋主要な島)をうっすら敷く。
+  /// 試作: 形は見た目のみで、敵の通り道・施設の置き場所には影響しない。
+  /// 地方決戦・歴史ステージ(都道府県コードが県でない場合)は何も描かない。
+  void _drawPrefectureShape(Canvas canvas, Size size) {
+    final code = prefectureCode;
+    if (code == null) return;
+    final boundary = prefBoundaryByCode(code);
+    if (boundary == null || boundary.borders.isEmpty) return;
+
+    // 経度は緯度で補正(cos)し、フィールドに余白付きで収める
+    final cosLat = cos(boundary.center.lat * pi / 180);
+    var minX = double.infinity, minY = double.infinity;
+    var maxX = -double.infinity, maxY = -double.infinity;
+    for (final ring in boundary.borders) {
+      for (final p in ring) {
+        final x = p.lng * cosLat, y = -p.lat;
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+    final w = maxX - minX, h = maxY - minY;
+    if (w <= 0 || h <= 0) return;
+    final pad = cellSize;
+    final scale = min((size.width - 2 * pad) / w, (size.height - 2 * pad) / h);
+    final ox = (size.width - w * scale) / 2, oy = (size.height - h * scale) / 2;
+
+    final path = Path();
+    for (final ring in boundary.borders) {
+      if (ring.length < 3) continue;
+      path.addPolygon([
+        for (final p in ring)
+          Offset(ox + (p.lng * cosLat - minX) * scale,
+              oy + (-p.lat - minY) * scale)
+      ], true);
+    }
+    canvas.drawPath(path, Paint()..color = const Color(0xFF3E6B4A).withOpacity(0.35));
+    canvas.drawPath(
+        path,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2
+          ..color = const Color(0xFF9CCC9C).withOpacity(0.55));
+  }
+
   void _drawTerrainTint(Canvas canvas, Size size) {
     Color tint;
     switch (geography) {
