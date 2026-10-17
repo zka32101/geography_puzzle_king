@@ -227,6 +227,8 @@ class _GameScreenState extends ConsumerState<GameScreen>
   // クイズ
   Quiz? _currentQuiz;
   bool _quizAnswered = false;
+  // 「後で」で閉じた状態。準備中・ウェーブ間のチップから再度開ける
+  bool _quizDeferred = false;
   int? _quizSelectedIndex;
   // ヒント使用で除外された選択肢(不正解2つ)
   final Set<int> _quizHiddenIndices = {};
@@ -1920,7 +1922,11 @@ class _GameScreenState extends ConsumerState<GameScreen>
       );
 
       final quiz = _currentQuiz;
-      final showQuiz = quiz != null && !_quizAnswered && _gameState.phase == GamePhase.prep;
+      final canQuiz = quiz != null &&
+          !_quizAnswered &&
+          (_gameState.phase == GamePhase.prep ||
+              _gameState.phase == GamePhase.waveEnd);
+      final showQuiz = canQuiz && !_quizDeferred;
 
       return Stack(
         children: [
@@ -1931,6 +1937,20 @@ class _GameScreenState extends ConsumerState<GameScreen>
           if (_companionLineLife > 0) _buildCompanionBubble(),
           // クイズ（prepフェーズ）
           if (showQuiz) _buildQuizOverlay(quiz),
+          // 後回しにしたクイズを開き直すチップ
+          if (canQuiz && _quizDeferred)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: ActionChip(
+                backgroundColor: const Color(0xFF1A2332),
+                side: const BorderSide(color: Colors.amber),
+                avatar: const Icon(Icons.quiz, size: 18, color: Colors.amber),
+                label: IconText(tr('📝 クイズに答える'),
+                    style: const TextStyle(color: Colors.amber, fontSize: 12)),
+                onPressed: () => setState(() => _quizDeferred = false),
+              ),
+            ),
         ],
       );
     });
@@ -2180,6 +2200,12 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   );
                 }),
                 if (_quizSelectedIndex == null)
+                  TextButton(
+                    onPressed: () => setState(() => _quizDeferred = true),
+                    child: IconText(tr('後で答える'),
+                        style: const TextStyle(color: Colors.white70)),
+                  ),
+                if (_quizSelectedIndex == null)
                   TextButton.icon(
                     onPressed: _quizHiddenIndices.isEmpty &&
                             _gameState.coins >= _quizHintCost
@@ -2378,21 +2404,19 @@ class _GameScreenState extends ConsumerState<GameScreen>
           if (_gameState.phase == GamePhase.prep) ...[
             const SizedBox(height: 6),
             Builder(builder: (context) {
-              // クイズ未回答の間は「開始!」を押せないようにする
-              // (押せてしまうとクイズオーバーレイが消え、クイズに答えられなくなるため)
-              final quizPending = _currentQuiz != null && !_quizAnswered;
+              // クイズは後回しにできる。未回答のまま開始した場合も「後で答える」扱いにし、
+              // ウェーブ間のチップから答えられる。
               return SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: quizPending
-                      ? null
-                      : () {
-                          _spawner.reset();
-                          setState(() {
-                            _gameState = TdEngine.startWave(
-                                _gameState, widget.difficulty);
-                          });
-                        },
+                  onPressed: () {
+                    _spawner.reset();
+                    setState(() {
+                      _quizDeferred = true;
+                      _gameState = TdEngine.startWave(
+                          _gameState, widget.difficulty);
+                    });
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orangeAccent,
                     disabledBackgroundColor: Colors.white24,
@@ -2401,9 +2425,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
                         borderRadius: BorderRadius.circular(8)),
                   ),
                   child: Text(
-                    quizPending ? l10n.answerQuizPrompt : l10n.gameStartButton,
-                    style: TextStyle(
-                        color: quizPending ? Colors.white54 : Colors.black,
+                    l10n.gameStartButton,
+                    style: const TextStyle(
+                        color: Colors.black,
                         fontWeight: FontWeight.bold,
                         fontSize: 14),
                   ),
