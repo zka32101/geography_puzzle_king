@@ -228,6 +228,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
   Quiz? _currentQuiz;
   bool _quizAnswered = false;
   int? _quizSelectedIndex;
+  // ヒント使用で除外された選択肢(不正解2つ)
+  final Set<int> _quizHiddenIndices = {};
+  static const int _quizHintCost = 20;
 
   // 演出: ウェーブ/ボス登場バナー
   late AnimationController _bannerCtrl;
@@ -1053,6 +1056,27 @@ class _GameScreenState extends ConsumerState<GameScreen>
       options: options,
       correctIndex: options.indexOf(pref.capitalCity),
     );
+  }
+
+  /// ヒント: コインを消費して不正解の選択肢を2つ消す(1問につき1回)。
+  void _useQuizHint() {
+    final quiz = _currentQuiz;
+    if (quiz == null ||
+        _quizAnswered ||
+        _quizSelectedIndex != null ||
+        _quizHiddenIndices.isNotEmpty ||
+        _gameState.coins < _quizHintCost) {
+      return;
+    }
+    final wrong = [
+      for (var i = 0; i < quiz.options.length; i++)
+        if (i != quiz.correctIndex) i
+    ]..shuffle(_rng);
+    setState(() {
+      _quizHiddenIndices.addAll(wrong.take(2));
+      _gameState =
+          _gameState.copyWith(coins: _gameState.coins - _quizHintCost);
+    });
   }
 
   void _onQuizAnswer(int index) {
@@ -2121,7 +2145,9 @@ class _GameScreenState extends ConsumerState<GameScreen>
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
-                ...quiz.options.asMap().entries.map((e) {
+                ...quiz.options.asMap().entries.where((e) {
+                  return !_quizHiddenIndices.contains(e.key);
+                }).map((e) {
                   Color btnColor = const Color(0xFF2A3545);
                   if (_quizSelectedIndex != null) {
                     if (e.key == quiz.correctIndex) {
@@ -2153,6 +2179,15 @@ class _GameScreenState extends ConsumerState<GameScreen>
                     ),
                   );
                 }),
+                if (_quizSelectedIndex == null)
+                  TextButton.icon(
+                    onPressed: _quizHiddenIndices.isEmpty &&
+                            _gameState.coins >= _quizHintCost
+                        ? _useQuizHint
+                        : null,
+                    icon: const Icon(Icons.lightbulb_outline, size: 18),
+                    label: IconText(tr('💡 ヒント（-20コイン）')),
+                  ),
                 if (_quizSelectedIndex != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),

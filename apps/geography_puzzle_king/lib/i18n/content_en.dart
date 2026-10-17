@@ -162,6 +162,7 @@ const Map<String, String> kContentEn = {
   '「その調子！おうえんするよ！」': '"Keep it up! I\'m cheering for you!"',
   '「まだまだ守れる、がんばろう！」': '"We can still defend this, let\'s do our best!"',
   '相棒': 'Partner',
+  '💡 ヒント（-20コイン）': '💡 Hint (-20 coins)',
   '📝 クイズ！+40コイン': '📝 Quiz! +40 coins',
   '🎉 正解！+40🪙': '🎉 Correct! +40🪙',
   '❌ 残念！': '❌ Too bad!',
